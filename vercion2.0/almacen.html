@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestión de Almacén - Moderno y Práctico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f9f9f9;
+      --accent: #0070f3;
+      --text: #111;
+      --text-light: #fff;
+      --border: #e1e1e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    h1 { margin-bottom: 1.5rem; font-weight: 600; font-size: 1.8rem; color: var(--accent); }
+    #controls { display: flex; gap: .5rem; margin-bottom: 1rem; background: var(--surface); padding: .5rem; border-radius: 4px; border: 1px solid var(--border); }
+    #controls button { background: var(--accent); color: var(--text-light); border: none; padding: .6rem 1rem; font-weight: 500; border-radius: 4px; cursor: pointer; transition: filter .2s; }
+    #controls button:hover { filter: brightness(1.1); }
+    .table-container { width: 100%; max-width: 960px; overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--accent); }
+    th, td { padding: .75rem; border-bottom: 1px solid var(--border); text-align: left; }
+    th { color: var(--text-light); font-weight: 500; font-size: .9rem; }
+    tbody tr:nth-child(odd) { background: #fff; }
+    tbody tr:nth-child(even) { background: #fcfcfc; }
+    tbody tr:hover { background: rgba(0, 112, 243, 0.1); }
+    .selected { background: rgba(0, 112, 243, 0.2) !important; }
+    input.cell-input { width: 100%; border: none; outline: none; background: transparent; font-size: .9rem; }
+    #floating-buffer { position: fixed; bottom: 1rem; right: 1rem; width: 360px; max-height: 300px; overflow: auto; background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border); border-radius: 6px; padding: .5rem; font-size: .8rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); z-index: 1000; }
+    #floating-buffer header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+    #floating-buffer header h2 { font-size: 1rem; color: var(--accent); }
+    #floating-buffer header button { background: transparent; border: none; font-size: 1rem; cursor: pointer; color: var(--text); }
+    #buffer-table { width: 100%; border-collapse: collapse; }
+    #buffer-table th, #buffer-table td { border: 1px solid var(--border); padding: .3rem .4rem; font-size: .75rem; }
+    #buffer-table th { background: var(--accent); color: var(--text-light); text-align: center; }
+    #buffer-toggle { position: fixed; bottom: 1rem; right: 1rem; background: var(--accent); color: var(--text-light); border: none; border-radius: 50%; width: 36px; height: 36px; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); z-index: 1000; }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Almacén</h1>
+  <div id="controls">
+    <button id="btn-actualizar">Actualizar</button>
+    <button id="btn-agregar-fila">Agregar Fila</button>
+    <button id="btn-guardar">Guardar Cambios</button>
+  </div>
+  <div class="table-container">
+    <table id="tabla-almacen">
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Cantidad</th><th>Unidad</th><th>Stock</th><th>Proveedor</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="floating-buffer">
+    <header>
+      <h2>Envíos Pendientes</h2>
+      <button id="close-buffer">×</button>
+    </header>
+    <table id="buffer-table">
+      <thead>
+        <tr><th>Código</th><th>Nombre</th><th>Precio</th><th>Cant.</th><th>Uni.</th><th>Stock</th><th>Prov.</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <button id="buffer-toggle">⇢</button>
+  <script>
+    const API_URL = 'https://script.google.com/macros/.../exec';
+    const STORAGE = 'almacen10';
+    let selecting = false, selectStart = null, buffer = [];
+    let nextRowId = 1;
+    const originalDataMap = {};
+
+    const loadData = () => JSON.parse(localStorage.getItem(STORAGE) || '[]');
+    const saveData = d => localStorage.setItem(STORAGE, JSON.stringify(d));
+
+    async function actualizar() {
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: new URLSearchParams({ op: 'obtenerAlmacen' }) });
+        const j = await res.json();
+        if (j.status !== 'success') throw j.message;
+        const mapped = j.data.map(i => ({
+          codigo: i.codigo,
+          nombre: i.name,
+          precio: i.precio,
+          cantidad: i.cantidad,
+          unidad: i.unidadDeMedida,
+          stock: i.stockRecomendado,
+          proveedor: i.proveedor
+        }));
+        saveData(mapped);
+        render();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function render() {
+      const data = loadData();
+      const tbody = document.querySelector('#tabla-almacen tbody');
+      tbody.innerHTML = '';
+      nextRowId = 1;
+      Object.keys(originalDataMap).forEach(k => delete originalDataMap[k]);
+      data.forEach(item => {
+        const rowId = nextRowId++;
+        originalDataMap[rowId] = {
+          codigo: String(item.codigo || ''),
+          nombre: String(item.nombre || ''),
+          precio: String(item.precio || ''),
+          cantidad: String(item.cantidad || ''),
+          unidad: String(item.unidad || ''),
+          stock: String(item.stock || ''),
+          proveedor: String(item.proveedor || '')
+        };
+        tbody.appendChild(createRow(item, rowId, false));
+      });
+      attachSelection();
+      renderBuffer();
+    }
+
+    function createRow(item, rowId, isNew) {
+      const tr = document.createElement('tr');
+      tr.dataset.rowId = rowId;
+      ['codigo','nombre','precio','cantidad','unidad','stock','proveedor'].forEach(key => {
+        const td = document.createElement('td');
+        const inp = document.createElement('input');
+        inp.className = 'cell-input';
+        inp.value = item[key] != null ? item[key] : '';
+        const evt = isNew ? 'onblur' : 'oninput';
+        inp[evt] = () => editBuffer(tr);
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+      return tr;
+    }
+
+    function addRow() {
+      const tbody = document.querySelector('#tabla-almacen tbody');
+      const rowId = nextRowId++;
+      originalDataMap[rowId] = { codigo:'', nombre:'', precio:'', cantidad:'', unidad:'', stock:'', proveedor:'' };
+      tbody.appendChild(createRow({}, rowId, true));
+      attachSelection();
+    }
+
+    function editBuffer(tr) {
+      const rowId = tr.dataset.rowId;
+      const orig = originalDataMap[rowId] || {};
+      const vals = [...tr.querySelectorAll('input')].map(i => i.value);
+      const edited = { codigo: vals[0], nombre: vals[1], precio: vals[2], cantidad: vals[3], unidad: vals[4], stock: vals[5], proveedor: vals[6] };
+      const same = Object.keys(orig).every(k => String(orig[k] || '') === String(edited[k] || ''));
+      const idx = buffer.findIndex(o => o._rowId === rowId);
+      if (same) {
+        if (idx >= 0) buffer.splice(idx, 1);
+      } else {
+        edited._rowId = rowId;
+        if (idx >= 0) buffer[idx] = edited;
+        else buffer.push(edited);
+      }
+      renderBuffer();
+    }
+
+    function renderBuffer() {
+      const bt = document.querySelector('#buffer-table tbody');
+      bt.innerHTML = '';
+      buffer.forEach(o => {
+        const r = document.createElement('tr');
+        ['codigo','nombre','precio','cantidad','unidad','stock','proveedor'].forEach(k => {
+          const c = document.createElement('td'); c.textContent = o[k]; r.appendChild(c);
+        });
+        bt.appendChild(r);
+      });
+    }
+
+    function attachSelection() {
+      document.querySelectorAll('td').forEach(td => {
+        td.onmousedown = () => { selecting = true; selectStart = td; clearSel(); td.classList.add('selected'); };
+        td.onmouseover = () => { if (selecting) { clearSel(); highlight(selectStart, td); } };
+      });
+      document.onmouseup = () => selecting = false;
+    }
+
+    function clearSel() {
+      document.querySelectorAll('.selected').forEach(td => td.classList.remove('selected')); }
+
+    function highlight(a, b) {
+      const r1 = a.parentNode.rowIndex, c1 = a.cellIndex,
+            r2 = b.parentNode.rowIndex, c2 = b.cellIndex;
+      const [rmin,rmax] = [Math.min(r1,r2), Math.max(r1,r2)],
+            [cmin,cmax] = [Math.min(c1,c2), Math.max(c1,c2)];
+      document.querySelectorAll('tr').forEach((tr,i) => {
+        if (i>0 && i>=rmin && i<=rmax) {
+          Array.from(tr.cells).forEach((td,j) => {
+            if (j>=cmin && j<=cmax) td.classList.add('selected');
+          });
+        }
+      });
+    }
+
+    document.addEventListener('paste', e => {
+      const text = (e.clipboardData || window.clipboardData).getData('text');
+      const sel = Array.from(document.querySelectorAll('td.selected'));
+      if (sel.length) {
+        e.preventDefault();
+        const rows = new Set();
+        sel.forEach(td => {
+          const inp = td.querySelector('input');
+          if (inp) { inp.value = text; rows.add(td.parentNode); }
+        });
+        rows.forEach(tr => editBuffer(tr));
+      }
+    });
+
+    document.getElementById('btn-actualizar').onclick = actualizar;
+    document.getElementById('btn-agregar-fila').onclick = addRow;
+    document.getElementById('btn-guardar').onclick = async () => {
+      if (!buffer.length) return alert('Nada que guardar');
+      try {
+        for (const p of buffer) {
+          await fetch(API_URL, { method:'POST', body: new URLSearchParams({ op:'guardarAlmacen', codigo:p.codigo, name:p.nombre, precio:p.precio, cantidad:p.cantidad, unidadDeMedida:p.unidad, stockRecomendado:p.stock, proveedor:p.proveedor }) });
+        }
+        alert('Guardado ok'); buffer = []; renderBuffer(); await actualizar();
+      } catch (e) { console.error(e); alert('Error al guardar'); }
+    };
+
+    document.getElementById('close-buffer').onclick = () => { document.getElementById('floating-buffer').style.display = 'none'; document.getElementById('buffer-toggle').style.display = 'flex'; };
+    document.getElementById('buffer-toggle').onclick = () => { document.getElementById('floating-buffer').style.display = 'block'; document.getElementById('buffer-toggle').style.display = 'none'; };
+
+    window.addEventListener('DOMContentLoaded', () => { render(); actualizar(); });
+  </script>
+</body>
+</html>

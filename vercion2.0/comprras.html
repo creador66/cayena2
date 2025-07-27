@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lista de Compras y Stock</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background-color: #f4f6f9; color: #333; }
+    .card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto 2rem; overflow-y: auto; }
+    .card h2, .card h3 { margin-top: 0; font-size: 1.2rem; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+    th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; white-space: nowrap; }
+    th { background: #3f51b5; color: #fff; }
+    button { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; background: #3f51b5; color: #fff; cursor: pointer; }
+    button:hover { background: #334296; }
+    .delete-btn { background: #cc3e44; }
+    .delete-btn:hover { background: #a32f35; }
+    .low-stock { background-color: #ffcccc; }
+    .medium-stock { background-color: #ffe0b3; }
+    .warning-stock { background-color: #fff2b3; }
+    input.qty { width: 4rem; margin-right: 0.5rem; }
+    select.unit { margin-right: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Lista de Compras y Stock</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Precio Unit.</th>
+          <th>Stock Rec.</th>
+          <th>Comprado</th>
+          <th>Usado</th>
+          <th>Restante</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="table-stock"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Historial de Compras</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Unidad</th>
+          <th>Precio Total</th>
+          <th>Editar</th>
+          <th>Eliminar</th>
+        </tr>
+      </thead>
+      <tbody id="table-compras"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+
+    const FACTORES = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
+    const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
+
+    function normalize(u){ u=u.trim().toLowerCase(); if(u==='kl') return 'kg'; return u; }
+    function categoriaDe(u){ u=normalize(u); if(CATEGORIAS.volumen.includes(u)) return CATEGORIAS.volumen; if(CATEGORIAS.peso.includes(u)) return CATEGORIAS.peso; if(CATEGORIAS.conteo.includes(u)) return CATEGORIAS.conteo; return [u]; }
+
+    let almacenData=[], comprasData=[];
+
+    async function callApi(params){ const url=new URL(API_URL); Object.entries(params).forEach(([k,v])=>url.searchParams.append(k,v)); return (await fetch(url)).json(); }
+
+    async function buyProduct(idProducto){
+      const qtyI=document.getElementById(`qty-${idProducto}`), unitS=document.getElementById(`unit-${idProducto}`);
+      const qty=parseFloat(qtyI.value); if(isNaN(qty)||qty<=0) return alert('Cantidad inválida');
+      let unidad=normalize(unitS.value);
+      const item=almacenData.find(i=>String(i.codigo)===String(idProducto)); if(!item) return alert('Producto no encontrado');
+      const itemUni=normalize(item.unidadDeMedida);
+      const qtyBase=qty*(FACTORES[unidad]||1);
+      const storedBase=parseFloat(item.cantidad)*(FACTORES[itemUni]||1);
+      const priceBase=parseFloat(item.precio)/storedBase;
+      const total=(priceBase*qtyBase).toFixed(2);
+      const fecha=new Date().toISOString().slice(0,10);
+      await callApi({ op:'guardarCompras', idProducto, fecha, name:item.name, precio:total, cantidad:qty, unidad });
+      loadData();
+    }
+
+    async function editCompra(idCompra,idProducto){
+      const comp=comprasData.find(c=>c.idCompra===idCompra&&c.idProducto===idProducto);
+      if(!comp) return alert('Compra no encontrada');
+      const nueva=parseFloat(prompt('Nueva cantidad:',comp.cantidad)); if(isNaN(nueva)||nueva<0) return alert('Cantidad inválida');
+      const unidad=normalize(comp.unidad);
+      const item=almacenData.find(i=>String(i.codigo)===String(idProducto));
+      const itemUni=normalize(item.unidadDeMedida);
+      const qtyBase=nueva*(FACTORES[unidad]||1);
+      const storedBase=parseFloat(item.cantidad)*(FACTORES[itemUni]||1);
+      const priceBase=parseFloat(item.precio)/storedBase;
+      const nuevo=(priceBase*qtyBase).toFixed(2);
+      await callApi({ op:'guardarCompras', idCompra, idProducto, fecha:comp.fecha, name:comp.name, precio:nuevo, cantidad:nueva, unidad });
+      loadData();
+    }
+
+    async function deleteCompra(idCompra,idProducto){
+      if(!confirm('¿Eliminar esta compra?')) return;
+      await callApi({ op:'eliminarCompras', idCompra, idProducto });
+      loadData();
+    }
+
+    async function loadData(){
+      const [alm,coc,vent,comp]=await Promise.all([
+        callApi({op:'obtenerAlmacen'}),
+        callApi({op:'obtenerCocina'}),
+        callApi({op:'obtenerVentas'}),
+        callApi({op:'obtenerCompras'})
+      ]);
+      if([alm,coc,vent,comp].some(r=>r.status!=='success')) return;
+      almacenData=alm.data; comprasData=comp.data;
+
+      const ingMap={};
+      vent.data.forEach(v=>v.venta.forEach(it=>{
+        const rec=coc.data.find(r=>String(r.codigo)===String(it.codigo)); if(!rec) return;
+        rec.ingredientes.forEach(ing=>{
+          const u=normalize(ing.unidad), f=FACTORES[u]||1;
+          ingMap[ing.codigo]=(ingMap[ing.codigo]||0)+ing.cantidad*f*it.cantidad;
+        });
+      }));
+
+      const comprBaseMap={};
+      comprasData.forEach(c=>{
+        const u=normalize(c.unidad), f=FACTORES[u]||1;
+        comprBaseMap[c.idProducto]=(comprBaseMap[c.idProducto]||0)+c.cantidad*f;
+      });
+
+      const tbodyStock=document.getElementById('table-stock'); tbodyStock.innerHTML='';
+      almacenData.forEach(item=>{
+        const uNorm=normalize(item.unidadDeMedida);
+        const opts=categoriaDe(uNorm).map(u=>`<option value="${u}">${u}</option>`).join('');
+        const storedBase = parseFloat(item.cantidad)*(FACTORES[uNorm]||1);
+const priceBase = parseFloat(item.precio) / parseFloat(item.cantidad);
+
+        const recos=parseFloat(item.stockRecomendado)||0;
+        const boughtBase=comprBaseMap[item.codigo]||0;
+        const bought=(boughtBase/(FACTORES[uNorm]||1)).toFixed(2);
+        const usedBase=ingMap[item.codigo]||0;
+        const used=(usedBase/(FACTORES[uNorm]||1)).toFixed(2);
+        const remain=(recos+parseFloat(bought)-parseFloat(used)).toFixed(2);
+        let cls=''; if(remain<=0) cls='low-stock'; else if(remain<=0.3*recos) cls='medium-stock'; else if(remain<=0.5*recos) cls='warning-stock';
+        tbodyStock.insertAdjacentHTML('beforeend',`
+          <tr class="${cls}">
+            <td>${item.name}</td>
+            <td>$${priceBase.toFixed(2)}/${item.unidadDeMedida}</td>
+            <td>${recos} ${item.unidadDeMedida}</td>
+            <td>${bought} ${item.unidadDeMedida}</td>
+            <td>${used} ${item.unidadDeMedida}</td>
+            <td>${remain} ${item.unidadDeMedida}</td>
+            <td>
+              <input class="qty" type="number" min="0.01" step="0.01" value="1" id="qty-${item.codigo}" />
+              <select class="unit" id="unit-${item.codigo}">${opts}</select>
+              <button onclick="buyProduct('${item.codigo}')">Comprar</button>
+            </td>
+          </tr>`);
+      });
+
+      const tbodyComp=document.getElementById('table-compras'); tbodyComp.innerHTML='';
+      comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c=>{
+        tbodyComp.insertAdjacentHTML('beforeend',`
+          <tr>
+            <td>${c.fecha}</td>
+            <td>${c.name}</td>
+            <td>${c.cantidad}</td>
+            <td>${c.unidad}</td>
+            <td>$${c.precio.toFixed(2)}</td>
+            <td><button onclick="editCompra('${c.idCompra}','${c.idProducto}')">✏️</button></td>
+            <td><button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">🗑</button></td>
+          </tr>`);
+      });
+    }
+    window.onload=loadData;
+  </script>
+</body>
+</html>

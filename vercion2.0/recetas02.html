@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Recetas</title>
+    <style>
+        /* RESET GLOBAL */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        /* VARIABLES */
+        :root {
+            --bg: #f0f2f5;
+            --panel-bg: #ffffff;
+            --accent: #325288;
+            --delete: #cc3e44;
+            --text: #2c2c2c;
+            --text-light: #ffffff;
+            --border: #d0d4da;
+            --radius: 4px;
+            --transition: 0.2s ease;
+        }
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .container {
+            display: flex;
+            gap: 1rem;
+        }
+        .form-panel, .recipes-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+        .form-panel { flex: 1; }
+        .recipes-panel { flex: 2; }
+        #lista-recetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1rem;
+        }
+        .receta {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .receta img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+        }
+        .datos-ingredientes {
+            margin: 0.75rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .ingrediente { font-size: 0.9rem; }
+        .costo-total { font-weight: bold; color: var(--accent); margin-top: auto; }
+        .btns {
+            margin-top: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        label, input, select, button {
+            display: block;
+            margin: 0.5rem 0;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        button {
+            background: var(--accent);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: opacity var(--transition);
+        }
+        button:hover { opacity: 0.9; }
+        button.del { background: var(--delete); }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid var(--border); padding: 0.5rem; text-align: left; }
+        .hidden { display: none; }
+    </style>
+</head>
+
+<body>
+    <h1>CRUD Recetas Cocina Costeadas</h1>
+    <div class="container">
+        <div class="form-panel">
+            <form id="form-receta">
+                <label>Código de la receta:<input id="receta-codigo" type="text" placeholder="Ej: R001" required></label>
+                <label>Nombre de la receta:<input id="receta-nombre" type="text" placeholder="Ej: Ensalada de frutas" required></label>
+                <label>Categoría:
+                    <select id="receta-categoria"></select>
+                    <input id="receta-categoria-nueva" type="text" placeholder="Nueva categoría" class="hidden">
+                </label>
+                <label>URL de imagen:<input id="receta-imagen" type="text" placeholder="Ej: http://..."></label>
+                <h2>Ingredientes</h2>
+                <table id="ingredientes-table">
+                    <thead><tr><th>Producto</th><th>Cantidad</th><th>Unidad</th><th>Acción</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button id="agregar-ingrediente" type="button">+ Agregar ingrediente</button>
+                <div class="actions">
+                    <button id="guardar-receta" type="button">Guardar Receta</button>
+                    <button id="limpiar-form" type="button" class="del">Limpiar</button>
+                </div>
+            </form>
+        </div>
+        <div class="recipes-panel">
+            <h2>Recetas Costeadas</h2>
+            <div id="lista-recetas"></div>
+        </div>
+    </div>
+    <script>
+        const CONFIG = {
+          API_URL: 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec',
+          STORAGE_KEYS: { ALMACEN: 'almacen6525', COSTEADAS: 'recetasCosteadas' },
+          FACTORES: { mg: 0.001, g: 1, kg: 1000, ml: 1, l: 1000, pz: 1 },
+          CATEGORIAS: { volumen: ['ml','l'], peso: ['mg','g','kg'], conteo: ['pz'] }
+        };
+        let categorias = [], editMode = false;
+      
+        const load = k => JSON.parse(localStorage.getItem(k) || '[]');
+        const save = (k, d) => localStorage.setItem(k, JSON.stringify(d));
+      
+        const apiFetch = (op, p = {}) => {
+          const f = new FormData();
+          f.append('op', op);
+          Object.entries(p).forEach(([k, v]) => f.append(k, v));
+          return fetch(CONFIG.API_URL, { method: 'POST', body: f })
+            .then(r => r.json())
+            .then(j => j.status === 'success' ? j.data : Promise.reject(j.message));
+        };
+      
+        function setupCategoriaSelect() {
+          const sel = document.getElementById('receta-categoria');
+          sel.innerHTML =
+            '<option value="">-- Selecciona categoría --</option>' +
+            categorias.sort().map(c => '<option value="' + c + '">' + c + '</option>').join('') +
+            '<option value="__nueva__">+ Nueva categoría</option>';
+          sel.onchange = () => {
+            document.getElementById('receta-categoria-nueva')
+              .classList.toggle('hidden', sel.value !== '__nueva__');
+          };
+        }
+      
+        function crearSelectProductos() {
+          const sel = document.createElement('select');
+          load(CONFIG.STORAGE_KEYS.ALMACEN).forEach(p => {
+            const u = p.unidadDeMedida.trim().toLowerCase();
+            const o = new Option(p.name + ' (' + p.cantidad + p.unidadDeMedida + ')', p.codigo);
+            o.dataset.unit = u;
+            sel.append(o);
+          });
+          return sel;
+        }
+      
+        function crearSelectUnidad(cat, val = '') {
+          const sel = document.createElement('select');
+          CONFIG.CATEGORIAS[cat].forEach(u => sel.append(new Option(u, u)));
+          if (val) sel.value = val;
+          return sel;
+        }
+      
+        function calcularPrecio(ingredientes) {
+          const alm = load(CONFIG.STORAGE_KEYS.ALMACEN);
+          const total = ingredientes.reduce((sum, i) => {
+            const p = alm.find(x => String(x.codigo) === String(i.codigo));
+            if (!p) return sum;
+            const factorP = CONFIG.FACTORES[p.unidadDeMedida.trim().toLowerCase()] * parseFloat(p.cantidad);
+            const precioUnit = p.precio / factorP;
+            const factorI = CONFIG.FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad;
+            return sum + precioUnit * factorI;
+          }, 0);
+          return parseFloat(total.toFixed(2));
+        }
+      
+        function mostrarRecetas(rs) {
+          const cont = document.getElementById('lista-recetas');
+          cont.innerHTML = '';
+          rs.forEach(r => {
+            const precio = typeof r.precio === 'number'
+              ? r.precio
+              : calcularPrecio(r.ingredientes);
+            const d = document.createElement('div');
+            d.className = 'receta';
+            let html = '<h3>' + r.codigo + ' - ' + r.nombre + '</h3>' +
+                       '<p><strong>Categoría:</strong> ' + r.categoria + '</p>';
+            if (r.imagen) html += '<img src="' + r.imagen + '" alt="' + r.nombre + '">';
+            html += '<div class="datos-ingredientes">';
+            r.ingredientes.forEach(i => {
+              html += '<p class="ingrediente">' + i.codigo + ' - ' + i.cantidad + i.unidad + '</p>';
+            });
+            html += '</div>' +
+                    '<p class="costo-total">Costo total: $' + precio.toFixed(2) + '</p>' +
+                    '<div class="btns">' +
+                      '<button type="button">Editar</button>' +
+                      '<button class="del" type="button">Eliminar</button>' +
+                    '</div>';
+            d.innerHTML = html;
+            // Asigna eventos después de insertar:
+            d.querySelector('.btns button:first-child')
+             .onclick = () => cargarEnForm(r);
+            d.querySelector('.btns .del')
+             .onclick = () => eliminarReceta(r.codigo);
+            cont.append(d);
+          });
+        }
+      
+        function agregarFila(item = {}) {
+          const t = document.querySelector('#ingredientes-table tbody');
+          const tr = document.createElement('tr');
+          const selP = crearSelectProductos();
+          if (item.codigo) selP.value = item.codigo;
+          const inp = document.createElement('input');
+          inp.type = 'number';
+          inp.min = 0;
+          inp.value = item.cantidad || 1;
+      
+          let u0 = item.unidad || selP.selectedOptions[0].dataset.unit;
+          let selU = crearSelectUnidad(
+            Object.keys(CONFIG.CATEGORIAS)
+              .find(c => CONFIG.CATEGORIAS[c].includes(u0)),
+            u0
+          );
+      
+          selP.onchange = () => {
+            const nu = selP.selectedOptions[0].dataset.unit;
+            const cat = Object.keys(CONFIG.CATEGORIAS)
+              .find(c => CONFIG.CATEGORIAS[c].includes(nu));
+            const nuevo = crearSelectUnidad(cat, nu);
+            tr.children[2].replaceChild(nuevo, selU);
+            selU = nuevo;
+          };
+      
+          const del = document.createElement('button');
+          del.textContent = 'Eliminar';
+          del.className = 'del';
+          del.type = 'button';
+          del.onclick = e => { e.preventDefault(); tr.remove(); };
+      
+          [selP, inp, selU, del].forEach(el => {
+            const td = document.createElement('td');
+            td.append(el);
+            tr.append(td);
+          });
+      
+          t.append(tr);
+        }
+      
+        function cargarEnForm(r) {
+          editMode = true;
+          document.getElementById('receta-codigo').value = r.codigo;
+          document.getElementById('receta-codigo').disabled = true;
+          document.getElementById('receta-nombre').value = r.nombre;
+      
+          const selCat = document.getElementById('receta-categoria');
+          if (!categorias.includes(r.categoria)) {
+            selCat.value = '__nueva__';
+            const inpNew = document.getElementById('receta-categoria-nueva');
+            inpNew.value = r.categoria;
+            inpNew.classList.remove('hidden');
+          } else {
+            selCat.value = r.categoria;
+            document.getElementById('receta-categoria-nueva')
+              .classList.add('hidden');
+          }
+      
+          document.getElementById('receta-imagen').value = r.imagen || '';
+          document.querySelector('#ingredientes-table tbody').innerHTML = '';
+          r.ingredientes.forEach(i => agregarFila(i));
+        }
+      
+        async function eliminarReceta(c) {
+          const loc = load(CONFIG.STORAGE_KEYS.COSTEADAS)
+                        .filter(x => x.codigo !== c);
+          save(CONFIG.STORAGE_KEYS.COSTEADAS, loc);
+          categorias = [...new Set(loc.map(x => x.categoria))];
+          setupCategoriaSelect();
+          mostrarRecetas(loc);
+          try {
+            await apiFetch('eliminarCocina', { codigo: c });
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      
+        document.getElementById('limpiar-form').onclick = e => {
+          e.preventDefault();
+          document.getElementById('form-receta').reset();
+          document.querySelector('#ingredientes-table tbody').innerHTML = '';
+          document.getElementById('receta-categoria-nueva')
+            .classList.add('hidden');
+          editMode = false;
+          document.getElementById('receta-codigo').disabled = false;
+        };
+      
+        document.getElementById('guardar-receta').onclick = async e => {
+          e.preventDefault();
+          const cod = document.getElementById('receta-codigo').value.trim();
+          const nom = document.getElementById('receta-nombre').value.trim();
+          if (!cod || !nom) {
+            alert('Código y nombre requeridos');
+            return;
+          }
+      
+          let cat = document.getElementById('receta-categoria').value;
+          if (cat === '__nueva__') {
+            cat = document.getElementById('receta-categoria-nueva').value.trim();
+            if (cat && !categorias.includes(cat)) {
+              categorias.push(cat);
+              setupCategoriaSelect();
+            }
+          }
+      
+          const ingr = Array.from(
+            document.querySelectorAll('#ingredientes-table tbody tr')
+          ).map(tr => ({
+            codigo: tr.children[0].firstChild.value,
+            cantidad: +tr.children[1].firstChild.value,
+            unidad: tr.children[2].firstChild.value
+          }));
+      
+          const precio = calcularPrecio(ingr);
+          const nueva = {
+            codigo: cod,
+            nombre: nom,
+            categoria: cat,
+            imagen: document.getElementById('receta-imagen').value.trim(),
+            ingredientes: ingr,
+            precio
+          };
+      
+          const loc = load(CONFIG.STORAGE_KEYS.COSTEADAS);
+          const idx = loc.findIndex(x => x.codigo === cod);
+          if (editMode && idx >= 0) loc[idx] = nueva;
+          else loc.push(nueva);
+          save(CONFIG.STORAGE_KEYS.COSTEADAS, loc);
+      
+          categorias = [...new Set(loc.map(x => x.categoria))];
+          setupCategoriaSelect();
+          mostrarRecetas(loc);
+      
+          document.getElementById('limpiar-form').click();
+          try {
+            await apiFetch('guardarCocina', { ...nueva, ingredientes: JSON.stringify(ingr) });
+          } catch (err) {
+            console.error(err);
+          }
+        };
+      
+        window.onload = () => {
+          // 1) Recetas locales
+          const recs = load(CONFIG.STORAGE_KEYS.COSTEADAS);
+          categorias = [...new Set(recs.map(r => r.categoria))];
+          setupCategoriaSelect();
+          mostrarRecetas(recs);
+      
+          // 2) Almacén y refrescar selects
+          apiFetch('obtenerAlmacen')
+            .then(data => {
+              save(CONFIG.STORAGE_KEYS.ALMACEN, data);
+              document.querySelectorAll('#ingredientes-table tbody tr').forEach(tr => {
+                const oldSel = tr.children[0].querySelector('select');
+                const newSel = crearSelectProductos();
+                newSel.value = oldSel.value;
+                tr.children[0].replaceChild(newSel, oldSel);
+              });
+            })
+            .catch(console.error);
+      
+          // 3) Agregar ingrediente
+          document.getElementById('agregar-ingrediente').onclick = e => {
+            e.preventDefault();
+            agregarFila();
+          };
+      
+          // 4) Recetas costeadas del servidor
+          apiFetch('obtenerCocina')
+            .then(data => {
+              const cost = data.map(r => ({
+                ...r,
+                precio: calcularPrecio(r.ingredientes)
+              }));
+              save(CONFIG.STORAGE_KEYS.COSTEADAS, cost);
+              categorias = [...new Set(cost.map(r => r.categoria))];
+              setupCategoriaSelect();
+              mostrarRecetas(cost);
+            })
+            .catch(console.error);
+        };
+      </script>
+      
+</body>
+
+</html>

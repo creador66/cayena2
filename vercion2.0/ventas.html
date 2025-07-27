@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CRUD Ventas con Resumen de Pagos</title>
+  <style>
+    /* RESET GLOBAL */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f6f9;
+      --panel-bg: rgba(255,255,255,0.85);
+      --accent: #3f51b5;
+      --text: #333;
+      --text-light: #fff;
+      --border: rgba(0,0,0,0.1);
+      --radius: 8px;
+      --transition: 0.3s ease;
+      --blur: 12px;
+    }
+    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); padding: 1rem; }
+    h1, h2 { margin-bottom: 1rem; font-weight: 400; }
+    .container { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .list-panel, .form-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 2rem);
+    }
+    .list-panel { flex: 2 1 60%; min-width: 300px; position: relative; }
+    .form-panel { flex: 1 1 35%; min-width: 250px; display:flex; justify-content:center; }
+
+    /* GRID DE TICKETS */
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .ticket-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .ticket-header { font-weight: bold; margin-bottom: 0.5rem; }
+    .ticket-items { flex: 1; overflow-y: auto; max-height: 150px; margin-bottom: 0.5rem; }
+    .ticket-item { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .ticket-footer { font-weight: bold; margin-bottom: 0.5rem; }
+    .ticket-method { font-style: italic; margin-bottom: 0.5rem; }
+
+    .ticket-actions button { margin-right: 0.5rem; }
+
+    /* BOTONES */
+    button { background: var(--accent); color: var(--text-light); border: none; border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer; transition: opacity var(--transition); }
+    button:hover { opacity: 0.85; }
+
+    /* FORM ITEMS */
+    .item-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+    .item-row select, .item-row input { max-width: 100px; flex: 1; padding: 0.4rem; border: 1px solid var(--border); border-radius: 4px; }
+    .item-row button { flex: 0 0 auto; margin-top: 0; }
+    #btn-add-item { margin-top: 0.5rem; }
+    .hidden { display: none; }
+    .form-panel #items-container { max-height: 60vh; overflow-y: auto; padding-right: 0.5rem; }
+
+    /* MENÚ FLOTANTE DE RESUMEN */
+    .summary-panel {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--panel-bg);
+      backdrop-filter: blur(var(--blur));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      width: 200px;
+    }
+    .summary-panel h2 { font-size: 1rem; margin-bottom: 0.5rem; }
+    .summary-item { font-size: 0.9rem; margin-bottom: 0.3rem; }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Ventas</h1>
+  <div class="container">
+    <!-- PANEL LISTADO -->
+    <div class="list-panel">
+      <h2>Tickets de Venta</h2>
+      <button id="btn-cargar" type="button">Cargar Ventas</button>
+      <div class="tickets-grid" id="tickets-grid"></div>
+    </div>
+    <!-- PANEL FORMULARIO COMO TARJETA -->
+    <div class="form-panel">
+      <div class="edit-card" id="form-panel">
+        <h2 id="form-title">Editar Venta</h2>
+        <input type="hidden" id="form-id" />
+        <div class="item-row">
+          <label for="form-fecha" style="flex:0 0 80px">Fecha:</label>
+          <input type="date" id="form-fecha" style="flex:1"/>
+        </div>
+        <div id="items-container"></div>
+        <button id="btn-add-item" type="button">+ Agregar producto</button>
+        <!-- NUEVO: Selección de método de pago -->
+        <div class="item-row" style="margin-top:1rem;">
+          <label for="form-pago" style="flex:0 0 80px">Pago:</label>
+          <select id="form-pago" style="flex:1">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+          </select>
+        </div>
+        <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+          <button id="btn-save" type="button">Guardar</button>
+          <button id="btn-cancel" type="button">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENÚ FLOTANTE DE RESUMEN -->
+  <div class="summary-panel" id="summary-panel">
+    <h2>Resumen de Pagos</h2>
+    <div class="summary-item" id="sum-efectivo">Efectivo: 0.00</div>
+    <div class="summary-item" id="sum-transferencia">Transferencia: 0.00</div>
+    <div class="summary-item" id="sum-tarjeta">Tarjeta: 0.00</div>
+    <hr>
+    <div class="summary-item" id="sum-total">Total: 0.00</div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+  
+    // Factores de conversión y margen
+    const FACTORES = { g:1, kg:1000, kl:1000, mg:0.001, ml:1, l:1000, pz:1 };
+    const MARGEN = 1.55;
+  
+    let recetas = [];
+  
+    async function callApi(params) {
+      const url = new URL(API_URL);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.append(k, v));
+      const res = await fetch(url);
+      return res.json();
+    }
+  
+    function calcularCosto(ingredientes, almacen) {
+      let total = 0;
+      ingredientes.forEach(i => {
+        const p = almacen.find(x => String(x.codigo) === String(i.codigo));
+        if (!p) return;
+        const ua = FACTORES[p.unidadDeMedida.trim().toLowerCase()] || 1;
+        const ui = FACTORES[i.unidad.trim().toLowerCase()] || 1;
+        total += (p.precio / (ua * parseFloat(p.cantidad))) * (ui * i.cantidad);
+      });
+      return parseFloat(total.toFixed(2));
+    }
+  
+    function aplicarMargen(costo) {
+      return parseFloat((costo * MARGEN).toFixed(2));
+    }
+  
+    async function fetchRecetas() {
+      try {
+        const { status: stA, data: almacen, message: errA } = await callApi({ op: 'obtenerAlmacen' });
+        if (stA !== 'success') throw new Error('Inventario: ' + errA);
+  
+        const { status, data, message } = await callApi({ op: 'obtenerCocina' });
+        if (status !== 'success') throw new Error('Recetas: ' + message);
+  
+        recetas = data.map(r => {
+          const costoBase = calcularCosto(r.ingredientes, almacen);
+          return {
+            codigo: r.codigo,
+            nombre: r.nombre,
+            precio: aplicarMargen(costoBase)
+          };
+        });
+  
+        console.log('Recetas cargadas:', recetas);
+      } catch (e) {
+        console.error(e);
+        alert(e.message);
+      }
+    }
+  
+    function crearItemRow(codigo = '', cantidad = '', total = '') {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+  
+      const selProd = document.createElement('select');
+      recetas.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.codigo;
+        opt.textContent = r.nombre;
+        if (r.codigo === codigo) opt.selected = true;
+        selProd.append(opt);
+      });
+  
+      const inpCant = document.createElement('input');
+      inpCant.type = 'number'; inpCant.min = '1';
+      inpCant.placeholder = 'Cantidad'; inpCant.value = cantidad;
+  
+      const inpTotal = document.createElement('input');
+      inpTotal.type = 'number'; inpTotal.placeholder = 'Total';
+      inpTotal.value = total;
+  
+      const btnDel = document.createElement('button');
+      btnDel.type = 'button'; btnDel.textContent = '−';
+      btnDel.onclick = () => row.remove();
+  
+      function recalc() {
+        const prod = recetas.find(r => r.codigo === selProd.value);
+        const qty = parseFloat(inpCant.value) || 0;
+        inpTotal.value = prod ? (prod.precio * qty).toFixed(2) : '0.00';
+      }
+      selProd.onchange = recalc;
+      inpCant.oninput = recalc;
+  
+      row.append(selProd, inpCant, inpTotal, btnDel);
+      return row;
+    }
+  
+    function renderCard(v) {
+      const card = document.createElement('div');
+      card.className = 'ticket-card';
+  
+      const header = document.createElement('div');
+      header.className = 'ticket-header';
+      // Solo YYYY-MM-DD
+      header.textContent = new Date(v.fecha).toISOString().slice(0,10);
+  
+      const method = document.createElement('div');
+      method.className = 'ticket-method';
+      method.textContent = 'Pago: ' + (v.metodoPago || '—');
+  
+      const itemsDiv = document.createElement('div');
+      itemsDiv.className = 'ticket-items';
+      v.venta.forEach(it => {
+        const itDiv = document.createElement('div');
+        itDiv.className = 'ticket-item';
+        itDiv.textContent = `${it.producto} x${it.cantidad} = ${it.total}`;
+        itemsDiv.append(itDiv);
+      });
+  
+      const footer = document.createElement('div');
+      footer.className = 'ticket-footer';
+      const total = v.venta.reduce((a,i) => a + (parseFloat(i.total)||0), 0).toFixed(2);
+      footer.textContent = 'Total: ' + total;
+  
+      const actions = document.createElement('div');
+      actions.className = 'ticket-actions';
+      const btnE = document.createElement('button');
+      btnE.textContent = 'Editar';
+      btnE.onclick = () => startEdit(v, v.venta);
+      const btnD = document.createElement('button');
+      btnD.textContent = 'Eliminar';
+      btnD.onclick = async () => { await callApi({ op: 'eliminarVentas', id: v.id }); cargarVentas(); };
+      actions.append(btnE, btnD);
+  
+      card.append(header, method, itemsDiv, footer, actions);
+      return card;
+    }
+  
+    async function cargarVentas() {
+      await fetchRecetas();
+      const { status, data, message } = await callApi({ op: 'obtenerVentas' });
+      if (status !== 'success') {
+        alert('Error: ' + message);
+        return;
+      }
+      const grid = document.getElementById('tickets-grid');
+      grid.innerHTML = '';
+      data.forEach(v => grid.append(renderCard(v)));
+      actualizarResumen(data);
+    }
+  
+    function actualizarResumen(ventas) {
+      let sumE = 0, sumT = 0, sumTa = 0;
+      ventas.forEach(v => {
+        const tot = v.venta.reduce((a,i) => a + (parseFloat(i.total)||0), 0);
+        if (v.metodoPago === 'Efectivo') sumE += tot;
+        else if (v.metodoPago === 'Transferencia') sumT += tot;
+        else if (v.metodoPago === 'Tarjeta') sumTa += tot;
+      });
+      const totalAll = sumE + sumT + sumTa;
+      document.getElementById('sum-efectivo').textContent = `Efectivo: ${sumE.toFixed(2)}`;
+      document.getElementById('sum-transferencia').textContent = `Transferencia: ${sumT.toFixed(2)}`;
+      document.getElementById('sum-tarjeta').textContent = `Tarjeta: ${sumTa.toFixed(2)}`;
+      document.getElementById('sum-total').textContent = `Total: ${totalAll.toFixed(2)}`;
+    }
+  
+    function startEdit(v, itemsArray) {
+      document.getElementById('form-id').value = v.id;
+      document.getElementById('form-title').textContent = 'Editar Venta - ' + new Date(v.fecha).toISOString().slice(0,10);
+      // Formato YYYY-MM-DD
+      document.getElementById('form-fecha').value = new Date(v.fecha).toISOString().slice(0,10);
+      document.getElementById('form-pago').value = v.metodoPago || 'Efectivo';
+      const cont = document.getElementById('items-container');
+      cont.innerHTML = '';
+      itemsArray.forEach(it => cont.append(crearItemRow(it.codigo, it.cantidad, it.total)));
+    }
+  
+    function resetForm() {
+      document.getElementById('form-id').value = '';
+      document.getElementById('form-title').textContent = 'Editar Venta';
+      // Fecha actual YYYY-MM-DD
+      document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+      document.getElementById('form-pago').value = 'Efectivo';
+      document.getElementById('items-container').innerHTML = '';
+    }
+  
+    document.getElementById('btn-cargar').onclick = cargarVentas;
+    document.getElementById('btn-add-item').onclick = () => document.getElementById('items-container').append(crearItemRow());
+    document.getElementById('btn-save').onclick = async () => {
+      const id = document.getElementById('form-id').value;
+      const fecha = document.getElementById('form-fecha').value;
+      const metodoPago = document.getElementById('form-pago').value;
+      if (!fecha) return alert('Fecha requerida');
+  
+      let items;
+      try {
+        const rows = document.querySelectorAll('#items-container .item-row');
+        items = Array.from(rows).map(row => {
+          const [sel, ic, it] = row.children;
+          const p = recetas.find(r => r.codigo === sel.value);
+          if (!p || !ic.value) throw new Error();
+          return { codigo: sel.value, producto: p.nombre, cantidad: Number(ic.value), total: Number(it.value) };
+        });
+      } catch {
+        return alert('Completa todos los campos de items');
+      }
+  
+      try {
+        const venta = { id, fecha, items, metodoPago };
+        const res = await callApi({ op: 'guardarVentas', venta: JSON.stringify(venta) });
+        if (res.status === 'success') {
+          resetForm();
+          cargarVentas();
+        } else {
+          alert('Error: ' + res.message);
+        }
+      } catch (e) {
+        alert('Error: ' + e);
+      }
+    };
+    document.getElementById('btn-cancel').onclick = resetForm;
+  
+    window.onload = () => {
+      resetForm();
+      cargarVentas();
+    };
+  </script>
+  
+  
+</body>
+</html>

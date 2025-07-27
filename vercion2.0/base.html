@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Almacén</title>
+  <style>
+    body { font-family:Arial,sans-serif; margin:20px }
+    h1 { margin-bottom:10px }
+    h2 { margin-top:20px }
+    ul { padding:0; list-style:none }
+    li { margin:5px 0 }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Almacén</h1>
+  <p>Columnas: Código, Nombre, Precio, Cantidad, Unidad, Stock Recomendado, Proveedor</p>
+
+  <h2>Productos</h2>
+  <ul id="lista-local"></ul>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    const STORAGE_KEY = 'almacen10';
+
+    // Lee y muestra en pantalla lo que haya en localStorage
+    function mostrar() {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const lista = data.map(item =>
+        `<li>
+           ${item.codigo} – ${item.name}: 
+           $${item.precio}, ${item.cantidad}${item.unidadDeMedida}, 
+           stock rec ${item.stockRecomendado}, proveedor: ${item.proveedor}
+         </li>`
+      ).join('');
+      document.getElementById('lista-local').innerHTML = lista;
+    }
+
+    // Baja datos de la API y los guarda en localStorage sin modificaciones
+    async function actualizar() {
+      try {
+        const fd = new FormData();
+        fd.append('op','obtenerAlmacen');
+
+        const res = await fetch(API_URL, { method: 'POST', body: fd });
+        const json = await res.json();
+        if (json.status !== 'success') throw new Error(json.message);
+
+        // Guardamos el array tal cual vino en json.data
+        const productos = json.data;  
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(productos));
+
+        mostrar();
+      } catch (e) {
+        console.error('Error al actualizar almacén:', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      mostrar();     // Carga y muestra lo que haya en cache
+      actualizar();  // Baja datos nuevos y refresca
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Premium | Sistema de Ventas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* --- RESET Y VARIABLES --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --primary-light: #eef2ff;
+      --secondary: #7209b7;
+      --accent: #f72585;
+      --success: #4cc9f0;
+      --danger: #ef233c;
+      --warning: #fca311;
+      --dark: #2b2d42;
+      --light: #f8f9fa;
+      --gray: #8d99ae;
+      --gray-light: #e2e8f0;
+      --bg: #f5f7fa;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --text-light: #ffffff;
+      --border: #e2e8f0;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    /* --- HEADER --- */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--text-light);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .app-title {
+      font-weight: 600;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn {
+      background: var(--card-bg);
+      color: var(--primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: var(--text-light);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+    
+    .btn-icon {
+      padding: 0.5rem;
+      min-width: 36px;
+      height: 36px;
+    }
+    
+    .btn-back {
+      background: rgba(255,255,255,0.2);
+      color: var(--text-light);
+    }
+    
+    .btn-back:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    /* --- MAIN CONTENT - PANTALLA DIVIDIDA --- */
+    .split-layout {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 64px);
+    }
+    
+    /* --- PANEL IZQUIERDO - MESAS --- */
+    .tables-panel {
+      width: 35%;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .panel-header {
+      padding: 1.2rem 1.5rem;
+      background: #f8f9fc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .section-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .search-container {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      background: var(--bg);
+      transition: var(--transition);
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .tables-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    /* Nuevo diseño para mesas activas */
+    .tables-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    
+    .table-item {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    
+    .table-item:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .table-item.selected {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .table-header {
+      padding: 1rem;
+      background: var(--primary-light);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--dark);
+    }
+    
+    .table-total {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+    
+    .table-body {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .table-footer {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+    }
+    
+    .add-sub-btn {
+      background: var(--primary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    /* Subcuentas - Diseño moderno */
+    .sub-accounts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .sub-account {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      gap: 0.5rem;
+    }
+    
+    .sub-account.selected {
+      background: rgba(67, 97, 238, 0.1);
+      border-color: var(--primary);
+    }
+    
+    .sub-account:hover {
+      background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .sub-name {
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    
+    .sub-total {
+      font-weight: 600;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin: 0 0.3rem;
+      font-size: 0.9rem;
+    }
+    
+    .sub-controls {
+      display: flex;
+      gap: 0.3rem;
+    }
+    
+    .sub-controls .btn {
+      padding: 0.3rem;
+      min-width: 28px;
+      height: 28px;
+    }
+    
+    /* --- PANEL DERECHO - PRODUCTOS --- */
+    .products-panel {
+      width: 65%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .categories-container {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      overflow-x: auto;
+    }
+    
+    nav.categories {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: nowrap;
+      padding-bottom: 0.2rem;
+    }
+    
+    nav.categories button {
+      background: var(--card-bg);
+      border: none;
+      padding: .6rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    
+    nav.categories button:hover {
+      background: #f0f2f5;
+    }
+    
+    nav.categories button.active {
+      color: var(--text-light);
+      background: var(--primary);
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+      border-color: var(--primary);
+    }
+    
+    .products-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      align-content: start;
+    }
+    
+
+
+
+
+
+
+
+
+
+
+    .product-card {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    
+    .product-image {
+      width: 100%;
+      height: 120px;
+     position: relative;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+    
+    .product-image i {
+      font-size: 2.5rem;
+      opacity: 0.3;
+    }
+    
+    .product-info {
+  padding: 5px;
+ bottom: 0;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+background-color: #0c101991;
+box-shadow: var(--shadow-md);
+border-radius: 0px 0px 10px 10px;
+}
+
+.product-price {
+  margin-right: 0.5rem;
+  color: #ffffff;
+}
+
+.product-name {
+  margin-left: 0.5rem;
+  color: #b8e3f5;
+}
+
+
+    .product-actions {
+      margin-top: 10px;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 0.8rem;
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .product-actions:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+    .qty-input {
+      width: 60px;
+      padding: .6rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .add-btn {
+      flex: 1;
+      background: var(--primary);
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: .6rem;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+    
+    .add-btn:hover {
+      background: var(--primary-dark);
+    }
+    
+    .add-btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+    }
+    
+    /* --- MODAL --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      place-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+    
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 2rem;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: var(--shadow-lg);
+      animation: modalAppear 0.3s ease-out;
+    }
+    
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-header {
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+      font-size: 1.4rem;
+      color: var(--dark);
+    }
+    
+    .modal-body {
+      margin-bottom: 1.8rem;
+    }
+    
+    .modal-list {
+      list-style: none;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+    
+    .modal-list li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    
+    .modal-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .modal-input {
+      width: 100%;
+      padding: .9rem 1.2rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background: var(--bg);
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .modal-total {
+      text-align: right;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 1.5rem 0;
+    }
+    
+    .modal-total span {
+      color: var(--primary);
+    }
+    
+    .modal-select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .btn-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: .8rem;
+    }
+    
+    .btn-cancel {
+      background: var(--gray);
+      color: var(--text-light);
+    }
+    
+    .btn-cancel:hover {
+      background: #7b8799;
+    }
+    
+    .btn-confirm {
+      background: var(--success);
+      color: var(--text-light);
+    }
+    
+    .btn-confirm:hover {
+      background: #3db3d9;
+    }
+    
+    /* --- STATUS BAR --- */
+    .status-bar {
+      padding: 0.8rem 1.5rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-value {
+      font-weight: 600;
+      color: var(--dark);
+      margin-left: 0.2rem;
+    }
+    
+    /* --- NO TABLES MESSAGE --- */
+    .no-tables {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray);
+    }
+    
+    .no-tables i {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+    
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1200px) {
+      .tables-panel {
+        width: 40%;
+      }
+      
+      .products-panel {
+        width: 60%;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .split-layout {
+        flex-direction: column;
+      }
+      
+      .tables-panel, .products-panel {
+        width: 100%;
+        height: 50%;
+      }
+      
+      .tables-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 1rem;
+      }
+      
+      .products-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+      
+      .panel-header, .search-container {
+        padding: 0.8rem;
+      }
+      
+      .tables-container, .products-container {
+        padding: 1rem;
+      }
+      
+      .header-controls .btn {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-title">
+      <i class="fas fa-cash-register"></i> POS IAEgo
+    </div>
+    <div class="header-controls">
+      <button class="btn btn-sm btn-back" onclick="goBack()" id="back-button">
+        <i class="fas fa-arrow-left"></i> Regresar
+      </button>
+      <button class="btn btn-sm" onclick="fetchYRefresh()">
+        <i class="fas fa-sync"></i> Actualizar
+      </button>
+    </div>
+  </header>
+
+  <div class="split-layout">
+    <div class="tables-panel">
+      <div class="panel-header">
+        <h2 class="section-title">
+          <i class="fas fa-table"></i> Mesas Activas
+        </h2>
+        <button id="add-table" class="btn btn-sm btn-primary">
+          <i class="fas fa-plus"></i> Agregar Mesa
+        </button>
+      </div>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Buscar mesa..." id="search-table">
+      </div>
+      <div class="tables-container">
+        <div class="tables-list" id="tables-list"></div>
+      </div>
+      <div class="status-bar">
+        <div class="status-item">
+          <i class="fas fa-layer-group"></i>
+          <span>Mesas activas: <span class="status-value" id="active-tables"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="products-panel">
+      <div class="categories-container">
+        <nav class="categories" id="categories"></nav>
+      </div>
+      <div class="products-container" id="recetas-cards"></div>
+      <div class="status-bar">
+        <div class="status-item">
+          <i class="fas fa-box"></i>
+          <span>Productos: <span class="status-value" id="product-count"></span></span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-tags"></i>
+          <span>Categorías: <span class="status-value" id="category-count"></span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="modal">
+      <div id="modalBody"></div>
+      <div class="btn-group">
+        <button id="modalCancel" class="btn btn-cancel">Cancelar</button>
+        <button id="modalConfirm" class="btn btn-confirm">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CONFIGURACIÓN
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    const CONFIG = {
+      STORAGE_KEYS: { ALMACEN: 'almacen6525', COSTEADAS: 'recetasCosteadas' },
+      FACTORES: { mg: 0.001, g: 1, kg: 1000, ml: 1, l: 1000, pz: 1 },
+      CATEGORIAS: { volumen: ['ml','l'], peso: ['mg','g','kg'], conteo: ['pz'] },
+      MARGEN: 2
+    };
+
+    // Helpers
+    async function apiFetch(op, payload = {}) {
+      const form = new FormData();
+      form.append('op', op);
+      Object.entries(payload).forEach(([key, value]) => form.append(key, value));
+      const response = await fetch(GAS_URL, { method: 'POST', body: form });
+      const json = await response.json();
+      if (json.status === 'success') return json.data;
+      throw new Error(json.message);
+    }
+
+    function calcularCosto(ingredientes) {
+      const almacen = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.ALMACEN) || '[]');
+      const factores = CONFIG.FACTORES;
+      let total = 0;
+
+      ingredientes.forEach(item => {
+        const producto = almacen.find(p => String(p.codigo) === String(item.codigo));
+        if (!producto) return;
+
+        const unidadAlmacen = factores[producto.unidadDeMedida.trim().toLowerCase()];
+        const unidadIngrediente = factores[item.unidad.trim().toLowerCase()];
+        const precioUnitario = producto.precio / (unidadAlmacen * parseFloat(producto.cantidad));
+        total += precioUnitario * (unidadIngrediente * item.cantidad);
+      });
+
+      return parseFloat(total.toFixed(2));
+    }
+
+    function aplicarMargen(costo) {
+      return parseFloat((costo * CONFIG.MARGEN).toFixed(2));
+    }
+
+    // Estado global
+    const STORAGE_KEY_TABLES = 'pv_tables';
+    let recetas = [];
+    let categorias = [];
+    let tables = JSON.parse(localStorage.getItem(STORAGE_KEY_TABLES) || '[]');
+
+    let selectedTableId = null;
+    let selectedSubId = null;
+    let selectedCat = '';
+
+    // Modal DOM
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalBody = document.getElementById('modalBody');
+    const btnCancel = document.getElementById('modalCancel');
+    const btnConfirm = document.getElementById('modalConfirm');
+    btnCancel.addEventListener('click', closeModal);
+
+    function closeModal() {
+      modalOverlay.style.display = 'none';
+    }
+
+    // Inicialización y refresco de datos
+    async function fetchYRefresh() {
+      inicialRender();
+      try {
+        const almacen = await apiFetch('obtenerAlmacen');
+        localStorage.setItem(CONFIG.STORAGE_KEYS.ALMACEN, JSON.stringify(almacen));
+
+        const cocina = await apiFetch('obtenerCocina');
+        localStorage.setItem(CONFIG.STORAGE_KEYS.COSTEADAS, JSON.stringify(cocina));
+      } catch (error) {
+        console.error(error);
+      }
+      inicialRender();
+    }
+
+    function inicialRender() {
+      const costeadas = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.COSTEADAS) || '[]');
+      recetas = costeadas.map(r => ({
+        ...r,
+        precio: aplicarMargen(calcularCosto(r.ingredientes))
+      }));
+
+      categorias = [...new Set(recetas.map(r => r.categoria).filter(c => c))].sort();
+
+      renderCategorias();
+      renderRecetas();
+      renderTables();
+      updateStatusBar();
+    }
+
+    function updateStatusBar() {
+      document.getElementById('active-tables').textContent = tables.length;
+      document.getElementById('product-count').textContent = recetas.length;
+      document.getElementById('category-count').textContent = categorias.length;
+    }
+
+    // Renderizado UI
+    function renderCategorias() {
+      const nav = document.getElementById('categories');
+      const btnTodas = `<button class="${selectedCat === '' ? 'active' : ''}" onclick="selectCategory('')">Todas</button>`;
+      const btnCats = categorias.map(c => `
+        <button class="${selectedCat === c ? 'active' : ''}" onclick="selectCategory('${c}')">
+          ${c}
+        </button>
+      `).join('');
+      nav.innerHTML = btnTodas + btnCats;
+    }
+
+    function renderRecetas() {
+      const container = document.getElementById('recetas-cards');
+      const filtradas = recetas.filter(r => !selectedCat || r.categoria === selectedCat);
+      
+      const cards = filtradas.map(r => {
+        const precioFormateado = r.precio.toLocaleString('es-MX', {
+          style: 'currency',
+          currency: 'MXN'
+        });
+        
+        return `
+          <div class="product-card">
+            <div class="product-image">
+
+            <div class="product-info">
+              <div class="product-name">${r.nombre}</div>
+              <div class="product-price">${precioFormateado}</div>
+            </div>
+              ${r.imagen
+                ? `<img src="${r.imagen}" alt="${r.nombre}">`
+                : `<i class="fas fa-utensils"></i>`}
+            </div>
+            
+            <div class="product-actions">
+              <input
+                type="number"
+                min="1"
+                value="1"
+                id="qty-${r.codigo}"
+                class="qty-input"
+              >
+              <button
+                class="add-btn"
+                onclick="addItem('${r.codigo}')"
+              >
+                <i class="fas fa-plus"></i> Añadir
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = cards;
+    }
+
+    function renderTables() {
+      const container = document.getElementById('tables-list');
+      
+      if (tables.length === 0) {
+        container.innerHTML = `
+          <div class="no-tables">
+            <i class="fas fa-table"></i>
+            <h3>No hay mesas activas</h3>
+            <p>Agrega una nueva mesa para comenzar</p>
+            <button class="btn btn-primary" onclick="addTable()">
+              <i class="fas fa-plus"></i> Agregar Mesa
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      const items = tables.map(table => {
+        const totalMesa = table.subs
+          .flatMap(s => s.cart)
+          .reduce((sum, i) => sum + i.precio * i.qty, 0);
+          
+        const totalFormateado = totalMesa.toLocaleString('es-MX', {
+          style: 'currency',
+          currency: 'MXN'
+        });
+        
+        const isSelected = table.id === selectedTableId;
+        const selectedClass = isSelected ? 'selected' : '';
+        
+        const subs = table.subs.map(sub => {
+          const totalSub = sub.cart
+            .reduce((sum, i) => sum + i.precio * i.qty, 0);
+            
+          const totalSubFormateado = totalSub.toLocaleString('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+          });
+          
+          const isSubSelected = isSelected && sub.id === selectedSubId;
+          const subSelectedClass = isSubSelected ? 'selected' : '';
+          
+          return `
+            <div
+              class="sub-account ${subSelectedClass}"
+              onclick="event.stopPropagation(); selectSub(${table.id}, ${sub.id})"
+            >
+              <span class="sub-name">${sub.name}</span>
+              <span class="sub-total">${totalSubFormateado}</span>
+              <div class="sub-controls">
+                <button
+                  class="btn btn-sm"
+                  onclick="event.stopPropagation(); editSub(${table.id}, ${sub.id})"
+                  title="Editar subcuenta"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="btn btn-sm btn-confirm"
+                  onclick="event.stopPropagation(); chargeSub(${table.id}, ${sub.id})"
+                  title="Cobrar subcuenta"
+                >
+                  <i class="fas fa-cash-register"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        return `
+          <div
+            class="table-item ${selectedClass}"
+            onclick="selectTable(${table.id})"
+          >
+            <div class="table-header">
+              <div class="table-title">
+                <i class="fas fa-table"></i> ${table.name}
+              </div>
+              <div class="table-total">${totalFormateado}</div>
+            </div>
+            <div class="table-body">
+              <div class="sub-accounts">
+                ${subs}
+              </div>
+            </div>
+            <div class="table-footer">
+              <button
+                class="btn btn-sm add-sub-btn"
+                onclick="event.stopPropagation(); addSub(${table.id})"
+              >
+                <i class="fas fa-plus"></i> Subcuenta
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      container.innerHTML = items;
+    }
+
+    // Interacciones
+    function selectCategory(categoria) {
+      selectedCat = categoria;
+      renderCategorias();
+      renderRecetas();
+    }
+
+    function selectTable(id) {
+      selectedTableId = selectedTableId === id ? null : id;
+      selectedSubId = null;
+      renderTables();
+      renderRecetas();
+    }
+
+    function selectSub(tableId, subId) {
+      selectedTableId = tableId;
+      selectedSubId = subId;
+      renderTables();
+      renderRecetas();
+    }
+
+    function addItem(codigo) {
+      const qty = parseInt(
+        document.getElementById(`qty-${codigo}`).value,
+        10
+      ) || 1;
+
+      if (!selectedTableId || !selectedSubId) {
+        return alert('Selecciona mesa y subcuenta');
+      }
+
+      const table = tables.find(t => t.id === selectedTableId);
+      const sub = table.subs.find(s => s.id === selectedSubId);
+      const receta = recetas.find(r => String(r.codigo) === String(codigo));
+
+      if (!receta) {
+        return alert('Producto no encontrado');
+      }
+
+      const existing = sub.cart.find(
+        item => String(item.codigo) === String(codigo)
+      );
+
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        sub.cart.push({
+          codigo: receta.codigo,
+          nombre: receta.nombre,
+          precio: receta.precio,
+          qty: qty
+        });
+      }
+
+      saveAndRefresh();
+    }
+
+    // CRUD Mesas / Subcuentas / Cobro
+    function addTable() {
+      openModal('table-add', { title: 'Nueva Mesa' });
+    }
+
+    function editTable(id) {
+      const mesa = tables.find(t => t.id === id);
+      openModal('table-add', {
+        title: 'Editar Mesa',
+        id: id,
+        name: mesa.name
+      });
+    }
+
+    function addSub(tableId) {
+      openModal('sub-add', { title: 'Nueva Subcuenta', tableId: tableId });
+    }
+
+    function editSub(tableId, subId) {
+      const mesa = tables.find(t => t.id === tableId);
+      const sub = mesa.subs.find(s => s.id === subId);
+      openModal('sub-add', {
+        title: 'Editar Subcuenta',
+        tableId: tableId,
+        subId: subId,
+        name: sub.name
+      });
+    }
+
+    function chargeTable(tableId) {
+      const items = tables
+        .find(t => t.id === tableId)
+        .subs.flatMap(s => s.cart);
+
+      openModal('charge', {
+        title: 'Cobrar Mesa',
+        tableId: tableId,
+        items: items,
+        full: true
+      });
+    }
+
+    function chargeSub(tableId, subId) {
+      const sub = tables
+        .find(t => t.id === tableId)
+        .subs.find(s => s.id === subId);
+
+      openModal('charge', {
+        title: 'Cobrar Subcuenta',
+        tableId: tableId,
+        subId: subId,
+        items: sub.cart,
+        full: false
+      });
+    }
+
+    function openModal(type, opts) {
+      modalBody.innerHTML = '';
+      btnConfirm.onclick = null;
+
+      switch (type) {
+        case 'table-add':
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <input
+                id="modalInput"
+                class="modal-input"
+                placeholder="Nombre de mesa"
+                value="${opts.name || ''}"
+              >
+            </div>
+          `;
+          btnConfirm.onclick = () => {
+            const name = document
+              .getElementById('modalInput')
+              .value.trim();
+            if (!name) return alert('Ingrese nombre');
+
+            if (opts.id == null) {
+              const newId = tables.length
+                ? Math.max(...tables.map(t => t.id)) + 1
+                : 1;
+              tables.push({ id: newId, name: name, subs: [] });
+            } else {
+              tables.find(t => t.id === opts.id).name = name;
+            }
+
+            saveAndRefresh();
+            closeModal();
+          };
+          break;
+
+        case 'sub-add':
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <input
+                id="modalInput"
+                class="modal-input"
+                placeholder="Nombre de subcuenta"
+                value="${opts.name || ''}"
+              >
+            </div>
+          `;
+          btnConfirm.onclick = () => {
+            const name = document
+              .getElementById('modalInput')
+              .value.trim();
+            if (!name) return alert('Ingrese nombre');
+
+            const mesa = tables.find(t => t.id === opts.tableId);
+            if (opts.subId == null) {
+              const newId = mesa.subs.length
+                ? Math.max(...mesa.subs.map(s => s.id)) + 1
+                : 1;
+              mesa.subs.push({ id: newId, name: name, cart: [] });
+            } else {
+              mesa.subs.find(s => s.id === opts.subId).name = name;
+            }
+
+            saveAndRefresh();
+            closeModal();
+          };
+          break;
+
+        case 'charge':
+          const total = opts.items
+            .reduce((sum, i) => sum + i.precio * i.qty, 0)
+            .toFixed(2);
+            
+          const totalFormateado = parseFloat(total).toLocaleString('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+          });
+
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <ul class="modal-list">
+                ${opts.items
+                  .map(
+                    i => {
+                      const precio = (i.precio * i.qty).toFixed(2);
+                      const precioFormateado = parseFloat(precio).toLocaleString('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN'
+                      });
+                      return `<li>${i.nombre} x${i.qty} — ${precioFormateado}</li>`;
+                    }
+                  )
+                  .join('')}
+              </ul>
+              <div class="modal-total">Total: <span>${totalFormateado}</span></div>
+              <p>
+                ${opts.full
+                  ? 'Este cobro incluye todas las subcuentas.'
+                  : 'Solo esta subcuenta.'}
+              </p>
+              <select id="modalPay" class="modal-select">
+                <option>Efectivo</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+              </select>
+            </div>
+          `;
+
+          btnConfirm.onclick = () => {
+            const metodo = document.getElementById('modalPay').value;
+            // Construir objeto de venta igual al original
+            const venta = {
+              fecha: new Date().toISOString(),
+              metodoPago: metodo,
+              items: opts.items.map(i => ({
+                codigo: String(i.codigo),
+                producto: i.nombre,
+                cantidad: i.qty,
+                total: +(i.precio * i.qty).toFixed(2)
+              }))
+            };
+
+            apiFetch('guardarVentas', { venta: JSON.stringify(venta), metodoPago: metodo })
+              .then(() => {
+                if (opts.full) {
+                  tables = [];
+                } else {
+                  const mesa = tables.find(t => t.id === opts.tableId);
+                  mesa.subs = mesa.subs.filter(s => s.id !== opts.subId);
+                  if (!mesa.subs.length) {
+                    tables = tables.filter(t => t.id !== opts.tableId);
+                  }
+                }
+                saveAndRefresh();
+                closeModal();
+              })
+              .catch(err => {
+                console.error('Error al guardar venta:', err);
+                alert('Error al guardar la venta: ' + err);
+              });
+          };
+          break;
+        }
+
+      modalOverlay.style.display = 'grid';
+    }
+
+    function saveAndRefresh() {
+      localStorage.setItem(STORAGE_KEY_TABLES, JSON.stringify(tables));
+      renderTables();
+      renderRecetas();
+      updateStatusBar();
+    }
+
+    function goBack() {
+      selectedTableId = null;
+      selectedSubId = null;
+      renderTables();
+      renderRecetas();
+    }
+
+    // Exponer funciones al scope global
+    window.selectCategory = selectCategory;
+    window.selectTable = selectTable;
+    window.selectSub = selectSub;
+    window.addItem = addItem;
+    window.addTable = addTable;
+    window.editTable = editTable;
+    window.addSub = addSub;
+    window.editSub = editSub;
+    window.chargeTable = chargeTable;
+    window.chargeSub = chargeSub;
+    window.goBack = goBack;
+    window.fetchYRefresh = fetchYRefresh;
+
+    window.addEventListener('load', () => {
+      fetchYRefresh();
+      document.getElementById('add-table').addEventListener('click', addTable);
+    });
+  </script>
+</body>
+</html>
+
+
