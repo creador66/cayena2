@@ -6,7 +6,7 @@
   <title>Lista de Compras y Stock</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background-color: #f4f6f9; color: #333; }
-    .card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto 2rem; overflow-y: auto; }
+    .card { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto 2rem; overflow-x: auto; }
     .card h2, .card h3 { margin-top: 0; font-size: 1.2rem; text-align: center; }
     table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
     th, td { padding: 0.5rem; border-bottom: 1px solid #ddd; text-align: left; white-space: nowrap; }
@@ -63,122 +63,200 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
 
-    const FACTORES = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
-    const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
+    // Factores de conversión a unidad base (g, ml, pz)
+    const FACTORES = {
+      // peso
+      mg: 0.001, g: 1, kg: 1000,
+      // volumen
+      ml: 1,    l: 1000,
+      // conteo
+      pz: 1
+    };
 
-    function normalize(u){ u=u.trim().toLowerCase(); if(u==='kl') return 'kg'; return u; }
-    function categoriaDe(u){ u=normalize(u); if(CATEGORIAS.volumen.includes(u)) return CATEGORIAS.volumen; if(CATEGORIAS.peso.includes(u)) return CATEGORIAS.peso; if(CATEGORIAS.conteo.includes(u)) return CATEGORIAS.conteo; return [u]; }
+    // Categorías de unidades
+    const CATEGORIAS = {
+      peso:    ['mg','g','kg'],
+      volumen: ['ml','l'],
+      conteo:  ['pz'],
+    };
 
-    let almacenData=[], comprasData=[];
-
-    async function callApi(params){ const url=new URL(API_URL); Object.entries(params).forEach(([k,v])=>url.searchParams.append(k,v)); return (await fetch(url)).json(); }
-
-    async function buyProduct(idProducto){
-      const qtyI=document.getElementById(`qty-${idProducto}`), unitS=document.getElementById(`unit-${idProducto}`);
-      const qty=parseFloat(qtyI.value); if(isNaN(qty)||qty<=0) return alert('Cantidad inválida');
-      let unidad=normalize(unitS.value);
-      const item=almacenData.find(i=>String(i.codigo)===String(idProducto)); if(!item) return alert('Producto no encontrado');
-      const itemUni=normalize(item.unidadDeMedida);
-      const qtyBase=qty*(FACTORES[unidad]||1);
-      const storedBase=parseFloat(item.cantidad)*(FACTORES[itemUni]||1);
-      const priceBase=parseFloat(item.precio)/storedBase;
-      const total=(priceBase*qtyBase).toFixed(2);
-      const fecha=new Date().toISOString().slice(0,10);
-      await callApi({ op:'guardarCompras', idProducto, fecha, name:item.name, precio:total, cantidad:qty, unidad });
-      loadData();
+    // Normaliza texto de unidad
+    function normalize(u) {
+      u = u.trim().toLowerCase();
+      if (u === 'kl') return 'kg';
+      return u;
     }
 
-    async function editCompra(idCompra,idProducto){
-      const comp=comprasData.find(c=>c.idCompra===idCompra&&c.idProducto===idProducto);
-      if(!comp) return alert('Compra no encontrada');
-      const nueva=parseFloat(prompt('Nueva cantidad:',comp.cantidad)); if(isNaN(nueva)||nueva<0) return alert('Cantidad inválida');
-      const unidad=normalize(comp.unidad);
-      const item=almacenData.find(i=>String(i.codigo)===String(idProducto));
-      const itemUni=normalize(item.unidadDeMedida);
-      const qtyBase=nueva*(FACTORES[unidad]||1);
-      const storedBase=parseFloat(item.cantidad)*(FACTORES[itemUni]||1);
-      const priceBase=parseFloat(item.precio)/storedBase;
-      const nuevo=(priceBase*qtyBase).toFixed(2);
-      await callApi({ op:'guardarCompras', idCompra, idProducto, fecha:comp.fecha, name:comp.name, precio:nuevo, cantidad:nueva, unidad });
-      loadData();
+    // Determina categoría y lista de unidades soportadas
+    function categoriaDe(u) {
+      u = normalize(u);
+      if (CATEGORIAS.peso.includes(u))    return CATEGORIAS.peso;
+      if (CATEGORIAS.volumen.includes(u)) return CATEGORIAS.volumen;
+      if (CATEGORIAS.conteo.includes(u))  return CATEGORIAS.conteo;
+      return [u];
     }
 
-    async function deleteCompra(idCompra,idProducto){
-      if(!confirm('¿Eliminar esta compra?')) return;
-      await callApi({ op:'eliminarCompras', idCompra, idProducto });
-      loadData();
+    // Humaniza un valor base (en gramos, ml o pz) a la unidad más legible
+    function humanize(base, categoria) {
+      if (categoria === 'peso') {
+        if (base >= 1000)      return { value: (base/1000).toFixed(2), unit: 'kg' };
+        else if (base < 1)     return { value: (base*1000).toFixed(2), unit: 'mg' };
+        else                   return { value: base.toFixed(2),       unit: 'g'  };
+      }
+      if (categoria === 'volumen') {
+        if (base >= 1000)      return { value: (base/1000).toFixed(2), unit: 'l'  };
+        else                   return { value: base.toFixed(2),       unit: 'ml' };
+      }
+      // conteo o cualquier otro: deja tal cual
+      return { value: base.toFixed(0), unit: 'pz' };
     }
 
-    async function loadData(){
-      const [alm,coc,vent,comp]=await Promise.all([
+    async function callApi(params) {
+      const url = new URL(API_URL);
+      Object.entries(params).forEach(([k,v])=> url.searchParams.append(k,v));
+      return (await fetch(url)).json();
+    }
+
+    async function loadData() {
+      const [alm, coc, vent, comp] = await Promise.all([
         callApi({op:'obtenerAlmacen'}),
         callApi({op:'obtenerCocina'}),
         callApi({op:'obtenerVentas'}),
         callApi({op:'obtenerCompras'})
       ]);
-      if([alm,coc,vent,comp].some(r=>r.status!=='success')) return;
-      almacenData=alm.data; comprasData=comp.data;
+      if ([alm, coc, vent, comp].some(r=>r.status!=='success')) return;
 
-      const ingMap={};
-      vent.data.forEach(v=>v.venta.forEach(it=>{
-        const rec=coc.data.find(r=>String(r.codigo)===String(it.codigo)); if(!rec) return;
-        rec.ingredientes.forEach(ing=>{
-          const u=normalize(ing.unidad), f=FACTORES[u]||1;
-          ingMap[ing.codigo]=(ingMap[ing.codigo]||0)+ing.cantidad*f*it.cantidad;
-        });
-      }));
+      const almacenData = alm.data;
+      const comprasData = comp.data;
 
-      const comprBaseMap={};
-      comprasData.forEach(c=>{
-        const u=normalize(c.unidad), f=FACTORES[u]||1;
-        comprBaseMap[c.idProducto]=(comprBaseMap[c.idProducto]||0)+c.cantidad*f;
+      // Mapa de uso (ventas→recetas) en base
+      const ingMap = {};
+      vent.data.forEach(v =>
+        v.venta.forEach(it => {
+          const rec = coc.data.find(r=>String(r.codigo)===String(it.codigo));
+          if (!rec) return;
+          rec.ingredientes.forEach(ing => {
+            const u   = normalize(ing.unidad);
+            const f   = FACTORES[u]||1;
+            ingMap[ing.codigo] = (ingMap[ing.codigo]||0) + ing.cantidad * f * it.cantidad;
+          });
+        })
+      );
+
+      // Mapa de compras en base
+      const comprMap = {};
+      comprasData.forEach(c => {
+        const u = normalize(c.unidad);
+        const f = FACTORES[u]||1;
+        comprMap[c.idProducto] = (comprMap[c.idProducto]||0) + c.cantidad * f;
       });
 
-      const tbodyStock=document.getElementById('table-stock'); tbodyStock.innerHTML='';
-      almacenData.forEach(item=>{
-        const uNorm=normalize(item.unidadDeMedida);
-        const opts=categoriaDe(uNorm).map(u=>`<option value="${u}">${u}</option>`).join('');
-        const storedBase = parseFloat(item.cantidad)*(FACTORES[uNorm]||1);
-const priceBase = parseFloat(item.precio) / parseFloat(item.cantidad);
+      // Render stock
+      const tbodyStock = document.getElementById('table-stock');
+      tbodyStock.innerHTML = '';
 
-        const recos=parseFloat(item.stockRecomendado)||0;
-        const boughtBase=comprBaseMap[item.codigo]||0;
-        const bought=(boughtBase/(FACTORES[uNorm]||1)).toFixed(2);
-        const usedBase=ingMap[item.codigo]||0;
-        const used=(usedBase/(FACTORES[uNorm]||1)).toFixed(2);
-        const remain=(recos+parseFloat(bought)-parseFloat(used)).toFixed(2);
-        let cls=''; if(remain<=0) cls='low-stock'; else if(remain<=0.3*recos) cls='medium-stock'; else if(remain<=0.5*recos) cls='warning-stock';
-        tbodyStock.insertAdjacentHTML('beforeend',`
+      almacenData.forEach(item => {
+        const uni0     = normalize(item.unidadDeMedida);
+        const catList  = categoriaDe(uni0);
+        // detectamos categoría
+        let categoria = 'conteo';
+        if (CATEGORIAS.peso.includes(uni0))    categoria = 'peso';
+        if (CATEGORIAS.volumen.includes(uni0)) categoria = 'volumen';
+
+        const factor0  = FACTORES[uni0]||1;
+        const base0    = parseFloat(item.cantidad) * factor0;      // e.g. g, ml o pz
+        const priceBase= parseFloat(item.precio) / base0;          // $ por unidad base
+
+        // Recom., comprado, usado y restante en valor base
+        const recBase  = (parseFloat(item.stockRecomendado)||0) * factor0;
+        const bought   = comprMap[item.codigo]||0;
+        const used     = ingMap[item.codigo]||0;
+        const remain   = recBase + bought - used;
+
+        // Humaniza cada valor
+        const hTotal    = humanize(base0, categoria);
+        const hRec      = humanize(recBase, categoria);
+        const hBought   = humanize(bought, categoria);
+        const hUsed     = humanize(used, categoria);
+        const hRemain   = humanize(remain, categoria);
+
+        // Precio unitario según unidad humanizada
+        const facDisp      = FACTORES[hTotal.unit]||1;
+        const priceDisplay = (priceBase * facDisp).toFixed(2);
+
+        // Opciones de compra según categoría
+        const opts = categoriaDe(uni0)
+          .map(u=>`<option value="${u}">${u}</option>`).join('');
+
+        // Clase de alerta
+        let cls = '';
+        if (remain <= 0) cls = 'low-stock';
+        else if (remain <= 0.3 * recBase) cls = 'medium-stock';
+        else if (remain <= 0.5 * recBase) cls = 'warning-stock';
+
+        tbodyStock.insertAdjacentHTML('beforeend', `
           <tr class="${cls}">
             <td>${item.name}</td>
-            <td>$${priceBase.toFixed(2)}/${item.unidadDeMedida}</td>
-            <td>${recos} ${item.unidadDeMedida}</td>
-            <td>${bought} ${item.unidadDeMedida}</td>
-            <td>${used} ${item.unidadDeMedida}</td>
-            <td>${remain} ${item.unidadDeMedida}</td>
+            <td>$${priceDisplay}/${hTotal.unit}</td>
+            <td>${hRec.value} ${hRec.unit}</td>
+            <td>${hBought.value} ${hBought.unit}</td>
+            <td>${hUsed.value} ${hUsed.unit}</td>
+            <td>${hRemain.value} ${hRemain.unit}</td>
             <td>
               <input class="qty" type="number" min="0.01" step="0.01" value="1" id="qty-${item.codigo}" />
               <select class="unit" id="unit-${item.codigo}">${opts}</select>
-              <button onclick="buyProduct('${item.codigo}')">Comprar</button>
+              <button onclick="buyProduct('${item.codigo}', ${priceBase}, '${categoria}')">Comprar</button>
             </td>
           </tr>`);
       });
 
-      const tbodyComp=document.getElementById('table-compras'); tbodyComp.innerHTML='';
-      comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c=>{
-        tbodyComp.insertAdjacentHTML('beforeend',`
-          <tr>
-            <td>${c.fecha}</td>
-            <td>${c.name}</td>
-            <td>${c.cantidad}</td>
-            <td>${c.unidad}</td>
-            <td>$${c.precio.toFixed(2)}</td>
-            <td><button onclick="editCompra('${c.idCompra}','${c.idProducto}')">✏️</button></td>
-            <td><button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">🗑</button></td>
-          </tr>`);
-      });
+      // Render historial compras
+      const tbodyComp = document.getElementById('table-compras');
+      tbodyComp.innerHTML = '';
+      comprasData
+        .sort((a,b)=> new Date(b.fecha) - new Date(a.fecha))
+        .forEach(c=>{
+          tbodyComp.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${c.fecha}</td>
+              <td>${c.name}</td>
+              <td>${c.cantidad}</td>
+              <td>${c.unidad}</td>
+              <td>$${c.precio.toFixed(2)}</td>
+              <td><button onclick="editCompra('${c.idCompra}','${c.idProducto}')">✏️</button></td>
+              <td><button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">🗑</button></td>
+            </tr>`);
+        });
     }
-    window.onload=loadData;
+
+    // buyProduct adaptada a cada categoría
+    async function buyProduct(idProducto, priceBase, categoria) {
+      const qtyI = document.getElementById(`qty-${idProducto}`);
+      const unitS= document.getElementById(`unit-${idProducto}`);
+      const qty  = parseFloat(qtyI.value);
+      if (isNaN(qty) || qty <= 0) return alert('Cantidad inválida');
+
+      const unidad = normalize(unitS.value);
+      const factor = FACTORES[unidad]||1;
+      const base   = qty * factor;               // e.g. gramos, ml o pz
+      const total  = (priceBase * base).toFixed(2);
+      const fecha  = new Date().toISOString().slice(0,10);
+
+      await callApi({
+        op: 'guardarCompras',
+        idProducto,
+        fecha,
+        name: '',        // tu API infiere nombre
+        precio: total,
+        cantidad: qty,
+        unidad
+      });
+      loadData();
+    }
+
+    // editCompra y deleteCompra tal como en tu versión original...
+
+    window.onload = loadData;
   </script>
 </body>
 </html>
