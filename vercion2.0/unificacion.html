@@ -520,23 +520,29 @@
       loadData();
     }
 
-    // FORMULARIO VENTAS
+     // VENTAS FORM
     document.getElementById('btn-add-item').onclick = () =>
       document.getElementById('items-container').append(crearItemRow());
     document.getElementById('btn-cancel').onclick = resetForm;
     document.getElementById('btn-save').onclick = async () => {
-      const id    = document.getElementById('form-id').value;
+      const id = document.getElementById('form-id').value;
       const fecha = document.getElementById('form-fecha').value;
-      if(!fecha) return;
+      if (!fecha) return;
       const metodo = document.getElementById('form-pago').value;
-      const rows  = document.querySelectorAll('#items-container .item-row');
-      if(rows.length===0) return;
-      const venta = Array.from(rows).map(r=>{
+      const rows = document.querySelectorAll('#items-container .item-row');
+      if (rows.length === 0) return;
+      const venta = Array.from(rows).map(r => {
         const [sel, ic, it] = r.children;
-        return { codigo:sel.value, producto:recetas.find(x=>x.codigo===sel.value).nombre, cantidad:Number(ic.value)||0, total:Number(it.value)||0 };
+        return {
+          codigo: sel.value,
+          producto: recetas.find(x => x.codigo === sel.value).nombre,
+          cantidad: Number(ic.value) || 0,
+          total: Number(it.value) || 0
+        };
       });
-      const res = await callApi({op:'guardarVentas', venta: JSON.stringify({id,fecha,venta,metodoPago:metodo})});
-      if(res.status==='success'){
+      const payload = { id, fecha, items: venta, metodoPago: metodo, venta };
+      const res = await callApi({ op: 'guardarVentas', venta: JSON.stringify(payload) });
+      if (res.status === 'success') {
         resetForm();
         loadData();
       }
@@ -693,25 +699,42 @@
       });
     }
 
-    // EVENTOS FORM RECETAS
-    btnAddIngrediente.onclick = e=>{ e.preventDefault(); agregarIngredienteRow(); };
-    btnLimpiarForm.onclick    = e=>{ e.preventDefault(); resetRecetaForm(); };
-    btnGuardarReceta.onclick  = async e=>{
-      e.preventDefault();
-      const codigo = inpCodigo.value.trim();
-      const nombre = inpNombre.value.trim();
-      if(!codigo||!nombre){ alert('Código y nombre requeridos'); return; }
-      const categoria = selCategoria.value==='__nueva__' ? inpCatNueva.value.trim() : selCategoria.value;
-      const ingredientes = Array.from(tblIngredientes.children).map(tr=>({
-        codigo: tr.children[0].firstChild.value,
-        cantidad:+tr.children[1].firstChild.value,
-        unidad: tr.children[2].firstChild.value
-      }));
-      const receta = { codigo, nombre, categoria, imagen: inpImagen.value.trim(), ingredientes };
-      await callApi({ op:'guardarCocina', receta: JSON.stringify(receta) });
-      resetRecetaForm();
-      await loadData();
-    };
+// EVENTOS FORM RECETAS
+btnAddIngrediente.onclick = e => {
+  e.preventDefault();
+  agregarIngredienteRow();
+};
+btnLimpiarForm.onclick = e => {
+  e.preventDefault();
+  resetRecetaForm();
+};
+btnGuardarReceta.onclick = async e => {
+  e.preventDefault();
+  const codigo = inpCodigo.value.trim();
+  const nombre = inpNombre.value.trim();
+  if (!codigo || !nombre) {
+    // faltan datos obligatorios: salimos sin mostrar alerta
+    return;
+  }
+  const categoria = selCategoria.value === '__nueva__'
+    ? inpCatNueva.value.trim()
+    : selCategoria.value;
+  const ingredientes = Array.from(tblIngredientes.children).map(tr => ({
+    codigo:   tr.children[0].firstChild.value,
+    cantidad: +tr.children[1].firstChild.value,
+    unidad:   tr.children[2].firstChild.value
+  }));
+  const receta = {
+    codigo,
+    nombre,
+    categoria,
+    imagen:      inpImagen.value.trim(),
+    ingredientes
+  };
+  await callApi({ op: 'guardarCocina', receta: JSON.stringify(receta) });
+  resetRecetaForm();
+  await loadData();
+};
 
     // ACTUALIZAR ESTADÍSTICAS
     function updateTopStats(){
