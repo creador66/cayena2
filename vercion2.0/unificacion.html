@@ -3,337 +3,572 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestión Completa: Almacén, Compras y Ventas</title>
+  <title>Gestión Móvil: Tarjetas</title>
   <style>
     /* RESET Y VARIABLES */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #f4f6f9; --panel-bg: rgba(255,255,255,0.85);
-      --accent: #3f51b5; --text: #333; --text-light: #fff;
-      --border: rgba(0,0,0,0.1); --radius: 8px; --transition: .3s;
-      --blur: 12px;
+      --bg: #f4f6f9;
+      --card-bg: #fff;
+      --accent: #3f51b5;
+      --text: #333;
+      --text-light: #fff;
+      --border: rgba(0,0,0,0.1);
+      --radius: 8px;
+      --transition: .3s;
+      --gutter: 1rem;
+      --footer-height: 60px;
     }
-    body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); padding:1rem; }
-    h1,h2,h3 { margin-bottom:1rem; font-weight:400; }
-    button { background:var(--accent); color:var(--text-light); border:none; border-radius:4px; padding:.4rem .8rem; cursor:pointer; transition:opacity var(--transition); }
-    button:hover { opacity:.85; }
-    .delete-btn { background:#cc3e44; }
-    .delete-btn:hover { background:#a32f35; }
-    input, select { font-size:14px; padding:.3rem; }
-    .item-row { display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
-    .small { width:5rem; }
-    .qty { width:4rem; }
-    .provider, .rec { width:6rem; }
-
-    /* TARJETAS RETRAIBLES */
-    .card { background:#fff; border-radius:var(--radius); padding:1rem; margin-bottom:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-    details { cursor: pointer; }
-    summary { font-weight:bold; font-size:1rem; }
-    .card-content { margin-top:.5rem; display:grid; grid-template-columns:1fr; gap:.5rem; }
-
-    /* VENTAS */
-    .tickets-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; margin-top:1rem; }
-    .ticket-card { background:#fff; border-radius:var(--radius); padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); display:flex; flex-direction:column; }
-    .ticket-header, .ticket-method, .ticket-footer { margin-bottom:.5rem; }
-    .ticket-items { flex:1; margin-bottom:.5rem; }
-    .ticket-item { font-size:.9rem; margin:0.2rem 0; }
-    .ticket-actions button { margin-right:0.5rem; }
-
-    /* SUMMARY */
-    .summary-panel {
-      position:fixed; bottom:1rem; right:1rem; width:200px;
-      background:var(--panel-bg); backdrop-filter:blur(var(--blur));
-      border:1px solid var(--border); border-radius:var(--radius);
-      padding:1rem; box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: var(--gutter);
+      padding-bottom: calc(var(--footer-height) + var(--gutter));
     }
-    .summary-panel h2 { font-size:1rem; margin-bottom:.5rem; }
-    .summary-item { font-size:.9rem; margin-bottom:.3rem; }
+
+    /* NAVEGACIÓN */
+    nav.top-nav {
+      display: flex;
+      margin-bottom: var(--gutter);
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    nav.top-nav button {
+      flex: 1;
+      padding: .75rem 0;
+      border: none;
+      background: var(--accent);
+      color: var(--text-light);
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    nav.top-nav button:not(.active) { opacity: .6; }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* GRID DE TARJETAS */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--gutter);
+    }
+
+    /* TARJETA */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: var(--gutter);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-header { font-weight: bold; margin-bottom: .5rem; }
+    .card-body label {
+      display: block; margin-bottom: .5rem; font-size: .9rem;
+    }
+    .card-body input, .card-body select {
+      width: 100%; padding: .4rem; margin-top: .2rem;
+      border: 1px solid var(--border); border-radius: 4px;
+    }
+    .card-footer {
+      margin-top: 1rem;
+      display: flex;
+      gap: .5rem;
+    }
+    
+    
+    .info2{
+      backrground-color: red;
+    }
+ .info2 p {
+      font-size: 10px;
+    }
+    .info2 strong{
+font-weight: 400;
+    }
+    
+    
+    .card-footer button {
+      flex: 1;
+      padding: .5rem;
+      border: none;
+      background: var(--accent);
+      color: var(--text-light);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    .card-footer button.delete-btn { background: #cc3e44; }
+    .card-footer button:hover { opacity: .85; }
+
+    /* BOTÓN AGREGAR */
+    .btn-add {
+      display: block;
+      width: 100%;
+      padding: .75rem 0;
+      margin-bottom: var(--gutter);
+      background: var(--accent);
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    .btn-add:hover { opacity: .85; }
+
+    /* FORMULARIO VENTAS */
+    .form-panel {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: var(--gutter);
+      margin-bottom: var(--gutter);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .item-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: .75rem;
+    }
+    .item-row input, .item-row select {
+      flex: 1 1 45%;
+      padding: .5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .item-row button { flex: 0 0 auto; padding: .4rem .8rem; }
+
+    /* TICKETS VENTAS */
+    #tickets-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--gutter);
+    }
+    .ticket-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: var(--gutter);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    .ticket-header { font-weight: bold; margin-bottom: .5rem; }
+    .ticket-method, .ticket-footer { margin: .5rem 0; }
+    .ticket-item { margin-left: 1rem; font-size: .9rem; }
+    .ticket-actions {
+      display: flex; gap: .5rem; margin-top: .75rem;
+    }
+    .ticket-actions button {
+      flex: 1;
+      padding: .5rem;
+      border: none;
+      background: var(--accent);
+      color: var(--text-light);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+    .ticket-actions button.delete-btn { background: #cc3e44; }
+    .ticket-actions button:hover { opacity: .85; }
+
+    /* FOOTER RESUMEN */
+    footer.payment-summary {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%; height: var(--footer-height);
+      background: var(--accent);
+      color: var(--text-light);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+      font-size: .9rem;
+      z-index: 100;
+    }
+    footer.payment-summary div span {
+      display: block;
+      font-weight: bold;
+      margin-top: .25rem;
+    }
   </style>
 </head>
 <body>
-  <h2>Lista de Compras y Stock</h2>
-  <button onclick="addNewProducto()">➕ Nuevo Producto</button>
-  <div id="stock-cards"></div>
 
-  <h3>Historial de Compras</h3>
-  <div id="compras-cards"></div>
+  <nav class="top-nav">
+    <button data-sec="stock" class="active">Stock</button>
+    <button data-sec="compras">Compras</button>
+    <button data-sec="ventas">Ventas</button>
+  </nav>
 
-  <h1>Gestión de Ventas</h1>
-  <div class="list-panel">
-    <h2>Tickets de Venta</h2>
-    <button id="btn-cargar">Cargar Ventas</button>
-    <div class="tickets-grid" id="tickets-grid"></div>
-  </div>
-  <div class="form-panel">
-    <h2 id="form-title">Nueva Venta</h2>
-    <input type="hidden" id="form-id">
-    <div class="item-row">
-      <label>Fecha:</label>
-      <input type="date" id="form-fecha">
-    </div>
-    <div id="items-container"></div>
-    <button id="btn-add-item">+ Agregar producto</button>
-    <div class="item-row">
-      <label>Pago:</label>
-      <select id="form-pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select>
-    </div>
-    <div class="item-row">
-      <button id="btn-save">Guardar</button>
-      <button id="btn-cancel">Cancelar</button>
-    </div>
-  </div>
+  <!-- SECCIÓN STOCK -->
+  <section id="stock" class="section active">
+    <h2>Stock de Productos</h2>
+    <button class="btn-add" onclick="addNewProducto()">➕ Nuevo Producto</button>
+    <div id="stock-grid" class="card-grid"></div>
+  </section>
 
-  <div class="summary-panel">
-    <h2>Resumen de Pagos</h2>
-    <div id="sum-efectivo" class="summary-item">Efectivo: 0.00</div>
-    <div id="sum-transferencia" class="summary-item">Transferencia: 0.00</div>
-    <div id="sum-tarjeta" class="summary-item">Tarjeta: 0.00</div>
-    <hr>
-    <div id="sum-total" class="summary-item">Total: 0.00</div>
-  </div>
+  <!-- SECCIÓN COMPRAS -->
+  <section id="compras" class="section">
+    <h2>Historial de Compras</h2>
+    <div id="compras-grid" class="card-grid"></div>
+  </section>
+
+  <!-- SECCIÓN VENTAS -->
+  <section id="ventas" class="section">
+    <h2>Gestión de Ventas</h2>
+    <div class="form-panel">
+      <h3 id="form-title">Nueva Venta</h3>
+      <input type="hidden" id="form-id">
+      <div class="item-row">
+        <label style="flex:1 1 100%">Fecha:
+          <input type="date" id="form-fecha">
+        </label>
+      </div>
+      <div id="items-container"></div>
+      <button id="btn-add-item" class="btn-add">+ Agregar producto</button>
+      <div class="item-row">
+        <label style="flex:1 1 100%">Pago:
+          <select id="form-pago">
+            <option>Efectivo</option>
+            <option>Transferencia</option>
+            <option>Tarjeta</option>
+          </select>
+        </label>
+      </div>
+      <div style="display:flex; gap:.5rem;">
+        <button id="btn-save">Guardar</button>
+        <button id="btn-cancel">Cancelar</button>
+      </div>
+    </div>
+    <div id="tickets-grid"></div>
+  </section>
+
+  <footer class="payment-summary">
+    <div>Efectivo<br><span id="sum-efectivo">0.00</span></div>
+    <div>Transferencia<br><span id="sum-transferencia">0.00</span></div>
+    <div>Tarjeta<br><span id="sum-tarjeta">0.00</span></div>
+    <div>Total<br><span id="sum-total">0.00</span></div>
+  </footer>
 
   <script>
-   const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
-    const FACTORES = { mg:0.001,g:1,kg:1000,ml:1,l:1000,pz:1 };
+    // Paginación
+    document.querySelectorAll('nav.top-nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('nav.top-nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(btn.dataset.sec).classList.add('active');
+      });
+    });
+
+    // Configuración y datos
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    const FACTORES = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
     const MARGEN = 1.55;
-    let almacenData=[],comprasData=[],ventData=[],cocData=[],recetas=[],productInfo={};
+    let almacenData = [], comprasData = [], ventData = [], cocData = [], recetas = [], productInfo = {};
 
-    async function callApi(params){const u=new URL(API_URL);Object.entries(params).forEach(([k,v])=>u.searchParams.append(k,v));return (await fetch(u)).json();}
-    function categoriaDe(u){if(['mg','g','kg'].includes(u))return['mg','g','kg'];if(['ml','l'].includes(u))return['ml','l'];return['pz'];}
-    function humanizeComposite(b,c){if(c==='peso'){const kg=Math.trunc(b/1000),g=b%1000,p=[];if(kg)p.push(`${kg} kg`);if(g)p.push(`${g} g`);return p.join(' ')||'0 g';}if(c==='volumen'){const l=Math.trunc(b/1000),m=b%1000,p=[];if(l)p.push(`${l} l`);if(m)p.push(`${m} ml`);return p.join(' ')||'0 ml';}return`${b.toFixed(0)} pz`;}
-    function buildProductInfo(){productInfo={};almacenData.forEach(it=>{const cat=['mg','g','kg'].includes(it.unidadDeMedida)?'peso':['ml','l'].includes(it.unidadDeMedida)?'volumen':'conteo';const base=parseFloat(it.cantidad)*FACTORES[it.unidadDeMedida]||1;productInfo[it.codigo]={priceBase:parseFloat(it.precio)/base||0,categoria:cat,opcionesUnidad:categoriaDe(it.unidadDeMedida)};});}
-
-    function renderStockCards(){const c=document.getElementById('stock-cards');c.innerHTML='';const comp={},used={};comprasData.forEach(x=>comp[x.idProducto]=(comp[x.idProducto]||0)+x.cantidad*FACTORES[x.unidad]);ventData.forEach(v=>v.venta.forEach(i=>{const rec=cocData.find(r=>String(r.codigo)===String(i.codigo));rec&&rec.ingredientes.forEach(ing=>used[ing.codigo]=(used[ing.codigo]||0)+ing.cantidad*FACTORES[ing.unidad]*i.cantidad);}));almacenData.forEach(it=>{const info=productInfo[it.codigo],b=comp[it.codigo]||0,u=used[it.codigo]||0,r=b-u;const level=Math.floor(r/(it.stockRecomendado*FACTORES[it.unidadDeMedida]||1)*100);const nivel= level<=50?1:level<=80?2:level<=100?3:4;const cl= ['nivel-1','nivel-2','nivel-3','nivel-4'][nivel-1];c.insertAdjacentHTML('beforeend',`
-      <details class="card ${cl}"><summary>Código ${it.codigo} - ${it.name||''}</summary><div class="card-content">
-        <div><label>Nombre:</label><input id="name-${it.codigo}" value="${it.name||''}"></div>
-        <div><label>Precio:</label><input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></div>
-        <div><label>Cant:</label><input class="small" id="cant-${it.codigo}" value="${it.cantidad||0}"><label>Unid:</label><select id="unidad-${it.codigo}">${categoriaDe(it.unidadDeMedida).map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}</select></div>
-        <div><label>Stock Rec.:</label><input class="rec" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"><label>Proveedor:</label><input class="provider" id="prov-${it.codigo}" value="${it.proveedor||''}"></div>
-        <div><button onclick="saveAlmacen('${it.codigo}')">Guardar</button><button class="delete-btn" onclick="deleteAlmacen('${it.codigo}')">Eliminar</button></div>
-        <div><label>Comprar:</label><input class="qty" id="buyqty-${it.codigo}" value="1"><select id="buyunit-${it.codigo}">${info.opcionesUnidad.map(u=>`<option value="${u}">${u}</option>`).join('')}</select><button onclick="buyProduct('${it.codigo}')">Comprar</button></div>
-        <div>Comprado: ${humanizeComposite(b,info.categoria)} ~ $${(info.priceBase*b).toFixed(0)}</div>
-        <div>Usado: ${humanizeComposite(u,info.categoria)} ~ $${(info.priceBase*u).toFixed(0)}</div>
-        <div>Restante: ${humanizeComposite(r,info.categoria)} ~ $${(info.priceBase*r).toFixed(0)}</div>
-        <div>Estado: Nivel ${nivel}</div>
-      </div></details>
-    `);});}
-
-    function renderComprasCards(){const c=document.getElementById('compras-cards');c.innerHTML='';comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(x=>{const opts=productInfo[x.idProducto].opcionesUnidad.map(u=>`<option value="${u}"${u===x.unidad?' selected':''}>${u}</option>`).join('');c.insertAdjacentHTML('beforeend',`
-      <details class="card"><summary>${x.fecha.slice(0,10)} - ${almacenData.find(p=>p.codigo==x.idProducto).name}</summary><div class="card-content">
-        <div><label>Fecha:</label><input type="date" id="date-${x.idCompra}" value="${x.fecha.slice(0,10)}"></div>
-        <div><label>Cant:</label><input class="qty" id="qty-${x.idCompra}" value="${x.cantidad}" onchange="recalcCompra('${x.idCompra}','${x.idProducto}')"><label>Unid:</label><select id="unit-${x.idCompra}" onchange="recalcCompra('${x.idCompra}','${x.idProducto}')">${opts}</select></div>
-        <div>Total: <span id="total-${x.idCompra}"></span></div>
-        <div><button onclick="saveCompra('${x.idCompra}','${x.idProducto}')">Guardar</button><button class="delete-btn" onclick="deleteCompra('${x.idCompra}','${x.idProducto}')">Eliminar</button></div>
-      </div></details>
-    `);recalcCompra(x.idCompra,x.idProducto);});}
-
-        // Funciones de Almacén
-    async function saveAlmacen(codigo) {
-      const name = document.getElementById(`name-${codigo}`).value;
-      const precio = document.getElementById(`precio-${codigo}`).value;
-      const cantidad = document.getElementById(`cant-${codigo}`).value;
-      const unidadDeMedida = document.getElementById(`unidad-${codigo}`).value;
-      const stockRecomendado = document.getElementById(`rec-${codigo}`).value;
-      const proveedor = document.getElementById(`prov-${codigo}`).value;
-      await callApi({
-        op: 'guardarAlmacen',
-        codigo,
-        name,
-        precio,
-        cantidad,
-        unidadDeMedida,
-        stockRecomendado,
-        proveedor
-      });
-      loadData();
+    function categoriaDe(u){
+      if(['mg','g','kg'].includes(u)) return ['mg','g','kg'];
+      if(['ml','l'].includes(u)) return ['ml','l'];
+      return ['pz'];
     }
-
-    async function deleteAlmacen(codigo) {
-      if (!confirm('¿Eliminar producto?')) return;
-      await callApi({ op: 'eliminarAlmacen', codigo });
-      loadData();
+    function humanizeComposite(b,c){
+      if(c==='peso'){
+        const kg = Math.trunc(b/1000), g = b%1000, p = [];
+        if(kg) p.push(`${kg}kg`);
+        if(g) p.push(`${g}g`);
+        return p.join(' ')||'0g';
+      }
+      if(c==='volumen'){
+        const l = Math.trunc(b/1000), m = b%1000, p = [];
+        if(l) p.push(`${l}l`);
+        if(m) p.push(`${m}ml`);
+        return p.join(' ')||'0ml';
+      }
+      return `${b.toFixed(0)}pz`;
     }
-
-    // Funciones de Almacén
-    async function addNewProducto() {
-      // Agrega un nuevo producto al almacén con valores por defecto
-      const code = Date.now();
-      almacenData.push({
-        codigo: code,
-        name: '',
-        precio: 0,
-        cantidad: 0,
-        unidadDeMedida: 'pz',
-        stockRecomendado: 0,
-        proveedor: ''
-      });
-      buildProductInfo();
-      renderStockCards();
+    function callApi(params){
+      const url = new URL(API_URL);
+      Object.entries(params).forEach(([k,v])=>url.searchParams.append(k,v));
+      return fetch(url).then(r=>r.json());
     }
-
-    // Funciones de Compras
-    function buyProduct(id) {
-      const info = productInfo[id];
-      const qty = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
-      if (qty <= 0) return alert('Cantidad inválida');
-      const unidad = document.getElementById(`buyunit-${id}`).value;
-      const total = (info.priceBase * qty * FACTORES[unidad]).toFixed(0);
-      const fecha = new Date().toISOString().slice(0,10);
-      callApi({
-        op: 'guardarCompras',
-        idProducto: id,
-        fecha,
-        name: almacenData.find(x => x.codigo == id).name,
-        precio: total,
-        cantidad: qty,
-        unidad
-      }).then(loadData);
-    }
-
-    function recalcCompra(idC, idP) {
-      const info = productInfo[idP];
-      const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
-      const unidad = document.getElementById(`unit-${idC}`).value;
-      document.getElementById(`total-${idC}`).textContent = `$${(info.priceBase * qty * FACTORES[unidad]).toFixed(2)}`;
-    }
-
-    function saveCompra(idC, idP) {
-      const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
-      if (qty <= 0) return alert('Cantidad inválida');
-      const unidad = document.getElementById(`unit-${idC}`).value;
-      const fecha = document.getElementById(`date-${idC}`).value;
-      const total = (productInfo[idP].priceBase * qty * FACTORES[unidad]).toFixed(0);
-      callApi({
-        op: 'guardarCompras',
-        idCompra: idC,
-        idProducto: idP,
-        fecha,
-        name: almacenData.find(x => x.codigo == idP).name,
-        precio: total,
-        cantidad: qty,
-        unidad
-      }).then(loadData);
-    }
-
-    function deleteCompra(idC, idP) {
-      if (!confirm('¿Eliminar compra?')) return;
-      callApi({ op: 'eliminarCompras', idCompra: idC, idProducto: idP }).then(loadData);
-    }
-
-    // Funciones de Ventas
-    async function fetchRecetas() {
-      const [alm, coc] = await Promise.all([
-        callApi({ op:'obtenerAlmacen' }),
-        callApi({ op:'obtenerCocina' })
-      ]);
-      almacenData = alm.data;
-      cocData = coc.data;
-      recetas = cocData.map(r => {
-        const costo = r.ingredientes.reduce((s, ing) => {
-          const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
-          if (!p) return s;
-          const ua = FACTORES[p.unidadDeMedida];
-          const ui = FACTORES[ing.unidad];
-          return s + (p.precio/(ua * parseFloat(p.cantidad))) * (ui * ing.cantidad);
-        }, 0);
-        return { codigo: r.codigo, nombre: r.nombre, precio: parseFloat((costo * MARGEN).toFixed(2)) };
+    function buildProductInfo(){
+      productInfo = {};
+      almacenData.forEach(it=>{
+        const cat = ['mg','g','kg'].includes(it.unidadDeMedida)?'peso':
+                    ['ml','l'].includes(it.unidadDeMedida)?'volumen':'conteo';
+        const base = parseFloat(it.cantidad)*FACTORES[it.unidadDeMedida]||1;
+        productInfo[it.codigo] = {
+          priceBase: parseFloat(it.precio)/base||0,
+          categoria: cat,
+          opcionesUnidad: categoriaDe(it.unidadDeMedida)
+        };
       });
     }
 
-    function crearItemRow(cod = '', cant = '', tot = '') {
-      const row = document.createElement('div'); row.className = 'item-row';
+    // RENDER STOCK
+    function renderStockTable() {
+  const grid = document.getElementById('stock-grid');
+  grid.innerHTML = '';
+  
+  // Mapas de comprado y usado
+  const compMap = {},
+    usedMap = {};
+  comprasData.forEach(c => {
+    compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+  });
+  ventData.forEach(v => v.venta.forEach(it => {
+    const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+    if (!rec) return;
+    rec.ingredientes.forEach(ing => {
+      usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) +
+        ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+    });
+  }));
+  
+  // Render de cada producto
+  almacenData.forEach(it => {
+    const info = productInfo[it.codigo];
+    const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+    const bought = compMap[it.codigo] || 0;
+    const used = usedMap[it.codigo] || 0;
+    const remain = bought - used;
+    const pct = recBase ? (remain / recBase * 100) : 0;
+    
+    // Estado por color
+    let estado;
+    if (pct <= 50) estado = '🔴 Bajo';
+    else if (pct <= 80) estado = '🟠 Medio';
+    else if (pct <= 100) estado = '🟢 Bueno';
+    else estado = '🔵 Excedente';
+    
+    // Cuánto ordenar o sobra
+    const delta = recBase - remain;
+    const accionTexto = delta > 0 ?
+      `Ordenar ${humanizeComposite(delta, info.categoria)}` :
+      `Sobrante ${humanizeComposite(-delta, info.categoria)}`;
+    
+    // Totales en $
+    const totalB = (info.priceBase * bought).toFixed(2);
+    const totalU = (info.priceBase * used).toFixed(2);
+    const totalR = (info.priceBase * remain).toFixed(2);
+    
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header">#${it.codigo} – ${it.name || 'Sin nombre'}</div>
+      <div class="card-body">
+        <label>Nombre:
+          <input type="text" id="name-${it.codigo}" value="${it.name || ''}">
+        </label>
+        <label>Precio base:
+          <input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio || 0}">
+        </label>
+        <label>Cant. inicial:
+          <input type="number" id="cant-${it.codigo}" value="${it.cantidad || 0}">
+        </label>
+        <label>Unidad:
+          <select id="unidad-${it.codigo}">
+            ${info.opcionesUnidad.map(u =>
+              `<option value="${u}" ${u === it.unidadDeMedida ? 'selected' : ''}>${u}</option>`
+            ).join('')}
+          </select>
+        </label>
+        <label>Stock rec.:
+          <input type="number" id="rec-${it.codigo}" value="${it.stockRecomendado || 0}">
+        </label>
+        <label>Proveedor:
+          <input type="text" id="prov-${it.codigo}" value="${it.proveedor || ''}">
+        </label>
+        <hr>
+        <div class="info2">
+        <p><strong>Comprado:</strong> ${humanizeComposite(bought, info.categoria)} (~ $${totalB})</p>
+        <p><strong>Usado:</strong> ${humanizeComposite(used, info.categoria)} (~ $${totalU})</p>
+        <p><strong>Restante:</strong> ${humanizeComposite(remain, info.categoria)} (~ $${totalR})</p>
+        <p><strong>Estado:</strong> ${estado}</p>
+        <p><strong>Acción:</strong> ${accionTexto}</p>
+        <hr>
+
+          
+        </div>
+        <label>Comprar:
+          <input type="number" id="buyqty-${it.codigo}" value="1" style="width:4rem;display:inline-block">
+          <select id="buyunit-${it.codigo}" style="width:auto;display:inline-block">
+            ${info.opcionesUnidad.map(u => `<option value="${u}">${u}</option>`).join('')}
+          </select>
+        </label>
+      </div>
+      <div class="card-footer">
+        <button onclick="buyProduct('${it.codigo}')">Comprar</button>
+        <button onclick="saveAlmacen('${it.codigo}')">Guardar</button>
+        <button class="delete-btn" onclick="deleteAlmacen('${it.codigo}')">Eliminar</button>
+      </div>`;
+    
+    grid.append(card);
+  });
+}
+    // RENDER COMPRAS
+    function renderComprasTable(){
+      const grid = document.getElementById('compras-grid');
+      grid.innerHTML = '';
+      comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))
+        .forEach(c=>{
+          const info = productInfo[c.idProducto];
+          const total = (info.priceBase*c.cantidad*FACTORES[c.unidad]).toFixed(2);
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="card-header">Compra #${c.idCompra}</div>
+            <div class="card-body">
+              <label>Fecha:<input type="date" id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}"></label>
+              <p><strong>Producto:</strong> ${almacenData.find(x=>x.codigo===c.idProducto).name}</p>
+              <label>Cantidad:<input type="number" id="qty-${c.idCompra}" step=".01" value="${c.cantidad}"
+                onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
+              <label>Unidad:<select id="unit-${c.idCompra}"
+                onchange="recalcCompra('${c.idCompra}','${c.idProducto}')">
+                ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`).join('')}
+              </select></label>
+              <p><strong>Total:</strong> $<span id="total-${c.idCompra}">${total}</span></p>
+            </div>
+            <div class="card-footer">
+              <button onclick="saveCompra('${c.idCompra}','${c.idProducto}')">Guardar</button>
+              <button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">Eliminar</button>
+            </div>`;
+          grid.append(card);
+          recalcCompra(c.idCompra,c.idProducto);
+        });
+    }
+
+    // FUNCIONES VENTAS
+    function crearItemRow(cod='',cant='',tot=''){
+      const row = document.createElement('div'); row.className='item-row';
       const sel = document.createElement('select');
-      recetas.forEach(r => { const o = document.createElement('option'); o.value = r.codigo; o.textContent = r.nombre; if (r.codigo === cod) o.selected = true; sel.append(o); });
-      const ic = document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
-      const it = document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
-      const bd = document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.onclick = () => row.remove();
-      function recalc() { const p = recetas.find(x => x.codigo === sel.value) || { precio:0 }; it.value = (p.precio * (parseFloat(ic.value)||0)).toFixed(2); }
-      sel.onchange = recalc; ic.oninput = recalc;
-      row.append(sel, ic, it, bd);
+      recetas.forEach(r=>{
+        const o=document.createElement('option'); o.value=r.codigo; o.textContent=r.nombre;
+        if(r.codigo===cod) o.selected=true;
+        sel.append(o);
+      });
+      const ic=document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
+      const it=document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
+      const bd=document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.onclick=()=>row.remove();
+      function recalc(){
+        const p=recetas.find(x=>x.codigo===sel.value)||{precio:0};
+        it.value=(p.precio*(parseFloat(ic.value)||0)).toFixed(2);
+      }
+      sel.onchange=recalc; ic.oninput=recalc;
+      row.append(sel,ic,it,bd);
       return row;
     }
-
-    function renderCard(v) {
-      const c = document.createElement('div'); c.className = 'ticket-card';
-      const h = document.createElement('div'); h.className='ticket-header'; h.textContent = new Date(v.fecha).toISOString().slice(0,10);
-      const m = document.createElement('div'); m.className='ticket-method'; m.textContent = 'Pago: '+(v.metodoPago||'—');
-      const itemsDiv = document.createElement('div'); itemsDiv.className='ticket-items';
-      v.venta.forEach(it => { const d = document.createElement('div'); d.className='ticket-item'; d.textContent = `${it.producto} x${it.cantidad} = ${it.total}`; itemsDiv.append(d); });
-      const f = document.createElement('div'); f.className='ticket-footer'; f.textContent='Total: '+v.venta.reduce((s,i)=>s+parseFloat(i.total||0),0).toFixed(2);
-      const a = document.createElement('div'); a.className='ticket-actions';
-      const be = document.createElement('button'), bd = document.createElement('button');
-      be.textContent='Editar'; be.onclick=()=>startEdit(v);
-      bd.textContent='Eliminar'; bd.onclick=async()=>{ if(confirm('¿Eliminar venta?')){ await callApi({op:'eliminarVentas',id:v.id}); loadData(); }};
-      a.append(be, bd);
-      c.append(h, m, itemsDiv, f, a);
+    function renderTicketCard(v){
+      const c=document.createElement('div'); c.className='ticket-card';
+      c.innerHTML=`
+        <div class="ticket-header">${new Date(v.fecha).toLocaleDateString()}</div>
+        <div class="ticket-method"><strong>Pago:</strong> ${v.metodoPago}</div>
+        <div class="ticket-items"></div>
+        <div class="ticket-footer"><strong>Total:</strong> <span class="ticket-total">0</span></div>
+        <div class="ticket-actions">
+          <button class="edit-btn">Editar</button>
+          <button class="delete-btn">Eliminar</button>
+        </div>`;
+      const itemsDiv=c.querySelector('.ticket-items');
+      let total=0;
+      v.venta.forEach(it=>{
+        const d=document.createElement('div'); d.className='ticket-item';
+        d.textContent=`${it.producto} x${it.cantidad} = $${it.total}`;
+        total+=parseFloat(it.total)||0;
+        itemsDiv.append(d);
+      });
+      c.querySelector('.ticket-total').textContent=total.toFixed(2);
+      c.querySelector('.edit-btn').onclick=()=>startEdit(v);
+      c.querySelector('.delete-btn').onclick=async()=>{
+        if(!confirm('¿Eliminar venta?'))return;
+        await callApi({op:'eliminarVentas',id:v.id});
+        loadData();
+      };
       return c;
     }
-
-    async function cargarVentas() {
+    async function cargarVentas(){
       await fetchRecetas();
-      const res = await callApi({ op:'obtenerVentas' });
-      if(res.status!=='success') return; ventData = res.data;
-      const grid = document.getElementById('tickets-grid'); grid.innerHTML='';
-      ventData.forEach(v=> grid.append(renderCard(v)));
-      actualizarResumen();
+      const res=await callApi({op:'obtenerVentas'});
+      if(res.status!=='success')return;
+      ventData=res.data;
+      const grid=document.getElementById('tickets-grid'); grid.innerHTML='';
+      ventData.forEach(v=>grid.append(renderTicketCard(v)));
+      actualizarResumen(ventData);
     }
 
-    function actualizarResumen() {
-      let e=0, t=0, ta=0;
-      ventData.forEach(v=>{ const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0),0);
-        if(v.metodoPago==='Efectivo') e+=s;
-        else if(v.metodoPago==='Transferencia') t+=s;
-        else if(v.metodoPago==='Tarjeta') ta+=s;
+    // ACCIONES
+    async function addNewProducto(){
+      const code=Date.now();
+      almacenData.push({ codigo:code,name:'',precio:0,cantidad:0,unidadDeMedida:'pz',stockRecomendado:0,proveedor:'' });
+      buildProductInfo(); renderStockTable();
+      
+    }
+    async function saveAlmacen(c){
+      await callApi({
+        op:'guardarAlmacen',codigo:c,
+        name:document.getElementById(`name-${c}`).value,
+        precio:document.getElementById(`precio-${c}`).value,
+        cantidad:document.getElementById(`cant-${c}`).value,
+        unidadDeMedida:document.getElementById(`unidad-${c}`).value,
+        stockRecomendado:document.getElementById(`rec-${c}`).value,
+        proveedor:document.getElementById(`prov-${c}`).value
       });
-      document.getElementById('sum-efectivo').textContent = `Efectivo: ${e.toFixed(2)}`;
-      document.getElementById('sum-transferencia').textContent = `Transferencia: ${t.toFixed(2)}`;
-      document.getElementById('sum-tarjeta').textContent = `Tarjeta: ${ta.toFixed(2)}`;
-      document.getElementById('sum-total').textContent = `Total: ${(e+t+ta).toFixed(2)}`;
+      loadData();
+    }
+    async function deleteAlmacen(c){
+      if(!confirm('¿Eliminar producto?'))return;
+      await callApi({op:'eliminarAlmacen',codigo:c});
+      loadData();
+    }
+    async function buyProduct(id){
+      const info=productInfo[id];
+      const qty=parseFloat(document.getElementById(`buyqty-${id}`).value)||0;
+      if(qty<=0)return;
+      const uni=document.getElementById(`buyunit-${id}`).value;
+      const total=(info.priceBase*qty*FACTORES[uni]).toFixed(0);
+      const fecha=new Date().toISOString().slice(0,10);
+      await callApi({op:'guardarCompras',idProducto:id,fecha,name:almacenData.find(x=>x.codigo==id).name,precio:total,cantidad:qty,unidad:uni});
+      loadData();
+    }
+    function recalcCompra(idC,idP){
+      const info=productInfo[idP];
+      const qty=parseFloat(document.getElementById(`qty-${idC}`).value)||0;
+      const uni=document.getElementById(`unit-${idC}`).value;
+      document.getElementById(`total-${idC}`).textContent=(info.priceBase*qty*FACTORES[uni]).toFixed(2);
+    }
+    async function saveCompra(idC,idP){
+      const qty=parseFloat(document.getElementById(`qty-${idC}`).value)||0;
+      if(qty<=0)return;
+      const uni=document.getElementById(`unit-${idC}`).value;
+      const fecha=document.getElementById(`date-${idC}`).value;
+      const total=(productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0);
+      await callApi({op:'guardarCompras',idCompra:idC,idProducto:idP,fecha,name:almacenData.find(x=>x.codigo==idP).name,precio:total,cantidad:qty,unidad:uni});
+      loadData();
+    }
+    async function deleteCompra(idC,idP){
+      if(!confirm('¿Eliminar compra?'))return;
+      await callApi({op:'eliminarCompras',idCompra:idC,idProducto:idP});
+      loadData();
     }
 
-    function startEdit(v) {
-      document.getElementById('form-id').value = v.id;
-      document.getElementById('form-title').textContent = 'Editar Venta';
-      document.getElementById('form-fecha').value = new Date(v.fecha).toISOString().slice(0,10);
-      document.getElementById('form-pago').value = v.metodoPago;
-      const cont = document.getElementById('items-container'); cont.innerHTML='';
-      v.venta.forEach(it=> cont.append(crearItemRow(it.codigo, it.cantidad, it.total)));
-    }
-
-    function resetForm() {
-      document.getElementById('form-id').value = '';
-      document.getElementById('form-title').textContent = 'Nueva Venta';
-      document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
-      document.getElementById('form-pago').value = 'Efectivo';
-      const cont = document.getElementById('items-container'); cont.innerHTML=''; cont.append(crearItemRow());
-    }
-
-    async function loadData() {
-      const [alm, coc, ven, comp] = await Promise.all([
-        callApi({op:'obtenerAlmacen'}),
-        callApi({op:'obtenerCocina'}),
-        callApi({op:'obtenerVentas'}),
-        callApi({op:'obtenerCompras'})
-      ]);
-      almacenData = alm.data; cocData = coc.data; ventData = ven.data; comprasData = comp.data;
-      buildProductInfo();
-      renderStockCards();
-      renderComprasCards();
-      cargarVentas();
-      resetForm();
-    }
-
-    // Eventos
-    document.getElementById('btn-add-item').onclick = () => document.getElementById('items-container').append(crearItemRow());
-    document.getElementById('btn-cargar').onclick = loadData;
+    // VENTAS FORM
+    document.getElementById('btn-add-item').onclick = () =>
+      document.getElementById('items-container').append(crearItemRow());
+    document.getElementById('btn-cancel').onclick = resetForm;
     document.getElementById('btn-save').onclick = async () => {
       const id = document.getElementById('form-id').value;
       const fecha = document.getElementById('form-fecha').value;
+      if (!fecha) return;
       const metodo = document.getElementById('form-pago').value;
-      if (!fecha) return alert('Fecha requerida');
       const rows = document.querySelectorAll('#items-container .item-row');
-      if (rows.length === 0) return alert('Agrega al menos un producto');
-      const ventaItems = Array.from(rows).map(r => {
+      if (rows.length === 0) return;
+      const venta = Array.from(rows).map(r => {
         const [sel, ic, it] = r.children;
         return {
           codigo: sel.value,
@@ -342,30 +577,80 @@
           total: Number(it.value) || 0
         };
       });
-      // Envío de JSON con toda la información
-      const payload = {
-        id: id || undefined,
-        fecha,
-        items: ventaItems,
-        metodoPago: metodo
-      };
-      const res = await callApi({
-        op: 'guardarVentas',
-        venta: JSON.stringify(payload)
-      });
+      const payload = { id, fecha, items: venta, metodoPago: metodo, venta };
+      const res = await callApi({ op:'guardarVentas', venta: JSON.stringify(payload) });
       if (res.status === 'success') {
         resetForm();
         loadData();
-      } else {
-        alert('Error: ' + res.message);
       }
     };
-    document.getElementById('btn-cancel').onclick = resetForm;
-    window.onload = async () => {
-    await loadData();
-    resetForm();
-};
+    function startEdit(v){
+      document.getElementById('form-id').value = v.id;
+      document.getElementById('form-title').textContent = 'Editar Venta';
+      document.getElementById('form-fecha').value = new Date(v.fecha).toISOString().slice(0,10);
+      document.getElementById('form-pago').value = v.metodoPago;
+      const cont = document.getElementById('items-container'); cont.innerHTML = '';
+      v.venta.forEach(it=>cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
+    }
+    function resetForm(){
+      document.getElementById('form-id').value = '';
+      document.getElementById('form-title').textContent = 'Nueva Venta';
+      document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+      document.getElementById('form-pago').value = 'Efectivo';
+      const cont = document.getElementById('items-container'); cont.innerHTML = '';
+      cont.append(crearItemRow());
+    }
+    function actualizarResumen(vs){
+      let e=0,t=0,ta=0;
+      vs.forEach(v=>{
+        const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0),0);
+        if(v.metodoPago==='Efectivo') e+=s;
+        else if(v.metodoPago==='Transferencia') t+=s;
+        else if(v.metodoPago==='Tarjeta') ta+=s;
+      });
+      document.getElementById('sum-efectivo').textContent = e.toFixed(2);
+      document.getElementById('sum-transferencia').textContent = t.toFixed(2);
+      document.getElementById('sum-tarjeta').textContent = ta.toFixed(2);
+      document.getElementById('sum-total').textContent = (e+t+ta).toFixed(2);
+    }
 
-</script>
+    // CARGA INICIAL
+    async function fetchRecetas(){
+      const [almR,cocR] = await Promise.all([
+        callApi({op:'obtenerAlmacen'}),
+        callApi({op:'obtenerCocina'})
+      ]);
+      if(almR.status!=='success'||cocR.status!=='success') return;
+      almacenData = almR.data; cocData = cocR.data;
+      recetas = cocData.map(r=>{
+        const costo = r.ingredientes.reduce((s,ing)=>{
+          const p=almacenData.find(x=>String(x.codigo)===String(ing.codigo));
+          if(!p) return s;
+          const ua=FACTORES[p.unidadDeMedida], ui=FACTORES[ing.unidad];
+          return s + (p.precio/(ua*parseFloat(p.cantidad)))*(ui*ing.cantidad);
+        },0);
+        return {codigo:r.codigo,nombre:r.nombre,precio:(costo*MARGEN).toFixed(2)};
+      });
+    }
+    async function loadData(){
+      const [alm,coc,vent,comp] = await Promise.all([
+        callApi({op:'obtenerAlmacen'}),
+        callApi({op:'obtenerCocina'}),
+        callApi({op:'obtenerVentas'}),
+        callApi({op:'obtenerCompras'})
+      ]);
+      if([alm,coc,vent,comp].some(r=>r.status!=='success')) return;
+      almacenData = alm.data;
+      cocData     = coc.data;
+      ventData    = vent.data;
+      comprasData = comp.data;
+      buildProductInfo();
+      renderStockTable();
+      renderComprasTable();
+      cargarVentas();
+      resetForm();
+    }
+    window.onload = loadData;
+  </script>
 </body>
 </html>
