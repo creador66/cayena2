@@ -15,28 +15,31 @@
     }
     body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); padding:1rem; }
     h1,h2,h3 { margin-bottom:1rem; font-weight:400; }
-
     button { background:var(--accent); color:var(--text-light); border:none; border-radius:4px; padding:.4rem .8rem; cursor:pointer; transition:opacity var(--transition); }
     button:hover { opacity:.85; }
     .delete-btn { background:#cc3e44; }
     .delete-btn:hover { background:#a32f35; }
-
     input, select { font-size:14px; padding:.3rem; }
-    input.small { width:5rem; }
-    input.qty   { width:4rem; margin-right:.5rem; }
+    .item-row { display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
+    .small { width:5rem; }
+    .qty { width:4rem; }
+    .provider, .rec { width:6rem; }
 
-    /* STOCK & COMPRAS */
-    .card { background:#fff; border-radius:var(--radius); padding:1rem; margin-bottom:2rem; box-shadow:0 2px 4px rgba(0,0,0,0.1);}
-    table { width:100%; border-collapse:collapse; margin-bottom:1rem; }
-    th, td { padding:.5rem; border-bottom:1px solid #ddd; white-space:nowrap; }
-    th { background:var(--accent); color:var(--text-light); }
-
-    .nivel-1 { background:#fdecea; } .nivel-2 { background:#fff4e5; }
-    .nivel-3 { background:#e8f5e9; } .nivel-4 { background:#e3f2fd; }
+    /* TARJETAS RETRAIBLES */
+    .card { background:#fff; border-radius:var(--radius); padding:1rem; margin-bottom:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    details { cursor: pointer; }
+    summary { font-weight:bold; font-size:1rem; }
+    .card-content { margin-top:.5rem; display:grid; grid-template-columns:1fr; gap:.5rem; }
 
     /* VENTAS */
+    .tickets-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; margin-top:1rem; }
+    .ticket-card { background:#fff; border-radius:var(--radius); padding:1rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); display:flex; flex-direction:column; }
+    .ticket-header, .ticket-method, .ticket-footer { margin-bottom:.5rem; }
+    .ticket-items { flex:1; margin-bottom:.5rem; }
+    .ticket-item { font-size:.9rem; margin:0.2rem 0; }
+    .ticket-actions button { margin-right:0.5rem; }
 
-    /* RESUMEN */
+    /* SUMMARY */
     .summary-panel {
       position:fixed; bottom:1rem; right:1rem; width:200px;
       background:var(--panel-bg); backdrop-filter:blur(var(--blur));
@@ -48,66 +51,38 @@
   </style>
 </head>
 <body>
+  <h2>Lista de Compras y Stock</h2>
+  <button onclick="addNewProducto()">➕ Nuevo Producto</button>
+  <div id="stock-cards"></div>
 
-  <!-- STOCK -->
-  <div class="card">
-    <h2>Lista de Compras y Stock</h2>
-    <table>
-      <thead><tr>
-        <th>Código</th><th>Nombre</th><th>Precio</th><th>Cant.</th><th>Unid.</th>
-        <th>Stock Rec.</th><th>Proveedor</th><th>Acción</th>
-        <th>Comprar</th><th>Comprado</th><th>Usado</th><th>Restante</th><th>Estado</th>
-      </tr></thead>
-      <tbody id="table-stock"></tbody>
-    </table>
-    <button onclick="addNewProducto()">➕ Nuevo Producto</button>
-  </div>
+  <h3>Historial de Compras</h3>
+  <div id="compras-cards"></div>
 
-  <!-- COMPRAS -->
-  <div class="card">
-    <h3>Historial de Compras</h3>
-    <table>
-      <thead><tr>
-        <th>Fecha</th><th>Producto</th><th>Cant.</th><th>Unid.</th>
-        <th>Total</th><th>Guardar</th><th>Eliminar</th>
-      </tr></thead>
-      <tbody id="table-compras"></tbody>
-    </table>
-  </div>
-
-  <!-- VENTAS -->
   <h1>Gestión de Ventas</h1>
-  <div class="container">
-    <div class="list-panel">
-      <h2>Tickets de Venta</h2>
-      <button id="btn-cargar">Cargar Ventas</button>
-      <div class="tickets-grid" id="tickets-grid"></div>
+  <div class="list-panel">
+    <h2>Tickets de Venta</h2>
+    <button id="btn-cargar">Cargar Ventas</button>
+    <div class="tickets-grid" id="tickets-grid"></div>
+  </div>
+  <div class="form-panel">
+    <h2 id="form-title">Nueva Venta</h2>
+    <input type="hidden" id="form-id">
+    <div class="item-row">
+      <label>Fecha:</label>
+      <input type="date" id="form-fecha">
     </div>
-    <div class="form-panel">
-      <div>
-        <h2 id="form-title">Nueva Venta</h2>
-        <input type="hidden" id="form-id">
-        <div class="item-row">
-          <label style="flex:0 0 80px">Fecha:</label>
-          <input type="date" id="form-fecha" style="flex:1">
-        </div>
-        <div id="items-container"></div>
-        <button id="btn-add-item">+ Agregar producto</button>
-        <div class="item-row" style="margin-top:1rem;">
-          <label style="flex:0 0 80px">Pago:</label>
-          <select id="form-pago" style="flex:1">
-            <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option>
-          </select>
-        </div>
-        <div style="margin-top:1rem; display:flex; gap:.5rem;">
-          <button id="btn-save">Guardar</button>
-          <button id="btn-cancel">Cancelar</button>
-        </div>
-      </div>
+    <div id="items-container"></div>
+    <button id="btn-add-item">+ Agregar producto</button>
+    <div class="item-row">
+      <label>Pago:</label>
+      <select id="form-pago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option></select>
+    </div>
+    <div class="item-row">
+      <button id="btn-save">Guardar</button>
+      <button id="btn-cancel">Cancelar</button>
     </div>
   </div>
 
-  <!-- SUMMARY -->
   <div class="summary-panel">
     <h2>Resumen de Pagos</h2>
     <div id="sum-efectivo" class="summary-item">Efectivo: 0.00</div>
@@ -118,298 +93,279 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+   const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
     const FACTORES = { mg:0.001,g:1,kg:1000,ml:1,l:1000,pz:1 };
     const MARGEN = 1.55;
+    let almacenData=[],comprasData=[],ventData=[],cocData=[],recetas=[],productInfo={};
 
-    let almacenData = [], comprasData = [], ventData = [], cocData = [], recetas = [], productInfo = {};
+    async function callApi(params){const u=new URL(API_URL);Object.entries(params).forEach(([k,v])=>u.searchParams.append(k,v));return (await fetch(u)).json();}
+    function categoriaDe(u){if(['mg','g','kg'].includes(u))return['mg','g','kg'];if(['ml','l'].includes(u))return['ml','l'];return['pz'];}
+    function humanizeComposite(b,c){if(c==='peso'){const kg=Math.trunc(b/1000),g=b%1000,p=[];if(kg)p.push(`${kg} kg`);if(g)p.push(`${g} g`);return p.join(' ')||'0 g';}if(c==='volumen'){const l=Math.trunc(b/1000),m=b%1000,p=[];if(l)p.push(`${l} l`);if(m)p.push(`${m} ml`);return p.join(' ')||'0 ml';}return`${b.toFixed(0)} pz`;}
+    function buildProductInfo(){productInfo={};almacenData.forEach(it=>{const cat=['mg','g','kg'].includes(it.unidadDeMedida)?'peso':['ml','l'].includes(it.unidadDeMedida)?'volumen':'conteo';const base=parseFloat(it.cantidad)*FACTORES[it.unidadDeMedida]||1;productInfo[it.codigo]={priceBase:parseFloat(it.precio)/base||0,categoria:cat,opcionesUnidad:categoriaDe(it.unidadDeMedida)};});}
 
-    async function callApi(params) {
-      const url = new URL(API_URL);
-      Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
-      return (await fetch(url)).json();
-    }
+    function renderStockCards(){const c=document.getElementById('stock-cards');c.innerHTML='';const comp={},used={};comprasData.forEach(x=>comp[x.idProducto]=(comp[x.idProducto]||0)+x.cantidad*FACTORES[x.unidad]);ventData.forEach(v=>v.venta.forEach(i=>{const rec=cocData.find(r=>String(r.codigo)===String(i.codigo));rec&&rec.ingredientes.forEach(ing=>used[ing.codigo]=(used[ing.codigo]||0)+ing.cantidad*FACTORES[ing.unidad]*i.cantidad);}));almacenData.forEach(it=>{const info=productInfo[it.codigo],b=comp[it.codigo]||0,u=used[it.codigo]||0,r=b-u;const level=Math.floor(r/(it.stockRecomendado*FACTORES[it.unidadDeMedida]||1)*100);const nivel= level<=50?1:level<=80?2:level<=100?3:4;const cl= ['nivel-1','nivel-2','nivel-3','nivel-4'][nivel-1];c.insertAdjacentHTML('beforeend',`
+      <details class="card ${cl}"><summary>Código ${it.codigo} - ${it.name||''}</summary><div class="card-content">
+        <div><label>Nombre:</label><input id="name-${it.codigo}" value="${it.name||''}"></div>
+        <div><label>Precio:</label><input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></div>
+        <div><label>Cant:</label><input class="small" id="cant-${it.codigo}" value="${it.cantidad||0}"><label>Unid:</label><select id="unidad-${it.codigo}">${categoriaDe(it.unidadDeMedida).map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}</select></div>
+        <div><label>Stock Rec.:</label><input class="rec" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"><label>Proveedor:</label><input class="provider" id="prov-${it.codigo}" value="${it.proveedor||''}"></div>
+        <div><button onclick="saveAlmacen('${it.codigo}')">Guardar</button><button class="delete-btn" onclick="deleteAlmacen('${it.codigo}')">Eliminar</button></div>
+        <div><label>Comprar:</label><input class="qty" id="buyqty-${it.codigo}" value="1"><select id="buyunit-${it.codigo}">${info.opcionesUnidad.map(u=>`<option value="${u}">${u}</option>`).join('')}</select><button onclick="buyProduct('${it.codigo}')">Comprar</button></div>
+        <div>Comprado: ${humanizeComposite(b,info.categoria)} ~ $${(info.priceBase*b).toFixed(0)}</div>
+        <div>Usado: ${humanizeComposite(u,info.categoria)} ~ $${(info.priceBase*u).toFixed(0)}</div>
+        <div>Restante: ${humanizeComposite(r,info.categoria)} ~ $${(info.priceBase*r).toFixed(0)}</div>
+        <div>Estado: Nivel ${nivel}</div>
+      </div></details>
+    `);});}
 
-    // UTILS STOCK/COMPRAS
-    function categoriaDe(u){
-      if(['mg','g','kg'].includes(u)) return ['mg','g','kg'];
-      if(['ml','l'].includes(u)) return ['ml','l'];
-      return ['pz'];
-    }
-    function humanizeComposite(b,c){
-      if(c==='peso'){ const kg=Math.trunc(b/1000),g=b%1000,p=[];if(kg)p.push(`${kg} kg`);if(g)p.push(`${g} g`);return p.join(' ')||'0 g'; }
-      if(c==='volumen'){ const l=Math.trunc(b/1000),m=b%1000,p=[];if(l)p.push(`${l} l`);if(m)p.push(`${m} ml`);return p.join(' ')||'0 ml'; }
-      return `${b.toFixed(0)} pz`;
-    }
+    function renderComprasCards(){const c=document.getElementById('compras-cards');c.innerHTML='';comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(x=>{const opts=productInfo[x.idProducto].opcionesUnidad.map(u=>`<option value="${u}"${u===x.unidad?' selected':''}>${u}</option>`).join('');c.insertAdjacentHTML('beforeend',`
+      <details class="card"><summary>${x.fecha.slice(0,10)} - ${almacenData.find(p=>p.codigo==x.idProducto).name}</summary><div class="card-content">
+        <div><label>Fecha:</label><input type="date" id="date-${x.idCompra}" value="${x.fecha.slice(0,10)}"></div>
+        <div><label>Cant:</label><input class="qty" id="qty-${x.idCompra}" value="${x.cantidad}" onchange="recalcCompra('${x.idCompra}','${x.idProducto}')"><label>Unid:</label><select id="unit-${x.idCompra}" onchange="recalcCompra('${x.idCompra}','${x.idProducto}')">${opts}</select></div>
+        <div>Total: <span id="total-${x.idCompra}"></span></div>
+        <div><button onclick="saveCompra('${x.idCompra}','${x.idProducto}')">Guardar</button><button class="delete-btn" onclick="deleteCompra('${x.idCompra}','${x.idProducto}')">Eliminar</button></div>
+      </div></details>
+    `);recalcCompra(x.idCompra,x.idProducto);});}
 
-    function buildProductInfo(){
-      productInfo = {};
-      almacenData.forEach(it=>{
-        const cat = ['mg','g','kg'].includes(it.unidadDeMedida)?'peso': ['ml','l'].includes(it.unidadDeMedida)?'volumen':'conteo';
-        const base = parseFloat(it.cantidad)*FACTORES[it.unidadDeMedida]||1;
-        productInfo[it.codigo] = { priceBase:parseFloat(it.precio)/base||0, categoria:cat, opcionesUnidad:categoriaDe(it.unidadDeMedida) };
+        // Funciones de Almacén
+    async function saveAlmacen(codigo) {
+      const name = document.getElementById(`name-${codigo}`).value;
+      const precio = document.getElementById(`precio-${codigo}`).value;
+      const cantidad = document.getElementById(`cant-${codigo}`).value;
+      const unidadDeMedida = document.getElementById(`unidad-${codigo}`).value;
+      const stockRecomendado = document.getElementById(`rec-${codigo}`).value;
+      const proveedor = document.getElementById(`prov-${codigo}`).value;
+      await callApi({
+        op: 'guardarAlmacen',
+        codigo,
+        name,
+        precio,
+        cantidad,
+        unidadDeMedida,
+        stockRecomendado,
+        proveedor
       });
+      loadData();
     }
 
-    function renderStockTable(){
-      const tbody = document.getElementById('table-stock');
-      const compMap={}, usedMap={};
-      comprasData.forEach(c=> compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
-      ventData.forEach(v=> v.venta.forEach(it=>{
-        const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
-        if(!rec) return;
-        rec.ingredientes.forEach(ing=>{
-          usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
-        });
-      }));
-      tbody.innerHTML = '';
-      almacenData.forEach(it=>{
-        const info = productInfo[it.codigo];
-        const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
-        const bought = compMap[it.codigo]||0, used = usedMap[it.codigo]||0, remain = bought-used;
-        const pct = recBase? remain/recBase*100:0;
-        let nivel, cl;
-        if(pct<=50){nivel=4;cl='nivel-1';}
-        else if(pct<=80){nivel=3;cl='nivel-2';}
-        else if(pct<=100){nivel=2;cl='nivel-3';}
-        else{nivel=1;cl='nivel-4';}
-        const delta = remain-recBase;
-        const accion = delta<0? `ordenar ${humanizeComposite(-delta, info.categoria)}` : `sobrante ${humanizeComposite(delta, info.categoria)}`;
-        const hB = humanizeComposite(bought,info.categoria), hU = humanizeComposite(used,info.categoria), hR = humanizeComposite(remain,info.categoria);
-        const tB = (info.priceBase*bought).toFixed(0), tU = (info.priceBase*used).toFixed(0), tR = (info.priceBase*remain).toFixed(0);
-        tbody.insertAdjacentHTML('beforeend',`
-          <tr class="${cl}">
-            <td>${it.codigo}</td>
-            <td><input id="name-${it.codigo}" value="${it.name||''}"></td>
-            <td><input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></td>
-            <td><input id="cant-${it.codigo}" value="${it.cantidad||0}" class="small"></td>
-            <td><select id="unidad-${it.codigo}">${categoriaDe(it.unidadDeMedida).map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}</select></td>
-            <td><input id="rec-${it.codigo}" value="${it.stockRecomendado||0}" class="small"></td>
-            <td><input id="prov-${it.codigo}" value="${it.proveedor||''}"></td>
-            <td>
-              <button onclick="saveAlmacen('${it.codigo}')">Guardar</button>
-              <button class="delete-btn" onclick="deleteAlmacen('${it.codigo}')">🗑️</button>
-            </td>
-            <td>
-              <input class="qty" id="buyqty-${it.codigo}" type="number" step=".01" value="1">
-              <select id="buyunit-${it.codigo}">${info.opcionesUnidad.map(u=>`<option value="${u}">${u}</option>`).join('')}</select>
-              <button onclick="buyProduct('${it.codigo}')">Comprar</button>
-            </td>
-            <td>${hB} ~ $${tB}</td>
-            <td>${hU} ~ $${tU}</td>
-            <td>${hR} ~ $${tR}</td>
-            <td>- Nivel ${nivel} ${accion}</td>
-          </tr>`);
-      });
+    async function deleteAlmacen(codigo) {
+      if (!confirm('¿Eliminar producto?')) return;
+      await callApi({ op: 'eliminarAlmacen', codigo });
+      loadData();
     }
 
-    async function addNewProducto(){
+    // Funciones de Almacén
+    async function addNewProducto() {
+      // Agrega un nuevo producto al almacén con valores por defecto
       const code = Date.now();
-      almacenData.push({ codigo:code, name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' });
-      buildProductInfo(); renderStockTable();
-    }
-    async function saveAlmacen(codigo){
-      await callApi({
-        op:'guardarAlmacen', codigo,
-        name: document.getElementById(`name-${codigo}`).value,
-        precio: document.getElementById(`precio-${codigo}`).value,
-        cantidad: document.getElementById(`cant-${codigo}`).value,
-        unidadDeMedida: document.getElementById(`unidad-${codigo}`).value,
-        stockRecomendado: document.getElementById(`rec-${codigo}`).value,
-        proveedor: document.getElementById(`prov-${codigo}`).value
+      almacenData.push({
+        codigo: code,
+        name: '',
+        precio: 0,
+        cantidad: 0,
+        unidadDeMedida: 'pz',
+        stockRecomendado: 0,
+        proveedor: ''
       });
-      loadData();
+      buildProductInfo();
+      renderStockCards();
     }
-    async function deleteAlmacen(codigo){
-      if(!confirm('¿Eliminar producto?')) return;
-      await callApi({ op:'eliminarAlmacen', codigo });
-      loadData();
-    }
-    async function buyProduct(id){
+
+    // Funciones de Compras
+    function buyProduct(id) {
       const info = productInfo[id];
-      const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value)||0;
-      if(qty<=0) return alert('Cantidad inválida');
-      const uni = document.getElementById(`buyunit-${id}`).value;
-      const total = (info.priceBase*qty*FACTORES[uni]).toFixed(0);
+      const qty = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
+      if (qty <= 0) return alert('Cantidad inválida');
+      const unidad = document.getElementById(`buyunit-${id}`).value;
+      const total = (info.priceBase * qty * FACTORES[unidad]).toFixed(0);
       const fecha = new Date().toISOString().slice(0,10);
-      await callApi({
-        op:'guardarCompras', idProducto:id, fecha,
-        name: almacenData.find(x=>x.codigo==id).name,
-        precio: total, cantidad: qty, unidad: uni
-      });
-      loadData();
+      callApi({
+        op: 'guardarCompras',
+        idProducto: id,
+        fecha,
+        name: almacenData.find(x => x.codigo == id).name,
+        precio: total,
+        cantidad: qty,
+        unidad
+      }).then(loadData);
     }
 
-    function renderComprasTable(){
-      const tbody = document.getElementById('table-compras');
-      tbody.innerHTML = '';
-      comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c=>{
-        const opts = productInfo[c.idProducto].opcionesUnidad.map(u=>`<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`).join('');
-        tbody.insertAdjacentHTML('beforeend',`
-          <tr>
-            <td><input type="date" id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}"></td>
-            <td>${almacenData.find(x=>x.codigo==c.idProducto).name}</td>
-            <td><input class="qty" id="qty-${c.idCompra}" type="number" step=".01" value="${c.cantidad}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></td>
-            <td><select id="unit-${c.idCompra}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')">${opts}</select></td>
-            <td><span id="total-${c.idCompra}"></span></td>
-            <td><button onclick="saveCompra('${c.idCompra}','${c.idProducto}')">Guardar</button></td>
-            <td><button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">🗑️</button></td>
-          </tr>`);
-        recalcCompra(c.idCompra,c.idProducto);
-      });
-    }
-    function recalcCompra(idC,idP){
+    function recalcCompra(idC, idP) {
       const info = productInfo[idP];
-      const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
-      const uni  = document.getElementById(`unit-${idC}`).value;
-      document.getElementById(`total-${idC}`).textContent = `$${(info.priceBase*qty*FACTORES[uni]).toFixed(2)}`;
+      const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
+      const unidad = document.getElementById(`unit-${idC}`).value;
+      document.getElementById(`total-${idC}`).textContent = `$${(info.priceBase * qty * FACTORES[unidad]).toFixed(2)}`;
     }
-    async function saveCompra(idC,idP){
-      const qty = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
-      if(qty<=0) return alert('Cantidad inválida');
-      const uni = document.getElementById(`unit-${idC}`).value;
+
+    function saveCompra(idC, idP) {
+      const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
+      if (qty <= 0) return alert('Cantidad inválida');
+      const unidad = document.getElementById(`unit-${idC}`).value;
       const fecha = document.getElementById(`date-${idC}`).value;
-      const total = (productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0);
-      await callApi({
-        op:'guardarCompras', idCompra:idC, idProducto:idP,
-        fecha, name: almacenData.find(x=>x.codigo==idP).name,
-        precio:total, cantidad:qty, unidad:uni
-      });
-      loadData();
-    }
-    async function deleteCompra(idC,idP){
-      if(!confirm('¿Eliminar compra?')) return;
-      await callApi({ op:'eliminarCompras', idCompra:idC, idProducto:idP });
-      loadData();
-    }
-
-    /* VENTAS */
-    async function fetchRecetas(){
-      const [almR,cocR] = await Promise.all([ callApi({op:'obtenerAlmacen'}), callApi({op:'obtenerCocina'}) ]);
-      if(almR.status!=='success'||cocR.status!=='success') return;
-      almacenData = almR.data; cocData = cocR.data;
-      recetas = cocData.map(r=>{
-        const costo = r.ingredientes.reduce((s,ing)=>{
-          const p = almacenData.find(x=>String(x.codigo)===String(ing.codigo));
-          if(!p) return s;
-          const ua=FACTORES[p.unidadDeMedida], ui=FACTORES[ing.unidad];
-          return s + (p.precio/(ua*parseFloat(p.cantidad)))*(ui*ing.cantidad);
-        },0);
-        return { codigo: r.codigo, nombre: r.nombre, precio: parseFloat((costo*MARGEN).toFixed(2)) };
-      });
+      const total = (productInfo[idP].priceBase * qty * FACTORES[unidad]).toFixed(0);
+      callApi({
+        op: 'guardarCompras',
+        idCompra: idC,
+        idProducto: idP,
+        fecha,
+        name: almacenData.find(x => x.codigo == idP).name,
+        precio: total,
+        cantidad: qty,
+        unidad
+      }).then(loadData);
     }
 
-    function crearItemRow(cod='',cant='',tot=''){
-      const row=document.createElement('div'); row.className='item-row';
-      const sel=document.createElement('select');
-      recetas.forEach(r=>{ const o=document.createElement('option'); o.value=r.codigo; o.textContent=r.nombre; if(r.codigo===cod) o.selected=true; sel.append(o); });
-      const ic=document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
-      const it=document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
-      const bd=document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.onclick=()=>row.remove();
-      function recalc(){ const p=recetas.find(x=>x.codigo===sel.value)||{precio:0}; const q=parseFloat(ic.value)||0; it.value=(p.precio*q).toFixed(2); }
-      sel.onchange=recalc; ic.oninput=recalc;
-      row.append(sel,ic,it,bd);
+    function deleteCompra(idC, idP) {
+      if (!confirm('¿Eliminar compra?')) return;
+      callApi({ op: 'eliminarCompras', idCompra: idC, idProducto: idP }).then(loadData);
+    }
+
+    // Funciones de Ventas
+    async function fetchRecetas() {
+      const [alm, coc] = await Promise.all([
+        callApi({ op:'obtenerAlmacen' }),
+        callApi({ op:'obtenerCocina' })
+      ]);
+      almacenData = alm.data;
+      cocData = coc.data;
+      recetas = cocData.map(r => {
+        const costo = r.ingredientes.reduce((s, ing) => {
+          const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
+          if (!p) return s;
+          const ua = FACTORES[p.unidadDeMedida];
+          const ui = FACTORES[ing.unidad];
+          return s + (p.precio/(ua * parseFloat(p.cantidad))) * (ui * ing.cantidad);
+        }, 0);
+        return { codigo: r.codigo, nombre: r.nombre, precio: parseFloat((costo * MARGEN).toFixed(2)) };
+      });
+    }
+
+    function crearItemRow(cod = '', cant = '', tot = '') {
+      const row = document.createElement('div'); row.className = 'item-row';
+      const sel = document.createElement('select');
+      recetas.forEach(r => { const o = document.createElement('option'); o.value = r.codigo; o.textContent = r.nombre; if (r.codigo === cod) o.selected = true; sel.append(o); });
+      const ic = document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
+      const it = document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
+      const bd = document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.onclick = () => row.remove();
+      function recalc() { const p = recetas.find(x => x.codigo === sel.value) || { precio:0 }; it.value = (p.precio * (parseFloat(ic.value)||0)).toFixed(2); }
+      sel.onchange = recalc; ic.oninput = recalc;
+      row.append(sel, ic, it, bd);
       return row;
     }
 
-    function renderCard(v){
-      const c=document.createElement('div'); c.className='ticket-card';
-      const h=document.createElement('div'); h.className='ticket-header'; h.textContent=new Date(v.fecha).toISOString().slice(0,10);
-      const m=document.createElement('div'); m.className='ticket-method'; m.textContent='Pago: '+(v.metodoPago||'—');
-      const itemsDiv=document.createElement('div'); itemsDiv.className='ticket-items';
-      v.venta.forEach(it=>{ const d=document.createElement('div'); d.className='ticket-item'; d.textContent=`${it.producto} x${it.cantidad} = ${it.total}`; itemsDiv.append(d); });
-      const f=document.createElement('div'); f.className='ticket-footer'; const tot=v.venta.reduce((s,i)=>s+parseFloat(i.total||0),0).toFixed(2); f.textContent='Total: '+tot;
-      const a=document.createElement('div'); a.className='ticket-actions';
-      const be=document.createElement('button'), bd=document.createElement('button');
+    function renderCard(v) {
+      const c = document.createElement('div'); c.className = 'ticket-card';
+      const h = document.createElement('div'); h.className='ticket-header'; h.textContent = new Date(v.fecha).toISOString().slice(0,10);
+      const m = document.createElement('div'); m.className='ticket-method'; m.textContent = 'Pago: '+(v.metodoPago||'—');
+      const itemsDiv = document.createElement('div'); itemsDiv.className='ticket-items';
+      v.venta.forEach(it => { const d = document.createElement('div'); d.className='ticket-item'; d.textContent = `${it.producto} x${it.cantidad} = ${it.total}`; itemsDiv.append(d); });
+      const f = document.createElement('div'); f.className='ticket-footer'; f.textContent='Total: '+v.venta.reduce((s,i)=>s+parseFloat(i.total||0),0).toFixed(2);
+      const a = document.createElement('div'); a.className='ticket-actions';
+      const be = document.createElement('button'), bd = document.createElement('button');
       be.textContent='Editar'; be.onclick=()=>startEdit(v);
-      bd.textContent='Eliminar'; bd.onclick=async()=>{ await callApi({op:'eliminarVentas',id:v.id}); loadData(); };
-      a.append(be,bd); c.append(h,m,itemsDiv,f,a);
+      bd.textContent='Eliminar'; bd.onclick=async()=>{ if(confirm('¿Eliminar venta?')){ await callApi({op:'eliminarVentas',id:v.id}); loadData(); }};
+      a.append(be, bd);
+      c.append(h, m, itemsDiv, f, a);
       return c;
     }
 
-    async function cargarVentas(){
+    async function cargarVentas() {
       await fetchRecetas();
-      const res=await callApi({op:'obtenerVentas'});
-      if(res.status!=='success') return alert(res.message);
-      ventData=res.data;
-      const grid=document.getElementById('tickets-grid'); grid.innerHTML='';
-      ventData.forEach(v=>grid.append(renderCard(v)));
-      actualizarResumen(ventData);
+      const res = await callApi({ op:'obtenerVentas' });
+      if(res.status!=='success') return; ventData = res.data;
+      const grid = document.getElementById('tickets-grid'); grid.innerHTML='';
+      ventData.forEach(v=> grid.append(renderCard(v)));
+      actualizarResumen();
     }
 
-    function actualizarResumen(vs){
-      let e=0,t=0,ta=0;
-      vs.forEach(v=>{ const s=v.venta.reduce((a,i)=>a+parseFloat(i.total||0),0); if(v.metodoPago==='Efectivo') e+=s; else if(v.metodoPago==='Transferencia') t+=s; else if(v.metodoPago==='Tarjeta') ta+=s; });
-      document.getElementById('sum-efectivo').textContent=`Efectivo: ${e.toFixed(2)}`;
-      document.getElementById('sum-transferencia').textContent=`Transferencia: ${t.toFixed(2)}`;
-      document.getElementById('sum-tarjeta').textContent=`Tarjeta: ${ta.toFixed(2)}`;
-      document.getElementById('sum-total').textContent=`Total: ${(e+t+ta).toFixed(2)}`;
-    }
-
-    function startEdit(v){
-      document.getElementById('form-id').value=v.id;
-      document.getElementById('form-title').textContent='Editar Venta';
-      document.getElementById('form-fecha').value=new Date(v.fecha).toISOString().slice(0,10);
-      document.getElementById('form-pago').value=v.metodoPago;
-      const cont=document.getElementById('items-container'); cont.innerHTML='';
-      v.venta.forEach(it=>cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
-    }
-
-    function resetForm(){
-      document.getElementById('form-id').value='';
-      document.getElementById('form-title').textContent='Nueva Venta';
-      document.getElementById('form-fecha').value=new Date().toISOString().slice(0,10);
-      document.getElementById('form-pago').value='Efectivo';
-      const cont=document.getElementById('items-container'); cont.innerHTML=''; cont.append(crearItemRow());
-    }
-
-    document.getElementById('btn-add-item').onclick = () => document.getElementById('items-container').append(crearItemRow());
-    document.getElementById('btn-cargar').onclick    = () => loadData();
-    document.getElementById('btn-save').onclick     = async () => {
-      const id    = document.getElementById('form-id').value;
-      const fecha = document.getElementById('form-fecha').value;
-      if(!fecha) return alert('Fecha requerida');
-      const metodo= document.getElementById('form-pago').value;
-      const rows  = document.querySelectorAll('#items-container .item-row');
-      if(rows.length===0) return alert('Agrega al menos un producto');
-      const venta = Array.from(rows).map(r=>{
-        const [sel,ic,it] = r.children;
-        return {
-          codigo: sel.value,
-          producto: recetas.find(x=>x.codigo===sel.value).nombre,
-          cantidad: Number(ic.value)||0,
-          total: Number(it.value)||0
-        };
+    function actualizarResumen() {
+      let e=0, t=0, ta=0;
+      ventData.forEach(v=>{ const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0),0);
+        if(v.metodoPago==='Efectivo') e+=s;
+        else if(v.metodoPago==='Transferencia') t+=s;
+        else if(v.metodoPago==='Tarjeta') ta+=s;
       });
-      const payload = { id, fecha, items: venta, metodoPago: metodo, venta };
-      // Envío EXACTO del JSON de ejemplo
-      const res = await callApi({ op:'guardarVentas', venta: JSON.stringify(payload) });
-      if(res.status==='success'){
-        resetForm();
-        loadData();
-      } else {
-        alert('Error: '+res.message);
-      }
-    };
-    document.getElementById('btn-cancel').onclick = resetForm;
+      document.getElementById('sum-efectivo').textContent = `Efectivo: ${e.toFixed(2)}`;
+      document.getElementById('sum-transferencia').textContent = `Transferencia: ${t.toFixed(2)}`;
+      document.getElementById('sum-tarjeta').textContent = `Tarjeta: ${ta.toFixed(2)}`;
+      document.getElementById('sum-total').textContent = `Total: ${(e+t+ta).toFixed(2)}`;
+    }
 
-    async function loadData(){
-      const [alm,coc,vent,comp] = await Promise.all([
+    function startEdit(v) {
+      document.getElementById('form-id').value = v.id;
+      document.getElementById('form-title').textContent = 'Editar Venta';
+      document.getElementById('form-fecha').value = new Date(v.fecha).toISOString().slice(0,10);
+      document.getElementById('form-pago').value = v.metodoPago;
+      const cont = document.getElementById('items-container'); cont.innerHTML='';
+      v.venta.forEach(it=> cont.append(crearItemRow(it.codigo, it.cantidad, it.total)));
+    }
+
+    function resetForm() {
+      document.getElementById('form-id').value = '';
+      document.getElementById('form-title').textContent = 'Nueva Venta';
+      document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+      document.getElementById('form-pago').value = 'Efectivo';
+      const cont = document.getElementById('items-container'); cont.innerHTML=''; cont.append(crearItemRow());
+    }
+
+    async function loadData() {
+      const [alm, coc, ven, comp] = await Promise.all([
         callApi({op:'obtenerAlmacen'}),
         callApi({op:'obtenerCocina'}),
         callApi({op:'obtenerVentas'}),
         callApi({op:'obtenerCompras'})
       ]);
-      if([alm,coc,vent,comp].some(r=>r.status!=='success')) return;
-      almacenData=alm.data; cocData=coc.data; ventData=vent.data; comprasData=comp.data;
+      almacenData = alm.data; cocData = coc.data; ventData = ven.data; comprasData = comp.data;
       buildProductInfo();
-      renderStockTable();
-      renderComprasTable();
+      renderStockCards();
+      renderComprasCards();
       cargarVentas();
       resetForm();
     }
 
-    window.onload = loadData;
-  </script>
+    // Eventos
+    document.getElementById('btn-add-item').onclick = () => document.getElementById('items-container').append(crearItemRow());
+    document.getElementById('btn-cargar').onclick = loadData;
+    document.getElementById('btn-save').onclick = async () => {
+      const id = document.getElementById('form-id').value;
+      const fecha = document.getElementById('form-fecha').value;
+      const metodo = document.getElementById('form-pago').value;
+      if (!fecha) return alert('Fecha requerida');
+      const rows = document.querySelectorAll('#items-container .item-row');
+      if (rows.length === 0) return alert('Agrega al menos un producto');
+      const ventaItems = Array.from(rows).map(r => {
+        const [sel, ic, it] = r.children;
+        return {
+          codigo: sel.value,
+          producto: recetas.find(x => x.codigo === sel.value).nombre,
+          cantidad: Number(ic.value) || 0,
+          total: Number(it.value) || 0
+        };
+      });
+      // Envío de JSON con toda la información
+      const payload = {
+        id: id || undefined,
+        fecha,
+        items: ventaItems,
+        metodoPago: metodo
+      };
+      const res = await callApi({
+        op: 'guardarVentas',
+        venta: JSON.stringify(payload)
+      });
+      if (res.status === 'success') {
+        resetForm();
+        loadData();
+      } else {
+        alert('Error: ' + res.message);
+      }
+    };
+    document.getElementById('btn-cancel').onclick = resetForm;
+    window.onload = async () => {
+    await loadData();
+    resetForm();
+};
+
+</script>
 </body>
 </html>
