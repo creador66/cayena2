@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Font Awesome 6 -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
   <title>Unificación</title>
   <style>
@@ -225,10 +224,10 @@ gap: 10px;
 
   <!-- NAVEGACIÓN -->
   <nav class="top-nav">
-    <button data-sec="stock" class="active">Stock</button>
-    <button data-sec="compras">Compras</button>
-    <button data-sec="ventas">Ventas</button>
-    <button data-sec="recetas">Recetas</button>
+    <button data-sec="stock" class="active" onclick="cambiarSeccion('stock')">Stock</button>
+    <button data-sec="compras" onclick="cambiarSeccion('compras')">Compras</button>
+    <button data-sec="ventas" onclick="cambiarSeccion('ventas')">Ventas</button>
+    <button data-sec="recetas" onclick="cambiarSeccion('recetas')">Recetas</button>
   </nav>
 
   <!-- STOCK -->
@@ -254,7 +253,7 @@ gap: 10px;
         <label style="flex:1"><input type="date" id="form-fecha"></label>
       </div>
       <div id="items-container"></div>
-      <button id="btn-add-item" class="btn-add">+ Agregar producto</button>
+      <button id="btn-add-item" class="btn-add" onclick="agregarItemVenta()">+ Agregar producto</button>
       <div class="item-row">
         <label style="flex:1">
           <select id="form-pago">
@@ -263,75 +262,69 @@ gap: 10px;
         </label>
       </div>
       <div style="display:flex;gap:.5rem;">
-        <button id="btn-save" class="btn-add"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
-        <button id="btn-cancel" class="delete-btn">Cancelar</button>
+        <button id="btn-save" class="btn-add" onclick="guardarVenta()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+        <button id="btn-cancel" class="delete-btn" onclick="resetForm()">Cancelar</button>
       </div>
     </div>
     <div id="tickets-grid" class="card-grid"></div>
   </section>
 
   <!-- RECETAS -->
-<!-- RECETAS -->
-<section id="recetas" class="section">
-  <h2>CRUD Recetas</h2>
-  <div class="form-panel">
-    <h3 id="form-receta-title">Nueva Receta</h3>
-    <input type="hidden" id="form-receta-id">
+  <section id="recetas" class="section">
+    <h2>CRUD Recetas</h2>
+    <div class="form-panel">
+      <h3 id="form-receta-title">Nueva Receta</h3>
+      <input type="hidden" id="form-receta-id">
 
-    <!-- Código y Nombre -->
-    <div class="item-row dividirEn2">
- <input id="receta-codigo" type="text" placeholder="Ej: R001">
+      <!-- Código y Nombre -->
+      <div class="item-row dividirEn2">
+        <input id="receta-codigo" type="text" placeholder="Ej: R001">
         <input id="receta-nombre" type="text" placeholder="Nombre receta">
-    </div>
+      </div>
 
-    <div class="item-row dividirEn2">
-      <label>
-        Categoría:<br>
-        <select id="receta-categoria"></select>
-      </label>
-      <label style="flex:1" class="hidden" id="wrapper-receta-categoria-nueva">
-        Nueva categoría:<br>
-        <input id="receta-categoria-nueva" type="text" placeholder="Nueva categoría">
-      </label>
-      
+      <div class="item-row dividirEn2">
+        <label>
+          Categoría:<br>
+          <select id="receta-categoria" onchange="toggleNuevaCategoria()"></select>
+        </label>
+        <label style="flex:1" class="hidden" id="wrapper-receta-categoria-nueva">
+          Nueva categoría:<br>
+          <input id="receta-categoria-nueva" type="text" placeholder="Nueva categoría">
+        </label>
         <input id="receta-imagen" type="text" placeholder="http://...">
+      </div>
 
-      
-      
+      <!-- Ingredientes -->
+      <h3>Ingredientes</h3>
+      <div class="item-row">
+        <button id="agregar-ingrediente" class="btn-add" onclick="agregarFila()">+ Agregar ingrediente</button>
+      </div>
+      <table id="ingredientes-table" style="width:100%; margin-top:.5rem; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left">Producto</th>
+            <th style="text-align:left">Cantidad</th>
+            <th style="text-align:left">Unidad</th>
+            <th style="text-align:left">Acción</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <!-- Acciones -->
+      <div class="item-row" style="gap:0.5rem; margin-top:1rem;">
+        <button id="guardar-receta" class="btn-add" style="flex:1" onclick="guardarReceta()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+        <button id="limpiar-form" class="delete-btn" style="flex:1" onclick="limpiarForm()">
+          Limpiar
+        </button>
+      </div>
     </div>
 
-
-    <!-- Ingredientes -->
-    <h3>Ingredientes</h3>
-    <div class="item-row">
-      <button id="agregar-ingrediente" class="btn-add">+ Agregar ingrediente</button>
-    </div>
-    <table id="ingredientes-table" style="width:100%; margin-top:.5rem; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th style="text-align:left">Producto</th>
-          <th style="text-align:left">Cantidad</th>
-          <th style="text-align:left">Unidad</th>
-          <th style="text-align:left">Acción</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <!-- Acciones -->
-    <div class="item-row" style="gap:0.5rem; margin-top:1rem;">
-      <button id="guardar-receta" class="btn-add" style="flex:1">
-        <i class="fa-solid fa-floppy-disk"></i> Guardar
-      </button>
-      <button id="limpiar-form" class="delete-btn" style="flex:1">
-        Limpiar
-      </button>
-    </div>
-  </div>
-
-  <!-- Listado de Recetas -->
-  <div id="lista-recetas" class="card-grid"></div>
-</section>
+    <!-- Listado de Recetas -->
+    <div id="lista-recetas" class="card-grid"></div>
+  </section>
 
   <footer class="payment-summary">
     <div>Efectivo<br><span id="sum-efectivo">0.00</span></div>
@@ -342,14 +335,12 @@ gap: 10px;
 
 <script>
   // —————— PAGINACIÓN ENTRE SECCIONES ——————
-  document.querySelectorAll('nav.top-nav button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('nav.top-nav button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(btn.dataset.sec).classList.add('active');
-    });
-  });
+  function cambiarSeccion(sec) {
+    document.querySelectorAll('nav.top-nav button').forEach(b => b.classList.remove('active'));
+    document.querySelector(`nav.top-nav button[data-sec="${sec}"]`).classList.add('active');
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sec).classList.add('active');
+  }
 
   // —————— CONSTANTES Y ESTADO GLOBAL ——————
   const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
@@ -621,7 +612,7 @@ gap: 10px;
     const bd = document.createElement('button');
     bd.type        = 'button';
     bd.textContent = '−';
-    bd.onclick     = () => row.remove();
+    bd.onclick     = function() { this.parentNode.remove(); };
     function recalc() {
       const p = recetas.find(x=>x.codigo===sel.value)||{precio:0};
       it.value = (p.precio*(parseFloat(ic.value)||0)).toFixed(2);
@@ -640,8 +631,8 @@ gap: 10px;
       <div class="ticket-items"></div>
       <div class="ticket-footer"><strong>Total:</strong> <span class="ticket-total">0</span></div>
       <div class="card-footer">
-        <button class="edit-btn">Editar</button>
-        <button class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+        <button class="edit-btn" onclick="startEdit(${JSON.stringify(v)})">Editar</button>
+        <button class="delete-btn" onclick="eliminarVenta(${v.id})"><i class="fa-solid fa-trash"></i></button>
       </div>`;
     const itemsDiv = c.querySelector('.ticket-items');
     let total = 0;
@@ -653,16 +644,10 @@ gap: 10px;
       itemsDiv.append(d);
     });
     c.querySelector('.ticket-total').textContent = total.toFixed(2);
-    c.querySelector('.edit-btn').onclick = () => startEdit(v);
-    c.querySelector('.delete-btn').onclick = async () => {
-      if (!confirm('¿Eliminar venta?')) return;
-      await callApi({ op:'eliminarVentas', id:v.id });
-      await loadData();
-    };
     return c;
   }
   async function cargarVentas() {
-    await fetchRecetas(); // asegura recetas disponibles
+    await fetchRecetas();
     const res = await callApi({ op:'obtenerVentas' });
     if (res.status!=='success') return;
     ventData = res.data;
@@ -670,6 +655,11 @@ gap: 10px;
     grid.innerHTML = '';
     ventData.forEach(v => grid.append(renderTicketCard(v)));
     actualizarResumen(ventData);
+  }
+  async function eliminarVenta(id) {
+    if (!confirm('¿Eliminar venta?')) return;
+    await callApi({ op:'eliminarVentas', id });
+    await loadData();
   }
 
   // —————— RESÚMENES Y ESTADÍSTICAS ——————
@@ -744,11 +734,12 @@ gap: 10px;
       ...categorias.sort().map(c=>`<option value="${c}">${c}</option>`),
       '<option value="__nueva__">+ Nueva categoría</option>'
     ].join('');
-    sel.onchange = () => {
-      document.getElementById('wrapper-receta-categoria-nueva')
-        .classList.toggle('hidden', sel.value!=='__nueva__');
-    };
     mostrarRecetas();
+  }
+  function toggleNuevaCategoria() {
+    const sel = document.getElementById('receta-categoria');
+    document.getElementById('wrapper-receta-categoria-nueva')
+      .classList.toggle('hidden', sel.value!=='__nueva__');
   }
   function mostrarRecetas() {
     const cont = document.getElementById('lista-recetas');
@@ -809,17 +800,17 @@ gap: 10px;
     inpCant.type  = 'number'; inpCant.min='0'; inpCant.value = item.cantidad||1;
     let unidad0   = item.unidad||selProd.selectedOptions[0].dataset.unit;
     let selUni    = crearSelectUnidad(categoriaDe(unidad0), unidad0);
-    selProd.onchange = () => {
-      const nu  = selProd.selectedOptions[0].dataset.unit;
+    selProd.onchange = function() {
+      const nu  = this.selectedOptions[0].dataset.unit;
       const cat = categoriaDe(nu);
       const nuevo = crearSelectUnidad(cat,nu);
-      tr.children[2].replaceChild(nuevo, selUni);
+      this.parentNode.parentNode.children[2].replaceChild(nuevo, selUni);
       selUni = nuevo;
     };
     const btnDel = document.createElement('button');
     btnDel.type  = 'button';
     btnDel.textContent = 'Eliminar';
-    btnDel.onclick = e => { e.preventDefault(); tr.remove(); };
+    btnDel.onclick = function() { this.parentNode.parentNode.remove(); };
     [selProd, inpCant, selUni, btnDel].forEach(el => {
       const td = document.createElement('td');
       td.append(el);
@@ -917,10 +908,11 @@ gap: 10px;
   }
 
   // —————— VENTAS FORM ——————
-  document.getElementById('btn-add-item').onclick = () =>
+  function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
-  document.getElementById('btn-cancel').onclick = resetForm;
-  document.getElementById('btn-save').onclick = async () => {
+  }
+  
+  async function guardarVenta() {
     const id    = document.getElementById('form-id').value;
     const fecha = document.getElementById('form-fecha').value;
     if (!fecha) return;
@@ -942,6 +934,7 @@ gap: 10px;
       await loadData();
     }
   };
+  
   function startEdit(v) {
     document.getElementById('form-id').value = v.id;
     document.getElementById('form-title').textContent = 'Editar Venta';
@@ -951,6 +944,7 @@ gap: 10px;
     cont.innerHTML = '';
     v.venta.forEach(it => cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
   }
+  
   function resetForm() {
     document.getElementById('form-id').value     = '';
     document.getElementById('form-title').textContent = 'Nueva Venta';
@@ -965,10 +959,6 @@ gap: 10px;
   window.onload = async () => {
     await loadData();     // stock, compras, ventas, stats
     await cargarRecetas(); // recetas CRUD
-    // listeners de Recetas
-    document.getElementById('agregar-ingrediente').onclick = () => agregarFila();
-    document.getElementById('guardar-receta').onclick     = guardarReceta;
-    document.getElementById('limpiar-form').onclick       = limpiarForm;
   };
 </script>
 
