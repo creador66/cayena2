@@ -4,356 +4,188 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-  <title>Panel de Control</title>
+  <title>Unificación</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    }
+    *{ box-sizing: border-box; margin: 0; padding: 0; }
   
     body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-      color: #2c3e50;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      color: #333;
       padding: 1rem;
       padding-bottom: calc(60px + 1rem);
-      min-height: 100vh;
     }
-
-    /* ESTADÍSTICAS */
-    .top-stats {
-      position: sticky;
-      top: 1rem;
-      z-index: 90;
-      display: flex;
-      justify-content: space-around;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(5px);
-      padding: 0.8rem 0;
-      margin-bottom: 1.2rem;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-
-    .top-stats div {
-      text-align: center;
-      font-size: 0.85rem;
-      padding: 0.3rem;
-    }
-    
-    .top-stats i {
-      margin-bottom: 0.3rem;
-      display: block;
-      font-size: 1.4rem;
-      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .top-stats strong {
-      display: block;
-      margin-top: 0.2rem;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #2b2d42;
-    }
-
+  
     /* NAVEGACIÓN */
     nav.top-nav {
       display: flex;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
       background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, 0.05);
     }
-    
     nav.top-nav button {
       flex: 1;
-      padding: 0.9rem 0;
+      padding: .75rem 0;
       border: none;
-      background: transparent;
-      color: #5a67d8;
-      font-weight: 600;
+      background: #3f51b5;
+      color: #fff;
+      font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      font-size: 0.85rem;
+      transition: opacity .3s;
     }
-    
-    nav.top-nav button:not(.active) { 
-      color: #718096;
-      opacity: 0.8;
-    }
-    
-    nav.top-nav button.active {
-      color: #3a0ca3;
-    }
-    
-    nav.top-nav button.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 15%;
-      right: 15%;
-      height: 3px;
-      background: linear-gradient(90deg, #4361ee, #3a0ca3);
-      border-radius: 10px;
-    }
-    
-    nav.top-nav button:hover {
-      background: rgba(90, 103, 216, 0.05);
-    }
-    
+    nav.top-nav button:not(.active) { opacity: .6; }
     .section { display: none; }
     .section.active { display: block; }
-    
-    h2 {
-      color: #2b2d42;
-      margin-bottom: 1.2rem;
-      font-weight: 700;
-      font-size: 1.4rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid rgba(67, 97, 238, 0.15);
-    }
-
+  
     /* GRID DE TARJETAS */
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
     }
-
+  
     /* TARJETA */
     .card {
       background: #fff;
-      border-radius: 16px;
-      padding: 1.2rem;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.03);
     }
-    
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-    
     .card-header {
-      font-weight: 700;
-      margin-bottom: 0.8rem;
-      font-size: 0.95rem;
-      color: #2b2d42;
-      display: flex;
-      align-items: center;
+      font-weight: bold;
+      margin-bottom: .1rem;
+      font-size: 5px;
     }
-    
-    .card-header i {
-      margin-right: 0.5rem;
-      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
     .card-body label {
       display: block;
-      margin-bottom: 0.6rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #4a5568;
+      margin-bottom: .5rem;
+      font-size: 10px;
     }
+    .card-body input {
+      width: 40%;
+      border: none;
+      text-align: center;
     
-    .card-body input,
-    .card-body select {
-      font-size: 0.95rem;
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: #f8fafc;
-      color: #2d3748;
-      transition: border-color 0.3s;
     }
-    
-    .card-body input:focus,
-    .card-body select:focus {
-      outline: none;
-      border-color: #4361ee;
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-    }
-    
     .card-footer {
-      margin-top: 0.8rem;
+      margin-top: 10px;
       display: flex;
-      gap: 0.4rem;
+      gap: .2rem;
     }
-    
     .info2 p {
-      font-size: 0.8rem;
-      margin-bottom: 0.3rem;
-      color: #4a5568;
+      font-size: 10px;
     }
-    
     .info2 strong {
-      font-weight: 600;
+      font-weight: 400;
     }
-    
     .card-footer button {
       flex: 1;
-      padding: 0.5rem;
-      font-size: 0.9rem;
+      padding: .2rem;
+      font-size: 14px;
       border: none;
-      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      background: #3f51b5;
       color: #fff;
-      border-radius: 10px;
+      border-radius: 4px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      transition: opacity .3s;
     }
-    
-    .card-footer button i {
-      margin-right: 0.3rem;
-    }
-    
-    .card-footer button:hover { 
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-    
     .card-footer button.delete-btn { 
-      background: linear-gradient(135deg, #e63946 0%, #d90429 100%);
+    background: #cc3e44; 
+      
     }
-
+    .card-footer button:hover { opacity: .85; }
+  
     /* BOTÓN AGREGAR */
     .btn-add {
       display: block;
       width: 100%;
-      padding: 1rem 0;
-      margin-bottom: 1.2rem;
-      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      padding: .75rem 0;
+      margin-bottom: 1rem;
+      background: #3f51b5;
       color: #fff;
       border: none;
-      border-radius: 14px;
+      border-radius: 8px;
       font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.25);
+      transition: opacity .3s;
     }
-    
-    .btn-add:hover {
-      opacity: 0.9;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
-    }
-
+    .btn-add:hover { opacity: .85; }
+  
     /* FORMULARIO VENTAS */
     .form-panel {
       background: #fff;
-      border-radius: 16px;
-      padding: 1.2rem;
-      margin-bottom: 1.2rem;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.03);
-    }
-    
-    .form-panel h3 {
-      color: #2b2d42;
+      border-radius: 8px;
+      padding: 1rem;
       margin-bottom: 1rem;
-      font-weight: 700;
-      font-size: 1.2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
     .item-row {
-      margin-bottom: 0.8rem;
+      margin-bottom: .75rem;
     }
-    
     .item-row input,
     .item-row select {
-      width: 100%;
-      padding: 0.8rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      background: #f8fafc;
-      font-size: 1rem;
-      transition: border-color 0.3s;
+    width: 100%;
+   padding: .5rem;
+   border: 1px solid rgba(0,0,0,0.1);
+   border-radius: 4px;
     }
-    
-    .item-row input:focus,
-    .item-row select:focus {
-      outline: none;
-      border-color: #4361ee;
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-    }
-    
-    .item-row button { 
-      flex: 0 0 auto; 
-      padding: 0.5rem 1rem; 
-      background: #4361ee;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+select {
 
+
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out;
+}
+
+select:focus {
+  border-color: #66afe9;
+  outline: none;
+}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    .item-row button { flex: 0 0 auto; padding: .4rem .8rem; }
+  
     /* TICKETS VENTAS */
     #tickets-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 0.8rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.50rem;
     }
-    
     .ticket-card {
       background: #fff;
-      border-radius: 16px;
-      padding: 1.2rem;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      border: 1px solid rgba(0, 0, 0, 0.03);
     }
-    
-    .ticket-header { 
-      font-weight: 700; 
-      margin-bottom: 0.6rem;
-      color: #2b2d42;
-      font-size: 0.95rem;
-    }
-    
+    .ticket-header { font-weight: bold; margin-bottom: .5rem; }
     .ticket-method,
-    .ticket-footer { 
-      margin: 0.5rem 0; 
-      font-size: 0.85rem;
-      color: #4a5568;
-    }
-    
-    .ticket-method strong,
-    .ticket-footer strong {
-      color: #2b2d42;
-    }
-    
-    .ticket-item { 
-      margin-left: 0.8rem; 
-      font-size: 0.8rem;
-      color: #4a5568;
-      margin-bottom: 0.2rem;
-    }
-    
-    .ticket-item:last-child {
-      margin-bottom: 0;
-    }
-
+    .ticket-footer { margin: .5rem 0; }
+    .ticket-item { margin-left: 1rem; font-size: .9rem; }
+  
     /* FOOTER RESUMEN */
     footer.payment-summary {
       position: fixed;
@@ -361,114 +193,58 @@
       left: 0;
       width: 100%;
       height: 60px;
-      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      background: #3f51b5;
       color: #fff;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
-      font-size: 0.85rem;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+      font-size: .9rem;
       z-index: 100;
-      padding: 0 1rem;
     }
-    
-    footer.payment-summary div {
-      text-align: center;
-      padding: 0.3rem;
-    }
-    
     footer.payment-summary div span {
       display: block;
-      font-weight: 700;
-      margin-top: 0.2rem;
-      font-size: 1rem;
+      font-weight: bold;
+      margin-top: .25rem;
     }
-    
-    /* PANEL RECETAS */
-    .hidden { display: none; }
-    
-    .dividirEn2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    
-    #ingredientes-table {
-      width: 100%;
-      margin-top: 1rem;
-      border-collapse: collapse;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-    
-    #ingredientes-table th {
-      background: #f1f5f9;
-      padding: 0.6rem;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: #2b2d42;
-    }
-    
-    #ingredientes-table td {
-      padding: 0.6rem;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 0.85rem;
-    }
-    
-    #ingredientes-table select,
-    #ingredientes-table input {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      background: #f8fafc;
-    }
-    
-    #ingredientes-table button {
-      padding: 0.4rem 0.8rem;
-      background: #e63946;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.8rem;
-    }
-    
-    /* ANIMACIONES */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .section.active {
-      animation: fadeIn 0.4s ease forwards;
-    }
-    
-    .card {
-      animation: fadeIn 0.5s ease forwards;
-    }
-    
-    /* SCROLLBAR */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e0;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #a0aec0;
-    }
+    /* PANEL DE ESTADÍSTICAS */
+
+
+.top-stats {
+  position: sticky;
+  top: 1rem;
+  z-index: 90;      
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.top-stats div {
+  text-align: center;
+  font-size: .9rem;
+}
+.top-stats i {
+  margin-bottom: .25rem;
+  display: block;
+  font-size: 1.2rem;
+  color: #3f51b5;
+}
+.top-stats strong {
+  display: block;
+  margin-top: .25rem;
+  font-size: 1.1rem;
+}
+  .hidden { display: none; }
+.dividirEn2{
+  display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 10px;
+
+}
   </style>
 </head>
 <body>
@@ -482,36 +258,36 @@
 
   <!-- NAVEGACIÓN -->
   <nav class="top-nav">
-    <button data-sec="stock" class="active" onclick="cambiarSeccion('stock')"><i class="fa-solid fa-boxes-stacked"></i> Stock</button>
-    <button data-sec="compras" onclick="cambiarSeccion('compras')"><i class="fa-solid fa-cart-shopping"></i> Compras</button>
-    <button data-sec="ventas" onclick="cambiarSeccion('ventas')"><i class="fa-solid fa-cash-register"></i> Ventas</button>
-    <button data-sec="recetas" onclick="cambiarSeccion('recetas')"><i class="fa-solid fa-utensils"></i> Recetas</button>
+    <button data-sec="stock" class="active" onclick="cambiarSeccion('stock')">Stock</button>
+    <button data-sec="compras" onclick="cambiarSeccion('compras')">Compras</button>
+    <button data-sec="ventas" onclick="cambiarSeccion('ventas')">Ventas</button>
+    <button data-sec="recetas" onclick="cambiarSeccion('recetas')">Recetas</button>
   </nav>
 
   <!-- STOCK -->
   <section id="stock" class="section active">
-    <h2><i class="fa-solid fa-boxes-stacked"></i> Stock de Productos</h2>
-    <button class="btn-add" onclick="addNewProducto()"><i class="fa-solid fa-plus"></i> Nuevo Producto</button>
+    <h2>Stock de Productos</h2>
+    <button class="btn-add" onclick="addNewProducto()">➕ Nuevo Producto</button>
     <div id="stock-grid" class="card-grid"></div>
   </section>
 
   <!-- COMPRAS -->
   <section id="compras" class="section">
-    <h2><i class="fa-solid fa-cart-shopping"></i> Historial de Compras</h2>
+    <h2>Historial de Compras</h2>
     <div id="compras-grid" class="card-grid"></div>
   </section>
 
   <!-- VENTAS -->
   <section id="ventas" class="section">
-    <h2><i class="fa-solid fa-cash-register"></i> Gestión de Ventas</h2>
+    <h2>Gestión de Ventas</h2>
     <div class="form-panel">
-      <h3 id="form-title"><i class="fa-solid fa-receipt"></i> Nueva Venta</h3>
+      <h3 id="form-title">Nueva Venta</h3>
       <input type="hidden" id="form-id">
       <div class="item-row">
         <label style="flex:1"><input type="date" id="form-fecha"></label>
       </div>
       <div id="items-container"></div>
-      <button id="btn-add-item" class="btn-add" onclick="agregarItemVenta()"><i class="fa-solid fa-plus"></i> Agregar producto</button>
+      <button id="btn-add-item" class="btn-add" onclick="agregarItemVenta()">+ Agregar producto</button>
       <div class="item-row">
         <label style="flex:1">
           <select id="form-pago">
@@ -529,9 +305,9 @@
 
   <!-- RECETAS -->
   <section id="recetas" class="section">
-    <h2><i class="fa-solid fa-utensils"></i> CRUD Recetas</h2>
+    <h2>CRUD Recetas</h2>
     <div class="form-panel">
-      <h3 id="form-receta-title"><i class="fa-solid fa-file-circle-plus"></i> Nueva Receta</h3>
+      <h3 id="form-receta-title">Nueva Receta</h3>
       <input type="hidden" id="form-receta-id">
 
       <!-- Código y Nombre -->
@@ -553,11 +329,11 @@
       </div>
 
       <!-- Ingredientes -->
-      <h3><i class="fa-solid fa-carrot"></i> Ingredientes</h3>
+      <h3>Ingredientes</h3>
       <div class="item-row">
-        <button id="agregar-ingrediente" class="btn-add" onclick="agregarFila()"><i class="fa-solid fa-plus"></i> Agregar ingrediente</button>
+        <button id="agregar-ingrediente" class="btn-add" onclick="agregarFila()">+ Agregar ingrediente</button>
       </div>
-      <table id="ingredientes-table">
+      <table id="ingredientes-table" style="width:100%; margin-top:.5rem; border-collapse: collapse;">
         <thead>
           <tr>
             <th style="text-align:left">Producto</th>
@@ -605,12 +381,18 @@
   const FACTORES   = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
   const MARGEN     = 1.55;
   const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
+  const LS_KEYS    = {
+    almacen:    'Almac01',
+    compras:    'Comp02',
+    recetas:    'Recet03',
+    ventas:     'Vent04',
+    pendientes: 'Pend05'
+  };
 
-  let almacenData  = [], comprasData = [], ventData   = [], cocData     = [];
-  let recetas      = [], recetasData = [], categorias = [];
-  let productInfo  = {}, editMode   = false;
+  let almacenData = [], comprasData = [], recetasData = [], ventData = [], cocData = [];
+  let productInfo = {}, editMode = false;
 
-  // —————— UTILS UNIDAD ——————
+  // —————— UTILIDADES ——————
   function categoriaDe(u) {
     if (['mg','g','kg'].includes(u)) return 'peso';
     if (['ml','l'].includes(u)) return 'volumen';
@@ -618,45 +400,83 @@
   }
   function humanizeComposite(b,c) {
     if (c==='peso') {
-      const kg = Math.trunc(b/1000), g = b%1000, out=[];
-      if (kg) out.push(`${kg}kg`);
-      if (g ) out.push(`${g}g`);
+      const kg=Math.trunc(b/1000), g=b%1000, out=[];
+      if(kg) out.push(`${kg}kg`); if(g) out.push(`${g}g`);
       return out.join(' ')||'0g';
     }
     if (c==='volumen') {
-      const l = Math.trunc(b/1000), m = b%1000, out=[];
-      if (l) out.push(`${l}l`);
-      if (m) out.push(`${m}ml`);
+      const l=Math.trunc(b/1000), m=b%1000, out=[];
+      if(l) out.push(`${l}l`); if(m) out.push(`${m}ml`);
       return out.join(' ')||'0ml';
     }
     return `${b.toFixed(0)}pz`;
   }
 
-  // —————— LLAMADAS BACKEND ——————
+  // —————— CACHE‑ASIDE ——————
+  function loadCache() {
+    almacenData = JSON.parse(localStorage.getItem(LS_KEYS.almacen) || '[]');
+    comprasData = JSON.parse(localStorage.getItem(LS_KEYS.compras) || '[]');
+    recetasData = JSON.parse(localStorage.getItem(LS_KEYS.recetas) || '[]');
+    ventData    = JSON.parse(localStorage.getItem(LS_KEYS.ventas)  || '[]');
+    cocData     = recetasData.slice();
+  }
+  function saveCache() {
+    localStorage.setItem(LS_KEYS.almacen, JSON.stringify(almacenData));
+    localStorage.setItem(LS_KEYS.compras, JSON.stringify(comprasData));
+    localStorage.setItem(LS_KEYS.recetas, JSON.stringify(recetasData));
+    localStorage.setItem(LS_KEYS.ventas,  JSON.stringify(ventData));
+  }
+
+  // —————— COLA DE PENDIENTES ——————
+  function loadPendientes() {
+    return JSON.parse(localStorage.getItem(LS_KEYS.pendientes) || '[]');
+  }
+  function savePendientes(p) {
+    localStorage.setItem(LS_KEYS.pendientes, JSON.stringify(p));
+  }
+  function enqueueOp(op, params) {
+    const p = loadPendientes();
+    p.push({ op, params });
+    savePendientes(p);
+  }
+  async function processPendientes() {
+    const pend = loadPendientes(), still = [];
+    for (const {op,params} of pend) {
+      try { await postOp(op, params); }
+      catch { still.push({op,params}); }
+    }
+    savePendientes(still);
+  }
+
+  // —————— BACKEND ——————
   function callApi(params) {
     const url = new URL(API_URL);
-    Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
-    return fetch(url).then(r => r.json());
+    Object.entries(params).forEach(([k,v])=> url.searchParams.append(k,v));
+    return fetch(url).then(r=>r.json());
   }
   async function postOp(op, params={}) {
     const fd = new FormData();
     fd.append('op', op);
-    Object.entries(params).forEach(([k,v]) => fd.append(k,v));
-    const res  = await fetch(API_URL, { method:'POST', body:fd });
+    Object.entries(params).forEach(([k,v])=> fd.append(k,v));
+    const res = await fetch(API_URL, { method:'POST', body:fd });
     const json = await res.json();
     if (json.status!=='success') throw new Error(json.message);
     return json.data;
   }
+  async function sendOrEnqueue(op, params) {
+    try { await postOp(op, params); }
+    catch { enqueueOp(op, params); }
+  }
 
-  // —————— CONSTRUCCIÓN DE productInfo ——————
+  // —————— BUILD PRODUCT INFO ——————
   function buildProductInfo() {
     productInfo = {};
-    almacenData.forEach(it => {
-      const uni = it.unidadDeMedida.trim().toLowerCase();
-      const cat = categoriaDe(uni);
-      const base = parseFloat(it.cantidad)*FACTORES[uni]||1;
+    almacenData.forEach(it=>{
+      const uni = it.unidadDeMedida.trim().toLowerCase(),
+            cat = categoriaDe(uni),
+            base= parseFloat(it.cantidad)*FACTORES[uni] || 1;
       productInfo[it.codigo] = {
-        priceBase: parseFloat(it.precio)/base||0,
+        priceBase: parseFloat(it.precio)/base,
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat]
       };
@@ -668,64 +488,54 @@
     const grid = document.getElementById('stock-grid');
     grid.innerHTML = '';
     const compMap={}, usedMap={};
-
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
-    });
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
+    comprasData.forEach(c=> compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
+    ventData.forEach(v=> v.venta.forEach(it=>{
+      const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
       if (!rec) return;
-      rec.ingredientes.forEach(ing => {
+      rec.ingredientes.forEach(ing=>{
         usedMap[ing.codigo] = (usedMap[ing.codigo]||0)
           + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
       });
     }));
-
-    almacenData.forEach(it => {
-      const info   = productInfo[it.codigo];
-      const recBase= (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
-      const bought = compMap[it.codigo]||0;
-      const used   = usedMap[it.codigo]||0;
-      const remain = bought - used;
-      const pct    = recBase? remain/recBase*100 : 0;
-
+    almacenData.forEach(it=>{
+      const info    = productInfo[it.codigo],
+            recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida],
+            bought  = compMap[it.codigo]||0,
+            used    = usedMap[it.codigo]||0,
+            remain  = bought - used,
+            pct     = recBase ? remain/recBase*100 : 0;
       let estado;
-      if (pct <= 50) estado = '🔴 Bajo';
-      else if (pct <= 80) estado = '🟠 Medio';
-      else if (pct <=100) estado = '🟢 Bueno';
-      else estado = '🔵 Excedente';
-
-      const delta  = recBase - remain;
-      const accion = delta>0
-        ? `Ordenar ${humanizeComposite(delta,info.categoria)}`
-        : `Sobrante ${humanizeComposite(-delta,info.categoria)}`;
-
-      const totalB = (info.priceBase*bought).toFixed(2);
-      const totalU = (info.priceBase*used).toFixed(2);
-      const totalR = (info.priceBase*remain).toFixed(2);
-
+      if (pct<=50) estado='🔴 Bajo';
+      else if (pct<=80) estado='🟠 Medio';
+      else if (pct<=100) estado='🟢 Bueno';
+      else estado='🔵 Excedente';
+      const delta = recBase - remain,
+            accion= delta>0
+                   ? `Ordenar ${humanizeComposite(delta,info.categoria)}`
+                   : `Sobrante ${humanizeComposite(-delta,info.categoria)}`,
+            totalB=(info.priceBase*bought).toFixed(2),
+            totalU=(info.priceBase*used).toFixed(2),
+            totalR=(info.priceBase*remain).toFixed(2);
       const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-header"><i class="fa-solid fa-box"></i> #${it.codigo} – ${it.name||'Sin nombre'}</div>
+      card.className='card';
+      card.innerHTML=`
+        <div class="card-header">#${it.codigo} – ${it.name||'Sin nombre'}</div>
         <div class="card-body">
-          <label>Nombre:<input type="text" id="name-${it.codigo}" value="${it.name||''}"></label>
-          <label>Precio base:<input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></label>
-          <label>Cant. inicial:<input type="number" id="cant-${it.codigo}" value="${it.cantidad||0}"></label>
+          <label>Nombre:<input id="name-${it.codigo}" value="${it.name||''}"></label>
+          <label>Precio:<input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></label>
+          <label>Cant.:<input type="number" id="cant-${it.codigo}" value="${it.cantidad||0}"></label>
           <label>Unidad:<select id="unidad-${it.codigo}">
-            ${info.opcionesUnidad.map(u=>
-              `<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`
-            ).join('')}
+            ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}
           </select></label>
-          <label>Stock rec.:<input type="number" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"></label>
-          <label>Proveedor:<input type="text" id="prov-${it.codigo}" value="${it.proveedor||''}"></label>
+          <label>Stock rec:<input type="number" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"></label>
+          <label>Prov.:<input id="prov-${it.codigo}" value="${it.proveedor||''}"></label>
           <hr>
           <div class="info2">
-            <p><strong>Comprado:</strong> ${humanizeComposite(bought,info.categoria)} (~ $${totalB})</p>
-            <p><strong>Usado:</strong> ${humanizeComposite(used,info.categoria)} (~ $${totalU})</p>
-            <p><strong>Restante:</strong> ${humanizeComposite(remain,info.categoria)} (~ $${totalR})</p>
-            <p><strong>Estado:</strong> ${estado}</p>
-            <p><strong>Acción:</strong> ${accion}</p>
+            <p><strong>Comprado:</strong> ${humanizeComposite(bought,info.categoria)} (~$${totalB})</p>
+            <p><strong>Usado:</strong>    ${humanizeComposite(used,info.categoria)} (~$${totalU})</p>
+            <p><strong>Restante:</strong> ${humanizeComposite(remain,info.categoria)} (~$${totalR})</p>
+            <p><strong>Estado:</strong>   ${estado}</p>
+            <p><strong>Acción:</strong>   ${accion}</p>
           </div>
           <label>Comprar:
             <input type="number" id="buyqty-${it.codigo}" value="1" style="width:4rem;">
@@ -735,10 +545,11 @@
           </label>
         </div>
         <div class="card-footer">
-          <button onclick="buyProduct('${it.codigo}')"><i class="fa-solid fa-cart-shopping"></i></button>
-          <button onclick="saveAlmacen('${it.codigo}')"><i class="fa-solid fa-floppy-disk"></i></button>
-          <button class="delete-btn" onclick="deleteAlmacen('${it.codigo}')"><i class="fa-solid fa-trash"></i></button>
-        </div>`;
+          <button onclick="buyProduct('${it.codigo}')">🛒</button>
+          <button onclick="saveAlmacen('${it.codigo}')">💾</button>
+          <button onclick="deleteAlmacen('${it.codigo}')">❌</button>
+        </div>
+      `;
       grid.append(card);
     });
   }
@@ -748,302 +559,137 @@
     const grid = document.getElementById('compras-grid');
     grid.innerHTML = '';
     comprasData
-      .sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))
+      .sort((a,b) => new Date(b.fecha) - new Date(a.fecha))
       .forEach(c => {
         const prod = almacenData.find(x=>x.codigo==c.idProducto);
         if (!prod) return;
-        const info  = productInfo[c.idProducto];
-        const total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
-
+        const info  = productInfo[c.idProducto],
+              total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-          <div class="card-header"><i class="fa-solid fa-receipt"></i> Compra #${c.idCompra}</div>
+        card.innerHTML=`
+          <div class="card-header">Compra #${c.idCompra}</div>
           <div class="card-body">
             <label>Fecha:<input type="date" id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}"></label>
-            <p><strong>Producto:</strong> ${prod.name}</p>
-            <label>Cantidad:<input type="number" id="qty-${c.idCompra}" step=".01" value="${c.cantidad}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
+            <p>Producto: ${prod.name}</p>
+            <label>Cant.:<input type="number" id="qty-${c.idCompra}" value="${c.cantidad}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
             <label>Unidad:<select id="unit-${c.idCompra}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')">
-              ${info.opcionesUnidad.map(u=>
-                `<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`
-              ).join('')}
+              ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`).join('')}
             </select></label>
-            <p><strong>Total:</strong> $<span id="total-${c.idCompra}">${total}</span></p>
+            <p>Total: $<span id="total-${c.idCompra}">${total}</span></p>
           </div>
           <div class="card-footer">
-            <button onclick="saveCompra('${c.idCompra}','${c.idProducto}')"><i class="fa-solid fa-floppy-disk"></i></button>
-            <button class="delete-btn" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')"><i class="fa-solid fa-trash"></i></button>
-          </div>`;
+            <button onclick="saveCompra('${c.idCompra}','${c.idProducto}')">💾</button>
+            <button onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">❌</button>
+          </div>
+        `;
         grid.append(card);
         recalcCompra(c.idCompra, c.idProducto);
       });
   }
 
-  // —————— ACCIONES STOCK/COMPRAS ——————
+  function recalcCompra(idC,idP) {
+    const info = productInfo[idP],
+          qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0,
+          uni  = document.getElementById(`unit-${idC}`).value;
+    document.getElementById(`total-${idC}`)
+      .textContent = (info.priceBase*qty*FACTORES[uni]).toFixed(2);
+  }
+
+  // —————— CRUD ALMACÉN ——————
   async function addNewProducto() {
-    const code = Date.now();
-    almacenData.push({ codigo:code, name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' });
-    buildProductInfo();
-    renderStockTable();
+    const n = { codigo:Date.now(), name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' };
+    almacenData.push(n); saveCache(); buildProductInfo(); renderStockTable();
+    await sendOrEnqueue('guardarAlmacen', n);
   }
   async function saveAlmacen(c) {
-    await callApi({
-      op:'guardarAlmacen',
-      codigo:c,
-      name:document.getElementById(`name-${c}`).value,
-      precio:document.getElementById(`precio-${c}`).value,
-      cantidad:document.getElementById(`cant-${c}`).value,
-      unidadDeMedida:document.getElementById(`unidad-${c}`).value,
-      stockRecomendado:document.getElementById(`rec-${c}`).value,
-      proveedor:document.getElementById(`prov-${c}`).value
+    const it = almacenData.find(x=>x.codigo==c);
+    it.name             = document.getElementById(`name-${c}`).value;
+    it.precio           = document.getElementById(`precio-${c}`).value;
+    it.cantidad         = document.getElementById(`cant-${c}`).value;
+    it.unidadDeMedida   = document.getElementById(`unidad-${c}`).value;
+    it.stockRecomendado = document.getElementById(`rec-${c}`).value;
+    it.proveedor        = document.getElementById(`prov-${c}`).value;
+    saveCache(); buildProductInfo(); renderStockTable();
+    await sendOrEnqueue('guardarAlmacen', {
+      codigo:c, name:it.name, precio:it.precio,
+      cantidad:it.cantidad, unidadDeMedida:it.unidadDeMedida,
+      stockRecomendado:it.stockRecomendado, proveedor:it.proveedor
     });
-    await loadData();
   }
   async function deleteAlmacen(c) {
-    await callApi({ op:'eliminarAlmacen', codigo:c });
-    await loadData();
+    almacenData = almacenData.filter(x=>x.codigo!=c);
+    saveCache(); buildProductInfo(); renderStockTable();
+    await sendOrEnqueue('eliminarAlmacen', { codigo:c });
   }
+
+  // —————— CRUD COMPRAS ——————
   async function buyProduct(id) {
-    const info = productInfo[id];
-    const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value)||0;
-    if (qty<=0) return;
-    const uni   = document.getElementById(`buyunit-${id}`).value;
-    const total = (info.priceBase*qty*FACTORES[uni]).toFixed(0);
-    const fecha = new Date().toISOString().slice(0,10);
-    await callApi({
-      op:'guardarCompras',
-      idProducto:id,
-      fecha,
-      name: almacenData.find(x=>x.codigo==id).name,
-      precio: total,
-      cantidad:qty,
-      unidad:uni
-    });
-    await loadData();
-  }
-  function recalcCompra(idC,idP) {
-    const info = productInfo[idP];
-    const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
-    const uni  = document.getElementById(`unit-${idC}`).value;
-    document.getElementById(`total-${idC}`).textContent =
-      (info.priceBase*qty*FACTORES[uni]).toFixed(2);
-  }
+  const qty = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
+  if (qty <= 0) return;
+
+  const uni   = document.getElementById(`buyunit-${id}`).value;
+  const fecha = new Date().toISOString().slice(0,10);
+  const total = (productInfo[id].priceBase * qty * FACTORES[uni]).toFixed(0);
+
+  // Aquí tomo el nombre del producto de almacenData
+  const prod = almacenData.find(p => p.codigo == id) || {};
+
+  // Primero actualizo el cache/UI
+  const nueva = {
+    idCompra: Date.now(),
+    idProducto: id,
+    fecha,
+    cantidad: qty,
+    unidad: uni,
+    total,
+    name: prod.name   // <-- clave "name", no "nombre"
+  };
+  comprasData.push(nueva);
+  saveCache();
+  renderComprasTable();
+
+  // Luego envío (o encolo) la petición al servidor
+  await sendOrEnqueue('guardarCompras', {
+    idProducto: id,
+    idCompra:   nueva.idCompra, // si tu backend lo necesita
+    name:       prod.name,
+    fecha,
+    cantidad:   qty,
+    unidad:     uni,
+    precio:     total
+  });
+}
+
   async function saveCompra(idC,idP) {
-    const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
-    if (qty<=0) return;
-    const uni   = document.getElementById(`unit-${idC}`).value;
-    const fecha = document.getElementById(`date-${idC}`).value;
-    const total = (productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0);
-    await callApi({
-      op:'guardarCompras',
-      idCompra:idC,
-      idProducto:idP,
-      fecha,
-      name: almacenData.find(x=>x.codigo==idP).name,
-      precio: total,
-      cantidad:qty,
-      unidad:uni
+    const c = comprasData.find(x=>x.idCompra==idC && x.idProducto==idP);
+    c.cantidad = parseFloat(document.getElementById(`qty-${idC}`).value)||c.cantidad;
+    c.unidad   = document.getElementById(`unit-${idC}`).value;
+    c.fecha    = document.getElementById(`date-${idC}`).value;
+    c.precio   = (productInfo[idP].priceBase*c.cantidad*FACTORES[c.unidad]).toFixed(0);
+    saveCache(); renderComprasTable();
+    await sendOrEnqueue('guardarCompras', {
+      idCompra:idC, idProducto:idP, fecha:c.fecha,
+      cantidad:c.cantidad, unidad:c.unidad, precio:c.precio
     });
-    await loadData();
   }
   async function deleteCompra(idC,idP) {
-    await callApi({ op:'eliminarCompras', idCompra:idC, idProducto:idP });
-    await loadData();
+    comprasData = comprasData.filter(x=>!(x.idCompra==idC && x.idProducto==idP));
+    saveCache(); renderComprasTable();
+    await sendOrEnqueue('eliminarCompras', { idCompra:idC, idProducto:idP });
   }
 
-  // —————— VENTAS ——————
-  function crearItemRow(cod='',cant='',tot='') {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    const sel = document.createElement('select');
-    recetas.forEach(r => {
-      const o = document.createElement('option');
-      o.value    = r.codigo;
-      o.textContent = r.nombre;
-      if (r.codigo===cod) o.selected = true;
-      sel.append(o);
-    });
-    const ic = document.createElement('input');
-    ic.type        = 'number'; ic.min='1'; ic.value = cant; ic.placeholder='Cantidad';
-    const it = document.createElement('input');
-    it.type        = 'number'; it.value = tot; it.placeholder='Total';
-    const bd = document.createElement('button');
-    bd.type        = 'button';
-    bd.textContent = '−';
-    bd.onclick     = function() { this.parentNode.remove(); };
-    function recalc() {
-      const p = recetas.find(x=>x.codigo===sel.value)||{precio:0};
-      it.value = (p.precio*(parseFloat(ic.value)||0)).toFixed(2);
-    }
-    sel.onchange = recalc;
-    ic.oninput   = recalc;
-    row.append(sel, ic, it, bd);
-    return row;
-  }
-  function renderTicketCard(v) {
-    const c = document.createElement('div');
-    c.className = 'ticket-card';
-    c.innerHTML = `
-      <div class="ticket-header">${new Date(v.fecha).toLocaleDateString()}</div>
-      <div class="ticket-method"><strong>Pago:</strong> ${v.metodoPago}</div>
-      <div class="ticket-items"></div>
-      <div class="ticket-footer"><strong>Total:</strong> <span class="ticket-total">0</span></div>
-      <div class="card-footer">
-        <button class="edit-btn" onclick="startEdit(${JSON.stringify(v)})">Editar</button>
-        <button class="delete-btn" onclick="eliminarVenta(${v.id})"><i class="fa-solid fa-trash"></i></button>
-      </div>`;
-    const itemsDiv = c.querySelector('.ticket-items');
-    let total = 0;
-    v.venta.forEach(it => {
-      const d = document.createElement('div');
-      d.className = 'ticket-item';
-      d.textContent = `${it.producto} x${it.cantidad} = $${it.total}`;
-      total += parseFloat(it.total)||0;
-      itemsDiv.append(d);
-    });
-    c.querySelector('.ticket-total').textContent = total.toFixed(2);
-    return c;
-  }
-  async function cargarVentas() {
-    await fetchRecetas();
-    const res = await callApi({ op:'obtenerVentas' });
-    if (res.status!=='success') return;
-    ventData = res.data;
-    const grid = document.getElementById('tickets-grid');
-    grid.innerHTML = '';
-    ventData.forEach(v => grid.append(renderTicketCard(v)));
-    actualizarResumen(ventData);
-  }
-  async function eliminarVenta(id) {
-    if (!confirm('¿Eliminar venta?')) return;
-    await callApi({ op:'eliminarVentas', id });
-    await loadData();
-  }
-
-  // —————— RESÚMENES Y ESTADÍSTICAS ——————
-  function actualizarResumen(vs) {
-    let e=0, t=0, ta=0;
-    vs.forEach(v => {
-      const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0), 0);
-      if (v.metodoPago==='Efectivo') e+=s;
-      else if (v.metodoPago==='Transferencia') t+=s;
-      else if (v.metodoPago==='Tarjeta') ta+=s;
-    });
-    document.getElementById('sum-efectivo').textContent     = e.toFixed(2);
-    document.getElementById('sum-transferencia').textContent = t.toFixed(2);
-    document.getElementById('sum-tarjeta').textContent      = ta.toFixed(2);
-    document.getElementById('sum-total').textContent        = (e+t+ta).toFixed(2);
-  }
-  function updateTopStats() {
-    let totalInv=0, totalCompras=0, totalRestock=0;
-    const compMap={}, usedMap={};
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
-      totalCompras += productInfo[c.idProducto].priceBase * c.cantidad*FACTORES[c.unidad];
-    });
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
-      if (!rec) return;
-      rec.ingredientes.forEach(ing => {
-        usedMap[ing.codigo] = (usedMap[ing.codigo]||0)
-          + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
-      });
-    }));
-    almacenData.forEach(it => {
-      const info   = productInfo[it.codigo];
-      const bought = compMap[it.codigo]||0;
-      const used   = usedMap[it.codigo]||0;
-      const remain = bought-used;
-      totalInv += remain * info.priceBase;
-      const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
-      const delta   = recBase - remain;
-      if(delta>0) totalRestock += delta * info.priceBase;
-    });
-    document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
-    document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
-    document.getElementById('stat-restock').textContent   = totalRestock.toFixed(2);
-  }
-
-  // —————— RECETAS: FETCH y RENDER ——————
-  async function fetchRecetas() {
-    const cocR = await callApi({ op:'obtenerCocina' });
-    if (cocR.status!=='success') return;
-    cocData = cocR.data.map(r => ({
-      ...r,
-      ingredientes: typeof r.ingredientes==='string' ? JSON.parse(r.ingredientes) : r.ingredientes
-    }));
-    recetas = cocData.map(r => {
-      const costo = r.ingredientes.reduce((s,ing) => {
-        const p = almacenData.find(x=>String(x.codigo)===String(ing.codigo));
-        if (!p) return s;
-        const ua = FACTORES[p.unidadDeMedida], ui=FACTORES[ing.unidad];
-        return s + (p.precio/(ua*parseFloat(p.cantidad)))*(ui*ing.cantidad);
-      },0);
-      return { codigo:r.codigo, nombre:r.nombre, precio:(costo*MARGEN).toFixed(2) };
-    });
-  }
-  async function cargarRecetas() {
-    await fetchRecetas();
-    recetasData = cocData;
-    categorias   = [...new Set(recetasData.map(r=>r.categoria))];
-    const sel    = document.getElementById('receta-categoria');
-    sel.innerHTML = [
-      '<option value="">-- Selecciona categoría --</option>',
-      ...categorias.sort().map(c=>`<option value="${c}">${c}</option>`),
-      '<option value="__nueva__">+ Nueva categoría</option>'
-    ].join('');
-    mostrarRecetas();
-  }
-  function toggleNuevaCategoria() {
-    const sel = document.getElementById('receta-categoria');
-    document.getElementById('wrapper-receta-categoria-nueva')
-      .classList.toggle('hidden', sel.value!=='__nueva__');
-  }
-  function mostrarRecetas() {
-    const cont = document.getElementById('lista-recetas');
-    cont.innerHTML = '';
-    recetasData.forEach(r => {
-      const precio = calcularPrecio(r.ingredientes);
-      const card   = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="card-header">${r.codigo} – ${r.nombre}</div>
-        <div class="card-body">
-          <p><strong>Categoría:</strong> ${r.categoria}</p>
-          ${r.imagen?`<img src="${r.imagen}" alt="${r.nombre}" style="max-width:100%">`:``}
-          <div class="info2">
-            ${r.ingredientes.map(i=>`<p>${i.codigo}: ${i.cantidad}${i.unidad}</p>`).join('')}
-            <p><strong>Costo total:</strong> $${precio.toFixed(2)}</p>
-          </div>
-        </div>
-        <div class="card-footer">
-          <button onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
-          <button class="delete-btn" onclick="eliminarReceta('${r.codigo}')">Eliminar</button>
-        </div>`;
-      cont.append(card);
-    });
-  }
-  function calcularPrecio(ingredientes) {
-    return ingredientes.reduce((sum,i) => {
-      const p = almacenData.find(x=>String(x.codigo)===String(i.codigo));
-      if (!p) return sum;
-      const factorP   = FACTORES[p.unidadDeMedida.trim().toLowerCase()]*parseFloat(p.cantidad);
-      const precioUnit= p.precio/factorP;
-      const factorI   = FACTORES[i.unidad.trim().toLowerCase()]*i.cantidad;
-      return sum + precioUnit*factorI;
-    },0);
-  }
+  // —————— CRUD RECETAS ——————
   function crearSelectProductos() {
     const sel = document.createElement('select');
     almacenData.forEach(p => {
-      const unidad = p.unidadDeMedida.trim().toLowerCase();
-      const opt    = new Option(`${p.name} (${p.cantidad}${p.unidadDeMedida})`, p.codigo);
-      opt.dataset.unit = unidad;
+      const opt = new Option(`${p.name} (${p.cantidad}${p.unidadDeMedida})`, p.codigo);
+      opt.dataset.unit = p.unidadDeMedida.trim().toLowerCase();
       sel.append(opt);
     });
     return sel;
   }
-  function crearSelectUnidad(cat,val='') {
+  function crearSelectUnidad(cat, val='') {
     const sel = document.createElement('select');
     CATEGORIAS[cat].forEach(u => sel.append(new Option(u,u)));
     if (val) sel.value = val;
@@ -1051,172 +697,316 @@
   }
   function agregarFila(item={}) {
     const tbody = document.querySelector('#ingredientes-table tbody');
-    const tr    = document.createElement('tr');
+    const tr = document.createElement('tr');
     const selProd = crearSelectProductos();
     if (item.codigo) selProd.value = item.codigo;
     const inpCant = document.createElement('input');
-    inpCant.type  = 'number'; inpCant.min='0'; inpCant.value = item.cantidad||1;
-    let unidad0   = item.unidad||selProd.selectedOptions[0].dataset.unit;
-    let selUni    = crearSelectUnidad(categoriaDe(unidad0), unidad0);
-    selProd.onchange = function() {
-      const nu  = this.selectedOptions[0].dataset.unit;
-      const cat = categoriaDe(nu);
-      const nuevo = crearSelectUnidad(cat,nu);
-      this.parentNode.parentNode.children[2].replaceChild(nuevo, selUni);
-      selUni = nuevo;
-    };
-    const btnDel = document.createElement('button');
-    btnDel.type  = 'button';
-    btnDel.textContent = 'Eliminar';
-    btnDel.onclick = function() { this.parentNode.parentNode.remove(); };
-    [selProd, inpCant, selUni, btnDel].forEach(el => {
-      const td = document.createElement('td');
-      td.append(el);
-      tr.append(td);
+    inpCant.type='number'; inpCant.min='0'; inpCant.value = item.cantidad||1;
+    let unidad0 = item.unidad || selProd.selectedOptions[0].dataset.unit;
+    let selUni = crearSelectUnidad(categoriaDe(unidad0), unidad0);
+    selProd.addEventListener('change', ()=>{
+      const nu=categoriaDe(selProd.selectedOptions[0].dataset.unit);
+      const r=crearSelectUnidad(nu, selProd.selectedOptions[0].dataset.unit);
+      tr.children[2].replaceChild(r, selUni);
+      selUni=r;
+    });
+    const btnDel=document.createElement('button');
+    btnDel.type='button'; btnDel.textContent='Eliminar';
+    btnDel.addEventListener('click', e=>{ e.preventDefault(); tr.remove(); });
+    [selProd, inpCant, selUni, btnDel].forEach(el=>{
+      const td=document.createElement('td'); td.append(el); tr.append(td);
     });
     tbody.append(tr);
   }
-  function cargarEnForm(r) {
-    editMode = true;
-    document.getElementById('receta-codigo').value    = r.codigo;
-    document.getElementById('receta-codigo').disabled = true;
-    document.getElementById('receta-nombre').value    = r.nombre;
-    const selCat = document.getElementById('receta-categoria');
-    if (!categorias.includes(r.categoria)) {
-      selCat.value = '__nueva__';
-      document.getElementById('wrapper-receta-categoria-nueva').classList.remove('hidden');
-      document.getElementById('receta-categoria-nueva').value = r.categoria;
-    } else {
-      selCat.value = r.categoria;
-      document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
-    }
-    document.getElementById('receta-imagen').value = r.imagen||'';
-    document.querySelector('#ingredientes-table tbody').innerHTML = '';
-    r.ingredientes.forEach(i=>agregarFila(i));
-  }
-  async function guardarReceta() {
-    const cod = document.getElementById('receta-codigo').value.trim();
-    const nom = document.getElementById('receta-nombre').value.trim();
-    if (!cod||!nom) return alert('Código y nombre requeridos');
-    let cat = document.getElementById('receta-categoria').value;
-    if (cat==='__nueva__') {
-      cat = document.getElementById('receta-categoria-nueva').value.trim();
-      if (cat && !categorias.includes(cat)) categorias.push(cat);
-    }
-    const ingredientes = Array.from(
-      document.querySelectorAll('#ingredientes-table tbody tr')
-    ).map(tr=>({
-      codigo: tr.children[0].firstChild.value,
-      cantidad:+tr.children[1].firstChild.value,
-      unidad: tr.children[2].firstChild.value
-    }));
-    try {
-      await postOp('guardarCocina', {
-        codigo: cod,
-        nombre: nom,
-        categoria: cat,
-        imagen: document.getElementById('receta-imagen').value.trim(),
-        ingredientes: JSON.stringify(ingredientes)
-      });
-      await cargarRecetas();
-      limpiarForm();
-    } catch(e){
-      alert('Error al guardar receta: '+e);
-    }
-  }
-  async function eliminarReceta(codigo) {
-    if (!confirm(`¿Eliminar receta ${codigo}?`)) return;
-    try {
-      await postOp('eliminarCocina',{codigo});
-      await cargarRecetas();
-    } catch(e){
-      alert('Error al eliminar: '+e);
-    }
-  }
-  function limpiarForm() {
-    editMode = false;
-    ['receta-codigo','receta-nombre','receta-imagen','receta-categoria','receta-categoria-nueva']
-      .forEach(id=>{
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (el.tagName==='SELECT') el.selectedIndex = 0;
-        else el.value = '';
-      });
-    document.getElementById('receta-codigo').disabled = false;
-    document.querySelector('#ingredientes-table tbody').innerHTML = '';
-    document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
-  }
 
-  // —————— CARGA GENERAL ——————
-  async function loadData() {
-    const [alm, comp, vent] = await Promise.all([
-      callApi({op:'obtenerAlmacen'}),
-      callApi({op:'obtenerCompras'}),
-      callApi({op:'obtenerVentas'})
-    ]);
-    if ([alm,comp,vent].some(r=>r.status!=='success')) return;
-    almacenData  = alm.data;
-    comprasData  = comp.data;
-    ventData     = vent.data;
-    buildProductInfo();
-    renderStockTable();
-    renderComprasTable();
-    await cargarVentas();
-    updateTopStats();
+  // —————— CRUD VENTAS ——————
+  function crearItemRow(cod='', cant='', tot='') {
+    const row = document.createElement('div'); row.className='item-row';
+    const sel = document.createElement('select');
+    recetasData.forEach(r=>{
+      const o=new Option(r.nombre, r.codigo);
+      if (r.codigo===cod) o.selected=true;
+      sel.append(o);
+    });
+    const ic=document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
+    const it=document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
+    function recalc(){
+      const rc=recetasData.find(x=>x.codigo===sel.value)||{precio:0};
+      it.value=(Number(rc.precio)*(Number(ic.value)||0)).toFixed(2);
+    }
+    sel.addEventListener('change', recalc);
+    ic.addEventListener('input', recalc);
+    const bd=document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.addEventListener('click', ()=>row.remove());
+    row.append(sel, ic, it, bd);
+    return row;
   }
-
-  // —————— VENTAS FORM ——————
   function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
   }
-  
-  async function guardarVenta() {
-    const id    = document.getElementById('form-id').value;
-    const fecha = document.getElementById('form-fecha').value;
-    if (!fecha) return;
-    const metodo = document.getElementById('form-pago').value;
-    const rows   = document.querySelectorAll('#items-container .item-row');
-    if (rows.length===0) return;
-    const venta = Array.from(rows).map(r => {
-      const [sel, ic, it] = r.children;
-      return {
-        codigo: sel.value,
-        producto: recetas.find(x=>x.codigo===sel.value).nombre,
-        cantidad: Number(ic.value)||0,
-        total:    Number(it.value)||0
-      };
-    });
-    const res = await callApi({op:'guardarVentas', venta: JSON.stringify({id,fecha,metodoPago:metodo,venta})});
-    if (res.status==='success') {
-      resetForm();
-      await loadData();
-    }
-  };
-  
-  function startEdit(v) {
-    document.getElementById('form-id').value = v.id;
-    document.getElementById('form-title').textContent = 'Editar Venta';
-    document.getElementById('form-fecha').value    = new Date(v.fecha).toISOString().slice(0,10);
-    document.getElementById('form-pago').value     = v.metodoPago;
-    const cont = document.getElementById('items-container');
-    cont.innerHTML = '';
-    v.venta.forEach(it => cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
-  }
-  
   function resetForm() {
-    document.getElementById('form-id').value     = '';
-    document.getElementById('form-title').textContent = 'Nueva Venta';
-    document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
-    document.getElementById('form-pago').value  = 'Efectivo';
-    const cont = document.getElementById('items-container');
-    cont.innerHTML = '';
-    cont.append(crearItemRow());
+    editMode=false;
+    document.getElementById('form-id').value='';
+    document.getElementById('form-title').textContent='Nueva Venta';
+    document.getElementById('form-fecha').value=new Date().toISOString().slice(0,10);
+    document.getElementById('form-pago').value='Efectivo';
+    document.getElementById('items-container').innerHTML='';
+  }
+  function renderRecetasTable() {
+    const cont=document.getElementById('lista-recetas');
+    cont.innerHTML='';
+    recetasData.forEach(r=>{
+      const costo=r.ingredientes.reduce((s,i)=>{
+        const p=almacenData.find(x=>String(x.codigo)===String(i.codigo));
+        if(!p) return s;
+        const fu=FACTORES[p.unidadDeMedida.trim().toLowerCase()]*parseFloat(p.cantidad);
+        const iu=FACTORES[i.unidad]*i.cantidad;
+        return s+(p.precio/fu)*iu;
+      },0).toFixed(2);
+      const card=document.createElement('div'); card.className='card';
+      card.innerHTML=`
+        <div class="card-header">${r.codigo} – ${r.nombre}</div>
+        <div class="card-body">
+          <p>Categoría: ${r.categoria}</p>
+          ${r.imagen?`<img src="${r.imagen}" style="max-width:100%">`:``}
+          <div class="info2">
+            ${r.ingredientes.map(i=>`<p>${i.codigo}: ${i.cantidad}${i.unidad}</p>`).join('')}
+            <p><strong>Costo:</strong> $${costo}</p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button onclick="cargarEnForm(${JSON.stringify(r)})">✏️</button>
+          <button onclick="eliminarReceta('${r.codigo}')">❌</button>
+        </div>`;
+      cont.append(card);
+    });
+  }
+  function cargarEnForm(r) {
+    editMode=true;
+    document.getElementById('receta-codigo').value=r.codigo;
+    document.getElementById('receta-codigo').disabled=true;
+    document.getElementById('receta-nombre').value=r.nombre;
+    const selCat=document.getElementById('receta-categoria');
+    if (!Array.from(selCat.options).some(o=>o.value===r.categoria)) {
+      selCat.value='__nueva__';
+      document.getElementById('wrapper-receta-categoria-nueva').classList.remove('hidden');
+      document.getElementById('receta-categoria-nueva').value=r.categoria;
+    } else {
+      selCat.value=r.categoria;
+      document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
+    }
+    document.getElementById('receta-imagen').value=r.imagen||'';
+    document.querySelector('#ingredientes-table tbody').innerHTML='';
+    r.ingredientes.forEach(i=>agregarFila(i));
+  }
+  async function guardarReceta() {
+    const cod=document.getElementById('receta-codigo').value.trim();
+    const nom=document.getElementById('receta-nombre').value.trim();
+    if(!cod||!nom) return alert('Código y nombre requeridos');
+    let cat=document.getElementById('receta-categoria').value;
+    if(cat==='__nueva__') cat=document.getElementById('receta-categoria-nueva').value.trim();
+    const imagen=document.getElementById('receta-imagen').value.trim();
+    const ingredientes=Array.from(
+      document.querySelectorAll('#ingredientes-table tbody tr')
+    ).map(tr=>({
+      codigo:tr.children[0].firstChild.value,
+      cantidad:+tr.children[1].firstChild.value,
+      unidad:tr.children[2].firstChild.value
+    }));
+    const nueva={ codigo:cod, nombre:nom, categoria:cat, imagen, ingredientes };
+    if(editMode) recetasData=recetasData.map(r=>r.codigo===cod?nueva:r);
+    else recetasData.push(nueva);
+    cocData=recetasData; saveCache(); renderRecetasTable(); limpiarRecetaForm();
+    await sendOrEnqueue('guardarCocina',{
+      codigo:cod, nombre:nom, categoria:cat,
+      imagen, ingredientes:JSON.stringify(ingredientes)
+    });
+  }
+  async function eliminarReceta(cod) {
+    if(!confirm(`¿Eliminar receta ${cod}?`)) return;
+    recetasData=recetasData.filter(r=>r.codigo!==cod);
+    cocData=recetasData; saveCache(); renderRecetasTable();
+    await sendOrEnqueue('eliminarCocina',{ codigo:cod });
+  }
+  function limpiarRecetaForm() {
+    editMode=false;
+    ['receta-codigo','receta-nombre','receta-imagen','receta-categoria','receta-categoria-nueva']
+      .forEach(id=>{
+        const el=document.getElementById(id);
+        if(!el) return;
+        if(el.tagName==='SELECT') el.selectedIndex=0;
+        else el.value='';
+      });
+    document.getElementById('receta-codigo').disabled=false;
+    document.querySelector('#ingredientes-table tbody').innerHTML='';
+    document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
   }
 
-  // —————— INICIALIZAR TODO ——————
+  function renderVentasTable() {
+    const grid=document.getElementById('tickets-grid');
+    grid.innerHTML='';
+    ventData.forEach(v=>{
+      const card=document.createElement('div'); card.className='ticket-card';
+      card.innerHTML=`
+        <div class="ticket-header">${new Date(v.fecha).toLocaleDateString()}</div>
+        <div class="ticket-method"><strong>Pago:</strong> ${v.metodoPago}</div>
+        <div class="ticket-items"></div>
+        <div class="ticket-total">0</div>
+        <div class="card-footer"></div>`;
+      let sum=0;
+      v.venta.forEach(it=>{
+        const d=document.createElement('div');
+        d.textContent=`${it.producto} x${it.cantidad} = $${it.total}`;
+        sum+=Number(it.total)||0;
+        card.querySelector('.ticket-items').append(d);
+      });
+      card.querySelector('.ticket-total').textContent=sum.toFixed(2);
+      const f=card.querySelector('.card-footer'),
+            eBtn=document.createElement('button'),
+            dBtn=document.createElement('button');
+      eBtn.textContent='✏️'; eBtn.onclick=()=>startEditVenta(v);
+      dBtn.textContent='❌'; dBtn.onclick=()=>eliminarVenta(v.id);
+      f.append(eBtn,dBtn);
+      grid.append(card);
+    });
+  }
+  function startEditVenta(v) {
+    editMode=true;
+    document.getElementById('form-id').value=v.id;
+    document.getElementById('form-title').textContent='Editar Venta';
+    document.getElementById('form-fecha').value=new Date(v.fecha).toISOString().slice(0,10);
+    document.getElementById('form-pago').value=v.metodoPago;
+    const cont=document.getElementById('items-container');
+    cont.innerHTML='';
+    v.venta.forEach(it=>cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
+  }
+  async function guardarVenta() {
+    const id=document.getElementById('form-id').value||Date.now();
+    const fecha=document.getElementById('form-fecha').value;
+    const metodo=document.getElementById('form-pago').value;
+    if(!fecha) return alert('Selecciona fecha');
+    const rows=document.querySelectorAll('#items-container .item-row');
+    if(!rows.length) return alert('Agrega al menos un producto');
+    const items=Array.from(rows).map(r=>{
+      const [sel,ic,it]=r.children;
+      return { codigo:sel.value, producto:sel.options[sel.selectedIndex].text, cantidad:+ic.value, total:+it.value };
+    });
+    const nueva={ id, fecha, metodoPago:metodo, venta:items };
+    if(editMode) ventData=ventData.map(v=>v.id===id?nueva:v);
+    else ventData.push(nueva);
+    saveCache(); renderVentasTable(); resetForm();
+    await sendOrEnqueue('guardarVentas',{ venta:JSON.stringify(nueva) });
+  }
+  async function eliminarVenta(id) {
+    if(!confirm('¿Eliminar venta?')) return;
+    ventData=ventData.filter(v=>v.id!==id);
+    saveCache(); renderVentasTable();
+    await sendOrEnqueue('eliminarVentas',{ id });
+  }
+  function actualizarResumen(vs) {
+  let e=0, t=0, ta=0;
+  vs.forEach(v=>{
+    const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0), 0);
+    if (v.metodoPago==='Efectivo')         e += s;
+    else if (v.metodoPago==='Transferencia') t += s;
+    else if (v.metodoPago==='Tarjeta')       ta += s;
+  });
+  document.getElementById('sum-efectivo').textContent     = e.toFixed(2);
+  document.getElementById('sum-transferencia').textContent = t.toFixed(2);
+  document.getElementById('sum-tarjeta').textContent      = ta.toFixed(2);
+  document.getElementById('sum-total').textContent        = (e+t+ta).toFixed(2);
+}
+
+function updateTopStats() {
+  let totalInv=0, totalCompras=0, totalRestock=0;
+  const compMap={}, usedMap={};
+  // calcular totalCompras e inventario...
+  comprasData.forEach(c=>{
+    compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
+    totalCompras += productInfo[c.idProducto].priceBase * c.cantidad*FACTORES[c.unidad];
+  });
+  ventData.forEach(v=> v.venta.forEach(it=>{
+    const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
+    if (!rec) return;
+    rec.ingredientes.forEach(ing=>{
+      usedMap[ing.codigo] = (usedMap[ing.codigo]||0)
+        + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+    });
+  }));
+  almacenData.forEach(it=>{
+    const info   = productInfo[it.codigo];
+    const bought = compMap[it.codigo]||0;
+    const used   = usedMap[it.codigo]||0;
+    const remain = bought - used;
+    totalInv += remain * info.priceBase;
+    const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
+    const delta   = recBase - remain;
+    if (delta>0) totalRestock += delta * info.priceBase;
+  });
+  document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
+  document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
+  document.getElementById('stat-restock').textContent   = totalRestock.toFixed(2);
+}
+
+  // —————— CARGA GENERAL / INICIO ——————
+async function loadData() {
+  // 1) Reintentar pendientes
+  await processPendientes();
+
+  // 2) Cargar de cache y render inmediato
+  loadCache();
+  buildProductInfo();
+  renderStockTable();
+  renderComprasTable();
+  renderRecetasTable();
+  renderVentasTable();
+
+  // **ACTUALIZAR ESTADÍSTICAS CON DATOS DE CACHE**
+  updateTopStats();                  // <— para el panel flotante superior
+  actualizarResumen(ventData);      // <— para el footer inferior
+
+  // 3) Bajar datos reales y refrescar cache/UI
+  try {
+    const [alm, comp, vent, coc] = await Promise.all([
+      callApi({op:'obtenerAlmacen'}),
+      callApi({op:'obtenerCompras'}),
+      callApi({op:'obtenerVentas'}),
+      callApi({op:'obtenerCocina'})
+    ]);
+    if ([alm,comp,vent,coc].every(r=>r.status==='success')) {
+      almacenData = alm.data;
+      comprasData = comp.data;
+      ventData    = vent.data;
+      cocData     = coc.data.map(r=>({
+        ...r,
+        ingredientes: typeof r.ingredientes==='string'
+          ? JSON.parse(r.ingredientes)
+          : r.ingredientes
+      }));
+      recetasData = cocData;
+
+      // Guardar y renderizar de nuevo
+      saveCache();
+      buildProductInfo();
+      renderStockTable();
+      renderComprasTable();
+      renderRecetasTable();
+      renderVentasTable();
+
+      // **Y vuelvo a actualizar con datos reales**
+      updateTopStats();
+      actualizarResumen(ventData);
+    }
+  } catch(e) {
+    console.error('Error datos reales:', e);
+  }
+}
+
   window.onload = async () => {
-    await loadData();     // stock, compras, ventas, stats
-    await cargarRecetas(); // recetas CRUD
+    // vincular paginación
+    document.querySelectorAll('nav.top-nav button')
+      .forEach(btn=> btn.addEventListener('click', ()=> cambiarSeccion(btn.dataset.sec)));
+    resetForm();
+    await loadData();
   };
 </script>
 
