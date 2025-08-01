@@ -4,9 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-  <title>Unificación</title>
+  <title>Unificación con Modal</title>
   <style>
-    *{ box-sizing: border-box; margin: 0; padding: 0; }
+    *{ 
+      margin: auto;
+      
+      box-sizing: border-box; margin: 0; padding: 0; }
   
     body {
       font-family: Arial, sans-serif;
@@ -43,62 +46,99 @@
     .card-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
+      gap: 10px;
     }
   
     /* TARJETA */
-    .card {
-      background: #fff;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-    }
-    .card-header {
-      font-weight: bold;
-      margin-bottom: .1rem;
-      font-size: 5px;
-    }
-    .card-body label {
-      display: block;
-      margin-bottom: .5rem;
-      font-size: 10px;
-    }
-    .card-body input {
-      width: 40%;
-      border: none;
-      text-align: center;
-    
-    }
-    .card-footer {
-      margin-top: 10px;
-      display: flex;
-      gap: .2rem;
-    }
-    .info2 p {
-      font-size: 10px;
-    }
-    .info2 strong {
-      font-weight: 400;
-    }
-    .card-footer button {
-      flex: 1;
-      padding: .2rem;
-      font-size: 14px;
-      border: none;
-      background: #3f51b5;
-      color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: opacity .3s;
-    }
-    .card-footer button.delete-btn { 
-    background: #cc3e44; 
-      
-    }
-    .card-footer button:hover { opacity: .85; }
+
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+
+}
+
+/* Cabecera */
+.card-header {
+  background: #f5f5f5;
+  padding: 0.75rem 1rem;
+  font-size: 10px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+.seccion1{
+padding: 10px;
+}
+.seccion1 p{
+font-size: 10px;
+}
+.div2 {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+margin-bottom: 5px;
+gap: 5px;
+border-bottom: 1px solid #ddd;
+}
+.div2 input{
+  width: 100%;
+  font-size: 16px;
+text-align: center;
+
+}
+.mutinput {
+  text-align: center;
+  text-align-last: center;
+  -moz-text-align-last: center;
+  width: 100%;
+  font-size: 16px;
+  background: none;
+  color: blue;
+
+   appearance: none; 
+   -webkit-appearance: none;
+}
+
+.div3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
   
+}
+.div3 input, selec{
+  text-align: center;
+  font-size: 13px;
+  text-align: center;
+  width: 100%;
+  font-size: 16px;
+  border:none;
+}
+input{
+  text-align: center;
+font-size: 13px;
+text-align: center;
+width: 100%;
+font-size: 16px;
+border:none;
+  border:none;
+  
+}
+
+
+
+.name2{
+  color: red;
+}
+
+
+
+
+
+
+
     /* BOTÓN AGREGAR */
     .btn-add {
       display: block;
@@ -125,46 +165,10 @@
     }
     .item-row {
       margin-bottom: .75rem;
+      display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 5px;
     }
-    .item-row input,
-    .item-row select {
-    width: 100%;
-   padding: .5rem;
-   border: 1px solid rgba(0,0,0,0.1);
-   border-radius: 4px;
-    }
-select {
-
-
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  cursor: pointer;
-  transition: border-color 0.2s ease-in-out;
-}
-
-select:focus {
-  border-color: #66afe9;
-  outline: none;
-}
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     .item-row button { flex: 0 0 auto; padding: .4rem .8rem; }
   
     /* TICKETS VENTAS */
@@ -222,6 +226,88 @@ select:focus {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+/* BACKDROP */
+.modal-backdrop {
+  display: none;               /* oculto por defecto */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+/* CONTENEDOR MODAL */
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* CABECERA */
+.modal-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* CUERPO */
+.modal-body {
+  padding: 1rem;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* PIE */
+.modal-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* BOTONES EN PIE DE MODAL */
+.modal-footer button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.modal-footer button:hover {
+  opacity: 0.85;
+}
+
+/* BOTÓN DE CONFIRMACIÓN */
+.modal-footer .btn-primary {
+  background: #3f51b5;
+  color: #fff;
+}
+.btnNormal{
+padding: 5px 6px 5px 6px;
+border-radius: 10px;
+background: #3f51b5;
+color: #fff;
+}
+
+/* BOTÓN DE CANCELAR / PELIGRO */
+.modal-footer .btn-danger {
+  background: #cc3e44;
+  color: #fff;
+}
+
 
 .top-stats div {
   text-align: center;
@@ -249,11 +335,20 @@ gap: 10px;
 </head>
 <body>
 
+  <!-- MODAL REUTILIZABLE -->
+  <div id="modal-backdrop" class="modal-backdrop" style="display:none;">
+    <div class="modal">
+      <div id="modal-header" class="modal-header"></div>
+      <div id="modal-body" class="modal-body"></div>
+      <div id="modal-footer" class="modal-footer"></div>
+    </div>
+  </div>
+
   <!-- ESTADÍSTICAS -->
   <div class="top-stats">
-    <div><i class="fa-solid fa-warehouse"></i>Inventario<br><strong id="stat-inventory">0.00</strong></div>
-    <div><i class="fa-solid fa-cart-shopping"></i>Compras<br><strong id="stat-purchases">0.00</strong></div>
-    <div><i class="fa-solid fa-truck-moving"></i>Reposición<br><strong id="stat-restock">0.00</strong></div>
+    <div><i class="fa-solid fa-warehouse"></i> Inventario<br><strong id="stat-inventory">0.00</strong></div>
+    <div><i class="fa-solid fa-cart-shopping"></i> Compras<br><strong id="stat-purchases">0.00</strong></div>
+    <div><i class="fa-solid fa-truck-moving"></i> Reposición<br><strong id="stat-restock">0.00</strong></div>
   </div>
 
   <!-- NAVEGACIÓN -->
@@ -283,21 +378,22 @@ gap: 10px;
     <div class="form-panel">
       <h3 id="form-title">Nueva Venta</h3>
       <input type="hidden" id="form-id">
-      <div class="item-row">
-        <label style="flex:1"><input type="date" id="form-fecha"></label>
+      
+      <div class="div2">
+        <input class="mutinput" type="date" id="form-fecha">
+        <select class="mutinput" id="form-pago">
+          <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option>
+        </select>
       </div>
+      
       <div id="items-container"></div>
       <button id="btn-add-item" class="btn-add" onclick="agregarItemVenta()">+ Agregar producto</button>
-      <div class="item-row">
-        <label style="flex:1">
-          <select id="form-pago">
-            <option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option>
-          </select>
-        </label>
-      </div>
-      <div style="display:flex;gap:.5rem;">
-        <button id="btn-save" class="btn-add" onclick="guardarVenta()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
-        <button id="btn-cancel" class="delete-btn" onclick="resetForm()">Cancelar</button>
+
+      <div class="div2">
+        <button id="btn-save" class="btn-add" onclick="guardarVenta()">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar
+        </button>
+        <button id="btn-cancel" class="btn-add" onclick="resetForm()">Cancelar</button>
       </div>
     </div>
     <div id="tickets-grid" class="card-grid"></div>
@@ -309,54 +405,32 @@ gap: 10px;
     <div class="form-panel">
       <h3 id="form-receta-title">Nueva Receta</h3>
       <input type="hidden" id="form-receta-id">
-
-      <!-- Código y Nombre -->
       <div class="item-row dividirEn2">
         <input id="receta-codigo" type="text" placeholder="Ej: R001">
         <input id="receta-nombre" type="text" placeholder="Nombre receta">
       </div>
-
       <div class="item-row dividirEn2">
         <label>
-          Categoría:<br>
-          <select id="receta-categoria" onchange="toggleNuevaCategoria()"></select>
+          <select class="mutinput" id="receta-categoria" onclick="toggleNuevaCategoria()" onchange="toggleNuevaCategoria()"></select>
         </label>
-        <label style="flex:1" class="hidden" id="wrapper-receta-categoria-nueva">
-          Nueva categoría:<br>
-          <input id="receta-categoria-nueva" type="text" placeholder="Nueva categoría">
+        <label class="hidden" id="wrapper-receta-categoria-nueva">
+          <input class="mutinput" id="receta-categoria-nueva" type="text" placeholder="Nueva categoría">
         </label>
         <input id="receta-imagen" type="text" placeholder="http://...">
       </div>
-
-      <!-- Ingredientes -->
       <h3>Ingredientes</h3>
-      <div class="item-row">
-        <button id="agregar-ingrediente" class="btn-add" onclick="agregarFila()">+ Agregar ingrediente</button>
-      </div>
-      <table id="ingredientes-table" style="width:100%; margin-top:.5rem; border-collapse: collapse;">
-        <thead>
-          <tr>
-            <th style="text-align:left">Producto</th>
-            <th style="text-align:left">Cantidad</th>
-            <th style="text-align:left">Unidad</th>
-            <th style="text-align:left">Acción</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <!-- Acciones -->
-      <div class="item-row" style="gap:0.5rem; margin-top:1rem;">
-        <button id="guardar-receta" class="btn-add" style="flex:1" onclick="guardarReceta()">
+      <div id="ingredientes-container"></div>
+      <button id="agregar-ingrediente" class="btn-add" onclick="agregarFila()">+ Agregar ingrediente</button>
+      <div class="div2">
+     <button id="guardar-receta" class="btn-add"  onclick="guardarReceta()">
           <i class="fa-solid fa-floppy-disk"></i> Guardar
         </button>
-        <button id="limpiar-form" class="delete-btn" style="flex:1" onclick="limpiarForm()">
+   <button class="btn-add" id="limpiar-form"  onclick="limpiarForm()">
           Limpiar
         </button>
       </div>
     </div>
-
-    <!-- Listado de Recetas -->
+    
     <div id="lista-recetas" class="card-grid"></div>
   </section>
 
@@ -368,647 +442,749 @@ gap: 10px;
   </footer>
 
 <script>
-  // —————— PAGINACIÓN ENTRE SECCIONES ——————
-  function cambiarSeccion(sec) {
-    document.querySelectorAll('nav.top-nav button').forEach(b => b.classList.remove('active'));
-    document.querySelector(`nav.top-nav button[data-sec="${sec}"]`).classList.add('active');
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(sec).classList.add('active');
-  }
-
-  // —————— CONSTANTES Y ESTADO GLOBAL ——————
+  // CONSTANTES
   const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
   const FACTORES   = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
-  const MARGEN     = 1.55;
+  const MARGEN     = 2;
   const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
-  const LS_KEYS    = {
-    almacen:    'Almac01',
-    compras:    'Comp02',
-    recetas:    'Recet03',
-    ventas:     'Vent04',
-    pendientes: 'Pend05'
+
+  // ESTADO GLOBAL
+  let almacenData = [], comprasData = [], ventData = [], cocData = [];
+  let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
+
+  // MODAL REUTILIZABLE
+  const modal = {
+    backdrop: document.getElementById('modal-backdrop'),
+    header:   document.getElementById('modal-header'),
+    body:     document.getElementById('modal-body'),
+    footer:   document.getElementById('modal-footer'),
+    show: ({ title = '', message = '', confirm = false }) => new Promise(res => {
+      modal.header.textContent = title;
+      modal.body.textContent   = message;
+      modal.footer.innerHTML   = '';
+      const btnOk = Object.assign(document.createElement('button'), { textContent: 'OK', className: 'btn-primary' });
+      btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
+      modal.footer.append(btnOk);
+      if (confirm) {
+        const btnCancel = Object.assign(document.createElement('button'), { textContent: 'Cancelar', className: 'btn-danger' });
+        btnCancel.onclick = () => (modal.backdrop.style.display = 'none', res(false));
+        modal.footer.append(btnCancel);
+      }
+      modal.backdrop.style.display = 'flex';
+    })
+  };
+  const showAlert   = msg => modal.show({ title: '¡Atención!', message: msg });
+  const showConfirm = msg => modal.show({ title: 'Confirma', message: msg, confirm: true });
+
+  // UTILIDADES DE FETCH
+  const callApi = params => {
+    const url = new URL(API_URL);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
+    return fetch(url).then(r => r.json());
+  };
+  async function postOpNotify(op, params = {}, successTitle = 'Éxito') {
+    try {
+      const data = await postOp(op, params);
+      const msg = typeof data === 'string' ? data : data?.message ?? JSON.stringify(data);
+      await modal.show({ title: successTitle, message: msg });
+      return data;
+    } catch (err) {
+      const errMsg = err?.message ?? String(err);
+      await modal.show({ title: 'Error', message: errMsg });
+      throw err;
+    }
+  }
+  const postOp = async (op, params = {}) => {
+    const fd = new FormData(); fd.append('op', op);
+    Object.entries(params).forEach(([k,v]) => fd.append(k,v));
+    const res = await fetch(API_URL, { method: 'POST', body: fd });
+    const json = await res.json();
+    if (json.status === 'success') return json.data;
+    else throw new Error(json.message);
   };
 
-  let almacenData = [], comprasData = [], recetasData = [], ventData = [], cocData = [];
-  let productInfo = {}, editMode = false;
+  // UTILIDADES DE UNIDAD
+  const categoriaDe = u =>
+    ['mg','g','kg'].includes(u) ? 'peso'
+  : ['ml','l'].includes(u)    ? 'volumen'
+  :                             'conteo';
 
-  // —————— UTILIDADES ——————
-  function categoriaDe(u) {
-    if (['mg','g','kg'].includes(u)) return 'peso';
-    if (['ml','l'].includes(u)) return 'volumen';
-    return 'conteo';
-  }
-  function humanizeComposite(b,c) {
-    if (c==='peso') {
-      const kg=Math.trunc(b/1000), g=b%1000, out=[];
-      if(kg) out.push(`${kg}kg`); if(g) out.push(`${g}g`);
-      return out.join(' ')||'0g';
-    }
-    if (c==='volumen') {
-      const l=Math.trunc(b/1000), m=b%1000, out=[];
-      if(l) out.push(`${l}l`); if(m) out.push(`${m}ml`);
-      return out.join(' ')||'0ml';
-    }
-    return `${b.toFixed(0)}pz`;
-  }
+  const humanizeComposite = (b, c) =>
+    c === 'peso'
+      ? ((kg => (kg ? kg+'kg ' : '') + ((b%1000)? (b%1000)+'g' : '') || '0g')(Math.trunc(b/1000)))
+    : c === 'volumen'
+      ? ((l => (l ? l+'l ' : '') + ((b%1000)? (b%1000)+'ml' : '') || '0ml')(Math.trunc(b/1000)))
+    : `${b.toFixed(0)}pz`;
 
-  // —————— CACHE‑ASIDE ——————
-  function loadCache() {
-    almacenData = JSON.parse(localStorage.getItem(LS_KEYS.almacen) || '[]');
-    comprasData = JSON.parse(localStorage.getItem(LS_KEYS.compras) || '[]');
-    recetasData = JSON.parse(localStorage.getItem(LS_KEYS.recetas) || '[]');
-    ventData    = JSON.parse(localStorage.getItem(LS_KEYS.ventas)  || '[]');
-    cocData     = recetasData.slice();
-  }
-  function saveCache() {
-    localStorage.setItem(LS_KEYS.almacen, JSON.stringify(almacenData));
-    localStorage.setItem(LS_KEYS.compras, JSON.stringify(comprasData));
-    localStorage.setItem(LS_KEYS.recetas, JSON.stringify(recetasData));
-    localStorage.setItem(LS_KEYS.ventas,  JSON.stringify(ventData));
-  }
-
-  // —————— COLA DE PENDIENTES ——————
-  function loadPendientes() {
-    return JSON.parse(localStorage.getItem(LS_KEYS.pendientes) || '[]');
-  }
-  function savePendientes(p) {
-    localStorage.setItem(LS_KEYS.pendientes, JSON.stringify(p));
-  }
-  function enqueueOp(op, params) {
-    const p = loadPendientes();
-    p.push({ op, params });
-    savePendientes(p);
-  }
-  async function processPendientes() {
-    const pend = loadPendientes(), still = [];
-    for (const {op,params} of pend) {
-      try { await postOp(op, params); }
-      catch { still.push({op,params}); }
-    }
-    savePendientes(still);
-  }
-
-  // —————— BACKEND ——————
-  function callApi(params) {
-    const url = new URL(API_URL);
-    Object.entries(params).forEach(([k,v])=> url.searchParams.append(k,v));
-    return fetch(url).then(r=>r.json());
-  }
-  async function postOp(op, params={}) {
-    const fd = new FormData();
-    fd.append('op', op);
-    Object.entries(params).forEach(([k,v])=> fd.append(k,v));
-    const res = await fetch(API_URL, { method:'POST', body:fd });
-    const json = await res.json();
-    if (json.status!=='success') throw new Error(json.message);
-    return json.data;
-  }
-  async function sendOrEnqueue(op, params) {
-    try { await postOp(op, params); }
-    catch { enqueueOp(op, params); }
-  }
-
-  // —————— BUILD PRODUCT INFO ——————
+  // PRODUCT INFO
   function buildProductInfo() {
     productInfo = {};
-    almacenData.forEach(it=>{
-      const uni = it.unidadDeMedida.trim().toLowerCase(),
-            cat = categoriaDe(uni),
-            base= parseFloat(it.cantidad)*FACTORES[uni] || 1;
+    almacenData.forEach(it => {
+      const uni = it.unidadDeMedida.trim().toLowerCase();
+      const cat = categoriaDe(uni);
+      const base = parseFloat(it.cantidad)*FACTORES[uni] || 1;
       productInfo[it.codigo] = {
-        priceBase: parseFloat(it.precio)/base,
+        priceBase: parseFloat(it.precio)/base || 0,
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat]
       };
     });
   }
 
-  // —————— RENDER STOCK ——————
+  // RENDER STOCK
   function renderStockTable() {
-    const grid = document.getElementById('stock-grid');
-    grid.innerHTML = '';
-    const compMap={}, usedMap={};
-    comprasData.forEach(c=> compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
-    ventData.forEach(v=> v.venta.forEach(it=>{
-      const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
-      if (!rec) return;
-      rec.ingredientes.forEach(ing=>{
-        usedMap[ing.codigo] = (usedMap[ing.codigo]||0)
-          + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
-      });
+    const grid = document.getElementById('stock-grid'); grid.innerHTML = '';
+    const compMap = {}, usedMap = {};
+    comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
+      rec && rec.ingredientes.forEach(ing =>
+        usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad
+      );
     }));
-    almacenData.forEach(it=>{
-      const info    = productInfo[it.codigo],
-            recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida],
-            bought  = compMap[it.codigo]||0,
-            used    = usedMap[it.codigo]||0,
-            remain  = bought - used,
-            pct     = recBase ? remain/recBase*100 : 0;
-      let estado;
-      if (pct<=50) estado='🔴 Bajo';
-      else if (pct<=80) estado='🟠 Medio';
-      else if (pct<=100) estado='🟢 Bueno';
-      else estado='🔵 Excedente';
-      const delta = recBase - remain,
-            accion= delta>0
-                   ? `Ordenar ${humanizeComposite(delta,info.categoria)}`
-                   : `Sobrante ${humanizeComposite(-delta,info.categoria)}`,
-            totalB=(info.priceBase*bought).toFixed(2),
-            totalU=(info.priceBase*used).toFixed(2),
-            totalR=(info.priceBase*remain).toFixed(2);
-      const card = document.createElement('div');
-      card.className='card';
-      card.innerHTML=`
-        <div class="card-header">#${it.codigo} – ${it.name||'Sin nombre'}</div>
-        <div class="card-body">
-          <label>Nombre:<input id="name-${it.codigo}" value="${it.name||''}"></label>
-          <label>Precio:<input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></label>
-          <label>Cant.:<input type="number" id="cant-${it.codigo}" value="${it.cantidad||0}"></label>
-          <label>Unidad:<select id="unidad-${it.codigo}">
+    almacenData.forEach(it => {
+      const info    = productInfo[it.codigo];
+      const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
+      const bought  = compMap[it.codigo]||0;
+      const used    = usedMap[it.codigo]||0;
+      const remain  = bought - used;
+      const pct     = recBase ? remain/recBase*100 : 0;
+      const estado  = pct <= 30 ? '🔴 Bajo'
+                    : pct <= 50 ? '🟠 Medio'
+                    : pct <=90 ? '🟢 Bueno'
+                    :             '🔵 Excedente';
+      const delta   = recBase - remain;
+      const accion  = delta>0
+        ? `Ordenar ${humanizeComposite(delta,info.categoria)}`
+        : `Sobrante ${humanizeComposite(-delta,info.categoria)}`;
+      const totalB = (info.priceBase*bought).toFixed(2);
+      const totalU = (info.priceBase*used).toFixed(2);
+      const totalR = (info.priceBase*remain).toFixed(2);
+
+      const card = document.createElement('div'); card.className = 'card';
+      card.innerHTML = `
+        <div class="card-header">#${it.codigo}</div>
+        <div class="seccion1">
+          <label><input class="name2" type="text" id="name-${it.codigo}" value="${it.name||''}"></label>
+          <label class="div2">Precio:<input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></label>
+          <label class="div2">Cant.inicial:<input type="number" id="cant-${it.codigo}" value="${it.cantidad||0}"></label>
+          <label class="div2">Unidad:<select class="mutinput" id="unidad-${it.codigo}">
             ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}
           </select></label>
-          <label>Stock rec:<input type="number" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"></label>
-          <label>Prov.:<input id="prov-${it.codigo}" value="${it.proveedor||''}"></label>
+          <label class="div2">Stock.rec.:<input type="number" id="rec-${it.codigo}" value="${it.stockRecomendado||0}"></label>
+          <label class="div2">Proveedor:<input type="text" id="prov-${it.codigo}" value="${it.proveedor||''}"></label>
           <hr>
-          <div class="info2">
-            <p><strong>Comprado:</strong> ${humanizeComposite(bought,info.categoria)} (~$${totalB})</p>
-            <p><strong>Usado:</strong>    ${humanizeComposite(used,info.categoria)} (~$${totalU})</p>
-            <p><strong>Restante:</strong> ${humanizeComposite(remain,info.categoria)} (~$${totalR})</p>
-            <p><strong>Estado:</strong>   ${estado}</p>
-            <p><strong>Acción:</strong>   ${accion}</p>
-          </div>
-          <label>Comprar:
-            <input type="number" id="buyqty-${it.codigo}" value="1" style="width:4rem;">
-            <select id="buyunit-${it.codigo}" style="width:auto;">
+          <p>Comprado: ${humanizeComposite(bought,info.categoria)} = $${totalB}</p>
+          <p>Usado: ${humanizeComposite(used,info.categoria)} = $${totalU}</p>
+          <p>Restante: ${humanizeComposite(remain,info.categoria)} = $${totalR}</p>
+          <p>Estado: ${estado}</p>
+          <p>Acción: ${accion}</p>
+          <label class="div3">
+            <strong>Comprar:</strong>
+            <input type="number" id="buyqty-${it.codigo}" value="1">
+            <select class="mutinput" id="buyunit-${it.codigo}">
               ${info.opcionesUnidad.map(u=>`<option value="${u}">${u}</option>`).join('')}
             </select>
           </label>
-        </div>
-        <div class="card-footer">
-          <button onclick="buyProduct('${it.codigo}')">🛒</button>
-          <button onclick="saveAlmacen('${it.codigo}')">💾</button>
-          <button onclick="deleteAlmacen('${it.codigo}')">❌</button>
+          <div class="div3">
+            <button class="btnNormal" onclick="buyProduct('${it.codigo}')"><i class="fa-solid fa-cart-shopping"></i></button>
+            <button class="btnNormal" onclick="saveAlmacen('${it.codigo}')"><i class="fa-solid fa-floppy-disk"></i></button>
+            <button class="btnNormal" onclick="deleteAlmacen('${it.codigo}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
         </div>
       `;
       grid.append(card);
     });
   }
 
-  // —————— RENDER COMPRAS ——————
+  // RENDER COMPRAS
   function renderComprasTable() {
-    const grid = document.getElementById('compras-grid');
-    grid.innerHTML = '';
-    comprasData
-      .sort((a,b) => new Date(b.fecha) - new Date(a.fecha))
-      .forEach(c => {
-        const prod = almacenData.find(x=>x.codigo==c.idProducto);
-        if (!prod) return;
-        const info  = productInfo[c.idProducto],
-              total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML=`
-          <div class="card-header">Compra #${c.idCompra}</div>
-          <div class="card-body">
-            <label>Fecha:<input type="date" id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}"></label>
-            <p>Producto: ${prod.name}</p>
-            <label>Cant.:<input type="number" id="qty-${c.idCompra}" value="${c.cantidad}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
-            <label>Unidad:<select id="unit-${c.idCompra}" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')">
-              ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`).join('')}
-            </select></label>
-            <p>Total: $<span id="total-${c.idCompra}">${total}</span></p>
+    const grid = document.getElementById('compras-grid'); grid.innerHTML = '';
+    comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c => {
+      const prod = almacenData.find(x=>x.codigo==c.idProducto);
+      if (!prod) return;
+      const info  = productInfo[c.idProducto];
+      const total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
+      const card = document.createElement('div'); card.className = 'card';
+      card.innerHTML = `
+        <div class="card-header">Compra #${c.idCompra}</div>
+        <div class="seccion1">
+          <label class="div2">Fecha:<input class="mutinput" type="date" id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}" onclick="recalcCompra('${c.idCompra}','${c.idProducto}')" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
+          <label class="div2"><p class="name2">${prod.name}</p></label>
+          <label class="div2">Cantidad:<input type="number" id="qty-${c.idCompra}" value="${c.cantidad}" onclick="recalcCompra('${c.idCompra}','${c.idProducto}')" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')"></label>
+          <label class="div2">Unidad:<select class="mutinput" id="unit-${c.idCompra}" onclick="recalcCompra('${c.idCompra}','${c.idProducto}')" onchange="recalcCompra('${c.idCompra}','${c.idProducto}')">
+            ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===c.unidad?' selected':''}>${u}</option>`).join('')}
+          </select></label>
+          <label class="div2">Total:$<span id="total-${c.idCompra}">${total}</span></label>
+          <div class="div2">
+            <button class="btnNormal" onclick="saveCompra('${c.idCompra}','${c.idProducto}')"><i class="fa-solid fa-floppy-disk"></i></button>
+            <button class="btnNormal" onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </div>
-          <div class="card-footer">
-            <button onclick="saveCompra('${c.idCompra}','${c.idProducto}')">💾</button>
-            <button onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">❌</button>
-          </div>
-        `;
-        grid.append(card);
-        recalcCompra(c.idCompra, c.idProducto);
-      });
+        </div>
+      `;
+      grid.append(card);
+      recalcCompra(c.idCompra, c.idProducto);
+    });
+  }
+
+  // ACCIONES STOCK/COMPRAS
+  async function addNewProducto() {
+    almacenData.push({ codigo: Date.now(), name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' });
+    buildProductInfo(); renderStockTable();
+  }
+  async function saveAlmacen(codigo) {
+    await postOpNotify('guardarAlmacen', {
+      codigo,
+      name: document.getElementById(`name-${codigo}`).value,
+      precio: document.getElementById(`precio-${codigo}`).value,
+      cantidad: document.getElementById(`cant-${codigo}`).value,
+      unidadDeMedida: document.getElementById(`unidad-${codigo}`).value,
+      stockRecomendado: document.getElementById(`rec-${codigo}`).value,
+      proveedor: document.getElementById(`prov-${codigo}`).value
+    }, 'Almacén actualizado');
+    await loadData();
+  }
+  async function deleteAlmacen(codigo) {
+    const ok = await showConfirm(`¿Eliminar producto ${codigo}?`);
+    if (!ok) return;
+    await postOpNotify('eliminarAlmacen',{codigo},'Producto eliminado');
+    await loadData();
+  }
+  async function buyProduct(id) {
+    const info = productInfo[id];
+    const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
+    if (qty <= 0) return;
+    const uni   = document.getElementById(`buyunit-${id}`).value;
+    const total = (info.priceBase * qty * FACTORES[uni]).toFixed(0);
+    const fecha = new Date().toISOString().slice(0,10);
+    await postOpNotify('guardarCompras',{ 
+      idProducto: id,
+      fecha,
+      name: almacenData.find(x => x.codigo == id).name,
+      precio: total,
+      cantidad: qty,
+      unidad: uni
+    },'Compra registrada');
+    await loadData();
   }
 
   function recalcCompra(idC,idP) {
-    const info = productInfo[idP],
-          qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0,
-          uni  = document.getElementById(`unit-${idC}`).value;
-    document.getElementById(`total-${idC}`)
-      .textContent = (info.priceBase*qty*FACTORES[uni]).toFixed(2);
+    const info = productInfo[idP];
+    const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
+    const uni  = document.getElementById(`unit-${idC}`).value;
+    document.getElementById(`total-${idC}`).textContent = (info.priceBase*qty*FACTORES[uni]).toFixed(2);
   }
-
-  // —————— CRUD ALMACÉN ——————
-  async function addNewProducto() {
-    const n = { codigo:Date.now(), name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' };
-    almacenData.push(n); saveCache(); buildProductInfo(); renderStockTable();
-    await sendOrEnqueue('guardarAlmacen', n);
-  }
-  async function saveAlmacen(c) {
-    const it = almacenData.find(x=>x.codigo==c);
-    it.name             = document.getElementById(`name-${c}`).value;
-    it.precio           = document.getElementById(`precio-${c}`).value;
-    it.cantidad         = document.getElementById(`cant-${c}`).value;
-    it.unidadDeMedida   = document.getElementById(`unidad-${c}`).value;
-    it.stockRecomendado = document.getElementById(`rec-${c}`).value;
-    it.proveedor        = document.getElementById(`prov-${c}`).value;
-    saveCache(); buildProductInfo(); renderStockTable();
-    await sendOrEnqueue('guardarAlmacen', {
-      codigo:c, name:it.name, precio:it.precio,
-      cantidad:it.cantidad, unidadDeMedida:it.unidadDeMedida,
-      stockRecomendado:it.stockRecomendado, proveedor:it.proveedor
-    });
-  }
-  async function deleteAlmacen(c) {
-    almacenData = almacenData.filter(x=>x.codigo!=c);
-    saveCache(); buildProductInfo(); renderStockTable();
-    await sendOrEnqueue('eliminarAlmacen', { codigo:c });
-  }
-
-  // —————— CRUD COMPRAS ——————
-  async function buyProduct(id) {
-  const qty = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
-  if (qty <= 0) return;
-
-  const uni   = document.getElementById(`buyunit-${id}`).value;
-  const fecha = new Date().toISOString().slice(0,10);
-  const total = (productInfo[id].priceBase * qty * FACTORES[uni]).toFixed(0);
-
-  // Aquí tomo el nombre del producto de almacenData
-  const prod = almacenData.find(p => p.codigo == id) || {};
-
-  // Primero actualizo el cache/UI
-  const nueva = {
-    idCompra: Date.now(),
-    idProducto: id,
-    fecha,
-    cantidad: qty,
-    unidad: uni,
-    total,
-    name: prod.name   // <-- clave "name", no "nombre"
-  };
-  comprasData.push(nueva);
-  saveCache();
-  renderComprasTable();
-
-  // Luego envío (o encolo) la petición al servidor
-  await sendOrEnqueue('guardarCompras', {
-    idProducto: id,
-    idCompra:   nueva.idCompra, // si tu backend lo necesita
-    name:       prod.name,
-    fecha,
-    cantidad:   qty,
-    unidad:     uni,
-    precio:     total
-  });
-}
-
   async function saveCompra(idC,idP) {
-    const c = comprasData.find(x=>x.idCompra==idC && x.idProducto==idP);
-    c.cantidad = parseFloat(document.getElementById(`qty-${idC}`).value)||c.cantidad;
-    c.unidad   = document.getElementById(`unit-${idC}`).value;
-    c.fecha    = document.getElementById(`date-${idC}`).value;
-    c.precio   = (productInfo[idP].priceBase*c.cantidad*FACTORES[c.unidad]).toFixed(0);
-    saveCache(); renderComprasTable();
-    await sendOrEnqueue('guardarCompras', {
-      idCompra:idC, idProducto:idP, fecha:c.fecha,
-      cantidad:c.cantidad, unidad:c.unidad, precio:c.precio
-    });
+    const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
+    if (qty<=0) return;
+    const uni   = document.getElementById(`unit-${idC}`).value;
+    const fecha = document.getElementById(`date-${idC}`).value;
+    await postOpNotify('guardarCompras',{
+      idCompra:idC, idProducto:idP, fecha, cantidad:qty, unidad:uni,
+      name:almacenData.find(x=>x.codigo==idP).name,
+      precio:(productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0)
+    }, 'Compra guardada');
+    await loadData();
   }
   async function deleteCompra(idC,idP) {
-    comprasData = comprasData.filter(x=>!(x.idCompra==idC && x.idProducto==idP));
-    saveCache(); renderComprasTable();
-    await sendOrEnqueue('eliminarCompras', { idCompra:idC, idProducto:idP });
+    const ok = await showConfirm(`¿Eliminar compra ${idC}?`);
+    if (!ok) return;
+    await postOpNotify('eliminarCompras',{idCompra:idC,idProducto:idP},'Compra eliminada');
+    await loadData();
   }
 
-  // —————— CRUD RECETAS ——————
-  function crearSelectProductos() {
-    const sel = document.createElement('select');
-    almacenData.forEach(p => {
-      const opt = new Option(`${p.name} (${p.cantidad}${p.unidadDeMedida})`, p.codigo);
-      opt.dataset.unit = p.unidadDeMedida.trim().toLowerCase();
-      sel.append(opt);
-    });
-    return sel;
-  }
-  function crearSelectUnidad(cat, val='') {
-    const sel = document.createElement('select');
-    CATEGORIAS[cat].forEach(u => sel.append(new Option(u,u)));
-    if (val) sel.value = val;
-    return sel;
-  }
-  function agregarFila(item={}) {
-    const tbody = document.querySelector('#ingredientes-table tbody');
-    const tr = document.createElement('tr');
-    const selProd = crearSelectProductos();
-    if (item.codigo) selProd.value = item.codigo;
-    const inpCant = document.createElement('input');
-    inpCant.type='number'; inpCant.min='0'; inpCant.value = item.cantidad||1;
-    let unidad0 = item.unidad || selProd.selectedOptions[0].dataset.unit;
-    let selUni = crearSelectUnidad(categoriaDe(unidad0), unidad0);
-    selProd.addEventListener('change', ()=>{
-      const nu=categoriaDe(selProd.selectedOptions[0].dataset.unit);
-      const r=crearSelectUnidad(nu, selProd.selectedOptions[0].dataset.unit);
-      tr.children[2].replaceChild(r, selUni);
-      selUni=r;
-    });
-    const btnDel=document.createElement('button');
-    btnDel.type='button'; btnDel.textContent='Eliminar';
-    btnDel.addEventListener('click', e=>{ e.preventDefault(); tr.remove(); });
-    [selProd, inpCant, selUni, btnDel].forEach(el=>{
-      const td=document.createElement('td'); td.append(el); tr.append(td);
-    });
-    tbody.append(tr);
+  // NAVEGACIÓN
+  function cambiarSeccion(sec) {
+    document.querySelectorAll('nav.top-nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelector(`nav.top-nav button[data-sec="${sec}"]`).classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(sec).classList.add('active');
   }
 
-  // —————— CRUD VENTAS ——————
-  function crearItemRow(cod='', cant='', tot='') {
-    const row = document.createElement('div'); row.className='item-row';
-    const sel = document.createElement('select');
-    recetasData.forEach(r=>{
-      const o=new Option(r.nombre, r.codigo);
-      if (r.codigo===cod) o.selected=true;
-      sel.append(o);
-    });
-    const ic=document.createElement('input'); ic.type='number'; ic.min='1'; ic.value=cant; ic.placeholder='Cantidad';
-    const it=document.createElement('input'); it.type='number'; it.value=tot; it.placeholder='Total';
-    function recalc(){
-      const rc=recetasData.find(x=>x.codigo===sel.value)||{precio:0};
-      it.value=(Number(rc.precio)*(Number(ic.value)||0)).toFixed(2);
-    }
-    sel.addEventListener('change', recalc);
-    ic.addEventListener('input', recalc);
-    const bd=document.createElement('button'); bd.type='button'; bd.textContent='−'; bd.addEventListener('click', ()=>row.remove());
-    row.append(sel, ic, it, bd);
+  // VENTAS
+  function crearItemRow(cod = '', cant = '', tot = '') {
+    const row = document.createElement('div'); row.className = 'item-row';
+    row.innerHTML = `
+   <select class="mutinput" onchange="recalcRow(this)" onclick="recalcRow(this)">
+        ${recetas.map(r => `<option value="${r.codigo}" ${r.codigo===cod?'selected':''}>${r.nombre}</option>`).join('')}
+      </select>
+      <input type="number" min="1" value="${cant}" placeholder="Cantidad" onclick="recalcRow(this)" oninput="recalcRow(this)">
+      <input type="number" value="${tot}" placeholder="Total" readonly>
+      <button class="btnNormal" type="button" onclick="this.parentNode.remove()">−</button>
+    `;
     return row;
+  }
+  function recalcRow(el) {
+    const row = el.closest('.item-row');
+    const sel    = row.children[0];
+    const inpCant= row.children[1];
+    const inpTot = row.children[2];
+    const rec = recetas.find(x => x.codigo === sel.value) || { precio: 0 };
+    inpTot.value = (Number(rec.precio) * Number(inpCant.value || 0)).toFixed(2);
   }
   function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
   }
+  function renderTicketCard(v) {
+    const fechaStr = new Date(v.fecha).toLocaleDateString();
+    const itemsHtml = v.venta.map(it => `<div class="ticket-item">${it.producto} x${it.cantidad} = $${it.total}</div>`).join('');
+    const total = v.venta.reduce((sum,i) => sum + Number(i.total), 0).toFixed(2);
+    const card = document.createElement('div'); card.className = 'card';
+    card.innerHTML = `
+<div class="card-header">${fechaStr}</div>
+<div class="seccion1">
+  <div class="div2">
+    <strong>Pago:</strong> ${v.metodoPago}
+  </div>
+  <div class="div2">
+    ${itemsHtml}
+  </div>
+  <div class="div2">
+    <strong>Total:</strong> <span class="ticket-total">${total}</span>
+  </div>
+  <div class="div2">
+    <button class="btnNormal" onclick='startEdit(${JSON.stringify(v)})'>Editar</button>
+    <button class="btnNormal" onclick="eliminarVenta('${v.id}')">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+  </div>
+</div>
+
+    `;
+    return card;
+  }
+  async function cargarVentas() {
+    await fetchRecetas();
+    const res = await callApi({op:'obtenerVentas'});
+    ventData = res.status==='success'?res.data:ventData;
+    const grid = document.getElementById('tickets-grid'); grid.innerHTML='';
+    ventData.forEach(v=>grid.append(renderTicketCard(v)));
+    actualizarResumen(ventData);
+  }
+  function startEdit(v) {
+    document.getElementById('form-id').value      = v.id;
+    document.getElementById('form-title').textContent = 'Editar Venta';
+    document.getElementById('form-fecha').value   = new Date(v.fecha).toISOString().slice(0,10);
+    document.getElementById('form-pago').value    = v.metodoPago;
+    const cont = document.getElementById('items-container'); cont.innerHTML = '';
+    v.venta.forEach(itm => cont.append(crearItemRow(itm.codigo, itm.cantidad, itm.total)));
+  }
   function resetForm() {
-    editMode=false;
-    document.getElementById('form-id').value='';
-    document.getElementById('form-title').textContent='Nueva Venta';
-    document.getElementById('form-fecha').value=new Date().toISOString().slice(0,10);
-    document.getElementById('form-pago').value='Efectivo';
-    document.getElementById('items-container').innerHTML='';
+    document.getElementById('form-id').value = '';
+    document.getElementById('form-title').textContent = 'Nueva Venta';
+    document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+    document.getElementById('form-pago').value = 'Efectivo';
+    document.getElementById('items-container').innerHTML = '';
   }
-  function renderRecetasTable() {
-    const cont=document.getElementById('lista-recetas');
-    cont.innerHTML='';
-    recetasData.forEach(r=>{
-      const costo=r.ingredientes.reduce((s,i)=>{
-        const p=almacenData.find(x=>String(x.codigo)===String(i.codigo));
-        if(!p) return s;
-        const fu=FACTORES[p.unidadDeMedida.trim().toLowerCase()]*parseFloat(p.cantidad);
-        const iu=FACTORES[i.unidad]*i.cantidad;
-        return s+(p.precio/fu)*iu;
-      },0).toFixed(2);
-      const card=document.createElement('div'); card.className='card';
-      card.innerHTML=`
-        <div class="card-header">${r.codigo} – ${r.nombre}</div>
-        <div class="card-body">
-          <p>Categoría: ${r.categoria}</p>
-          ${r.imagen?`<img src="${r.imagen}" style="max-width:100%">`:``}
-          <div class="info2">
-            ${r.ingredientes.map(i=>`<p>${i.codigo}: ${i.cantidad}${i.unidad}</p>`).join('')}
-            <p><strong>Costo:</strong> $${costo}</p>
-          </div>
-        </div>
-        <div class="card-footer">
-          <button onclick="cargarEnForm(${JSON.stringify(r)})">✏️</button>
-          <button onclick="eliminarReceta('${r.codigo}')">❌</button>
-        </div>`;
-      cont.append(card);
-    });
-  }
-  function cargarEnForm(r) {
-    editMode=true;
-    document.getElementById('receta-codigo').value=r.codigo;
-    document.getElementById('receta-codigo').disabled=true;
-    document.getElementById('receta-nombre').value=r.nombre;
-    const selCat=document.getElementById('receta-categoria');
-    if (!Array.from(selCat.options).some(o=>o.value===r.categoria)) {
-      selCat.value='__nueva__';
-      document.getElementById('wrapper-receta-categoria-nueva').classList.remove('hidden');
-      document.getElementById('receta-categoria-nueva').value=r.categoria;
-    } else {
-      selCat.value=r.categoria;
-      document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
-    }
-    document.getElementById('receta-imagen').value=r.imagen||'';
-    document.querySelector('#ingredientes-table tbody').innerHTML='';
-    r.ingredientes.forEach(i=>agregarFila(i));
-  }
-  async function guardarReceta() {
-    const cod=document.getElementById('receta-codigo').value.trim();
-    const nom=document.getElementById('receta-nombre').value.trim();
-    if(!cod||!nom) return alert('Código y nombre requeridos');
-    let cat=document.getElementById('receta-categoria').value;
-    if(cat==='__nueva__') cat=document.getElementById('receta-categoria-nueva').value.trim();
-    const imagen=document.getElementById('receta-imagen').value.trim();
-    const ingredientes=Array.from(
-      document.querySelectorAll('#ingredientes-table tbody tr')
-    ).map(tr=>({
-      codigo:tr.children[0].firstChild.value,
-      cantidad:+tr.children[1].firstChild.value,
-      unidad:tr.children[2].firstChild.value
-    }));
-    const nueva={ codigo:cod, nombre:nom, categoria:cat, imagen, ingredientes };
-    if(editMode) recetasData=recetasData.map(r=>r.codigo===cod?nueva:r);
-    else recetasData.push(nueva);
-    cocData=recetasData; saveCache(); renderRecetasTable(); limpiarRecetaForm();
-    await sendOrEnqueue('guardarCocina',{
-      codigo:cod, nombre:nom, categoria:cat,
-      imagen, ingredientes:JSON.stringify(ingredientes)
-    });
-  }
-  async function eliminarReceta(cod) {
-    if(!confirm(`¿Eliminar receta ${cod}?`)) return;
-    recetasData=recetasData.filter(r=>r.codigo!==cod);
-    cocData=recetasData; saveCache(); renderRecetasTable();
-    await sendOrEnqueue('eliminarCocina',{ codigo:cod });
-  }
-  function limpiarRecetaForm() {
-    editMode=false;
-    ['receta-codigo','receta-nombre','receta-imagen','receta-categoria','receta-categoria-nueva']
-      .forEach(id=>{
-        const el=document.getElementById(id);
-        if(!el) return;
-        if(el.tagName==='SELECT') el.selectedIndex=0;
-        else el.value='';
-      });
-    document.getElementById('receta-codigo').disabled=false;
-    document.querySelector('#ingredientes-table tbody').innerHTML='';
-    document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
-  }
-
-  function renderVentasTable() {
-    const grid=document.getElementById('tickets-grid');
-    grid.innerHTML='';
-    ventData.forEach(v=>{
-      const card=document.createElement('div'); card.className='ticket-card';
-      card.innerHTML=`
-        <div class="ticket-header">${new Date(v.fecha).toLocaleDateString()}</div>
-        <div class="ticket-method"><strong>Pago:</strong> ${v.metodoPago}</div>
-        <div class="ticket-items"></div>
-        <div class="ticket-total">0</div>
-        <div class="card-footer"></div>`;
-      let sum=0;
-      v.venta.forEach(it=>{
-        const d=document.createElement('div');
-        d.textContent=`${it.producto} x${it.cantidad} = $${it.total}`;
-        sum+=Number(it.total)||0;
-        card.querySelector('.ticket-items').append(d);
-      });
-      card.querySelector('.ticket-total').textContent=sum.toFixed(2);
-      const f=card.querySelector('.card-footer'),
-            eBtn=document.createElement('button'),
-            dBtn=document.createElement('button');
-      eBtn.textContent='✏️'; eBtn.onclick=()=>startEditVenta(v);
-      dBtn.textContent='❌'; dBtn.onclick=()=>eliminarVenta(v.id);
-      f.append(eBtn,dBtn);
-      grid.append(card);
-    });
-  }
-  function startEditVenta(v) {
-    editMode=true;
-    document.getElementById('form-id').value=v.id;
-    document.getElementById('form-title').textContent='Editar Venta';
-    document.getElementById('form-fecha').value=new Date(v.fecha).toISOString().slice(0,10);
-    document.getElementById('form-pago').value=v.metodoPago;
-    const cont=document.getElementById('items-container');
-    cont.innerHTML='';
-    v.venta.forEach(it=>cont.append(crearItemRow(it.codigo,it.cantidad,it.total)));
-  }
-  async function guardarVenta() {
-    const id=document.getElementById('form-id').value||Date.now();
-    const fecha=document.getElementById('form-fecha').value;
-    const metodo=document.getElementById('form-pago').value;
-    if(!fecha) return alert('Selecciona fecha');
-    const rows=document.querySelectorAll('#items-container .item-row');
-    if(!rows.length) return alert('Agrega al menos un producto');
-    const items=Array.from(rows).map(r=>{
-      const [sel,ic,it]=r.children;
-      return { codigo:sel.value, producto:sel.options[sel.selectedIndex].text, cantidad:+ic.value, total:+it.value };
-    });
-    const nueva={ id, fecha, metodoPago:metodo, venta:items };
-    if(editMode) ventData=ventData.map(v=>v.id===id?nueva:v);
-    else ventData.push(nueva);
-    saveCache(); renderVentasTable(); resetForm();
-    await sendOrEnqueue('guardarVentas',{ venta:JSON.stringify(nueva) });
-  }
+async function guardarVenta() {
+  const fecha = document.getElementById('form-fecha').value;
+  const rows = document.querySelectorAll('#items-container .item-row');
+  if (!fecha) return await showAlert('Selecciona fecha');
+  if (!rows.length) return await showAlert('Agrega al menos un producto');
+  const ventaItems = Array.from(rows).map(r => {
+    const [sel, ic, it] = r.children;
+    const rec = recetas.find(x => x.codigo === sel.value) || { nombre: '', precio: 0 };
+    return { codigo: sel.value, producto: rec.nombre, cantidad: Number(ic.value) || 0, total: Number(it.value) || 0 };
+  });
+  const payload = {
+    id: document.getElementById('form-id').value,
+    fecha,
+    metodoPago: document.getElementById('form-pago').value,
+    venta: ventaItems,
+    items: ventaItems
+  };
+  await postOpNotify('guardarVentas', { venta: JSON.stringify(payload) }, 'Venta guardada');
+  resetForm();
+  await loadData();
+}
   async function eliminarVenta(id) {
-    if(!confirm('¿Eliminar venta?')) return;
-    ventData=ventData.filter(v=>v.id!==id);
-    saveCache(); renderVentasTable();
-    await sendOrEnqueue('eliminarVentas',{ id });
+    const ok = await showConfirm('¿Eliminar venta?');
+    if (!ok) return;
+    await postOpNotify('eliminarVentas',{id},'Venta eliminada');
+    await loadData();
   }
+
+  // RESÚMENES
   function actualizarResumen(vs) {
-  let e=0, t=0, ta=0;
-  vs.forEach(v=>{
-    const s = v.venta.reduce((a,i)=>a+parseFloat(i.total||0), 0);
-    if (v.metodoPago==='Efectivo')         e += s;
-    else if (v.metodoPago==='Transferencia') t += s;
-    else if (v.metodoPago==='Tarjeta')       ta += s;
-  });
-  document.getElementById('sum-efectivo').textContent     = e.toFixed(2);
-  document.getElementById('sum-transferencia').textContent = t.toFixed(2);
-  document.getElementById('sum-tarjeta').textContent      = ta.toFixed(2);
-  document.getElementById('sum-total').textContent        = (e+t+ta).toFixed(2);
-}
-
-function updateTopStats() {
-  let totalInv=0, totalCompras=0, totalRestock=0;
-  const compMap={}, usedMap={};
-  // calcular totalCompras e inventario...
-  comprasData.forEach(c=>{
-    compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
-    totalCompras += productInfo[c.idProducto].priceBase * c.cantidad*FACTORES[c.unidad];
-  });
-  ventData.forEach(v=> v.venta.forEach(it=>{
-    const rec = cocData.find(r=>String(r.codigo)===String(it.codigo));
-    if (!rec) return;
-    rec.ingredientes.forEach(ing=>{
-      usedMap[ing.codigo] = (usedMap[ing.codigo]||0)
-        + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+    let e=0,t=0,ta=0;
+    vs.forEach(v=>v.venta.forEach(i=>{
+      const s=parseFloat(i.total)||0;
+      if (v.metodoPago==='Efectivo') e+=s;
+      else if (v.metodoPago==='Transferencia') t+=s;
+      else ta+=s;
+    }));
+    document.getElementById('sum-efectivo').textContent     = e.toFixed(2);
+    document.getElementById('sum-transferencia').textContent = t.toFixed(2);
+    document.getElementById('sum-tarjeta').textContent      = ta.toFixed(2);
+    document.getElementById('sum-total').textContent        = (e+t+ta).toFixed(2);
+  }
+  function updateTopStats() {
+    let totalInv=0, totalCompras=0, totalRestock=0;
+    const compMap={}, usedMap={};
+    comprasData.forEach(c=>{
+      compMap[c.idProducto]=(compMap[c.idProducto]||0)+c.cantidad*FACTORES[c.unidad];
+      totalCompras+=productInfo[c.idProducto].priceBase*c.cantidad*FACTORES[c.unidad];
     });
-  }));
-  almacenData.forEach(it=>{
-    const info   = productInfo[it.codigo];
-    const bought = compMap[it.codigo]||0;
-    const used   = usedMap[it.codigo]||0;
-    const remain = bought - used;
-    totalInv += remain * info.priceBase;
-    const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
-    const delta   = recBase - remain;
-    if (delta>0) totalRestock += delta * info.priceBase;
-  });
-  document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
-  document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
-  document.getElementById('stat-restock').textContent   = totalRestock.toFixed(2);
-}
+    ventData.forEach(v=>v.venta.forEach(it=>{
+      const rec=cocData.find(r=>String(r.codigo)===String(it.codigo));
+      rec && rec.ingredientes.forEach(ing=>{
+        usedMap[ing.codigo]=(usedMap[ing.codigo]||0)+ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+      });
+    }));
+    almacenData.forEach(it=>{
+      const info=productInfo[it.codigo];
+      const bought=compMap[it.codigo]||0;
+      const used=usedMap[it.codigo]||0;
+      const remain=bought-used;
+      totalInv+=remain*info.priceBase;
+      const recBase=(parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
+      const delta=recBase-remain;
+      if (delta>0) totalRestock+=delta*info.priceBase;
+    });
+    document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
+    document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
+    document.getElementById('stat-restock').textContent   = totalRestock.toFixed(2);
+  }
 
-  // —————— CARGA GENERAL / INICIO ——————
-async function loadData() {
-  // 1) Reintentar pendientes
-  await processPendientes();
+// ———————————— RECETAS ————————————
 
-  // 2) Cargar de cache y render inmediato
-  loadCache();
-  buildProductInfo();
-  renderStockTable();
-  renderComprasTable();
-  renderRecetasTable();
-  renderVentasTable();
-
-  // **ACTUALIZAR ESTADÍSTICAS CON DATOS DE CACHE**
-  updateTopStats();                  // <— para el panel flotante superior
-  actualizarResumen(ventData);      // <— para el footer inferior
-
-  // 3) Bajar datos reales y refrescar cache/UI
-  try {
-    const [alm, comp, vent, coc] = await Promise.all([
-      callApi({op:'obtenerAlmacen'}),
-      callApi({op:'obtenerCompras'}),
-      callApi({op:'obtenerVentas'}),
-      callApi({op:'obtenerCocina'})
-    ]);
-    if ([alm,comp,vent,coc].every(r=>r.status==='success')) {
-      almacenData = alm.data;
-      comprasData = comp.data;
-      ventData    = vent.data;
-      cocData     = coc.data.map(r=>({
-        ...r,
-        ingredientes: typeof r.ingredientes==='string'
+// 1) Obtiene datos de cocina y calcula precio unitario de cada receta
+async function fetchRecetas() {
+  const cocR = await callApi({ op: 'obtenerCocina' });
+  if (cocR.status === 'success') {
+    cocData = cocR.data.map(r => ({
+      ...r,
+      ingredientes:
+        typeof r.ingredientes === 'string'
           ? JSON.parse(r.ingredientes)
           : r.ingredientes
-      }));
-      recetasData = cocData;
-
-      // Guardar y renderizar de nuevo
-      saveCache();
-      buildProductInfo();
-      renderStockTable();
-      renderComprasTable();
-      renderRecetasTable();
-      renderVentasTable();
-
-      // **Y vuelvo a actualizar con datos reales**
-      updateTopStats();
-      actualizarResumen(ventData);
-    }
-  } catch(e) {
-    console.error('Error datos reales:', e);
+    }));
   }
+  recetas = cocData.map(r => {
+    const costo = r.ingredientes.reduce((sum, ing) => {
+      const p = almacenData.find(
+        x => String(x.codigo) === String(ing.codigo)
+      );
+      if (!p) return sum;
+      const basePrice =
+        p.precio /
+        (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
+      return (
+        sum +
+        basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad)
+      );
+    }, 0);
+    return {
+      codigo: r.codigo,
+      nombre: r.nombre,
+      precio: (costo * MARGEN).toFixed(2)
+    };
+  });
 }
 
+// 2) Carga recetas en formulario (categorías) y en listado
+async function cargarRecetas() {
+  await fetchRecetas();
+  recetasData = cocData;
+  categorias = [...new Set(recetasData.map(r => r.categoria))];
+
+  // llena <select id="receta-categoria">
+  const sel = document.getElementById('receta-categoria');
+  sel.innerHTML = [
+    '<option value="">-- Selecciona categoría --</option>',
+    ...categorias.sort().map(c => `<option value="${c}">${c}</option>`),
+    '<option value="__nueva__">+ Nueva categoría</option>'
+  ].join('');
+
+  mostrarRecetas();
+}
+
+// 3) Muestra u oculta el input de nueva categoría
+function toggleNuevaCategoria() {
+  document
+    .getElementById('wrapper-receta-categoria-nueva')
+    .classList.toggle(
+      'hidden',
+      document.getElementById('receta-categoria').value !== '__nueva__'
+    );
+}
+
+// 4) Render del listado de recetas
+function mostrarRecetas() {
+  const cont = document.getElementById('lista-recetas');
+
+  // Función auxiliar para calcular el costo real de un ingrediente
+  function costoIngrediente(i) {
+    const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
+    if (!p) return 0;
+    const unidadInv = p.unidadDeMedida.trim().toLowerCase();
+    const unidadRec = i.unidad.trim().toLowerCase();
+    const precioPorUnidadMinima =
+      p.precio / (FACTORES[unidadInv] * p.cantidad);
+    return precioPorUnidadMinima * (FACTORES[unidadRec] * i.cantidad);
+  }
+
+  cont.innerHTML = recetasData
+    .map(r => {
+      // 1) Lista de ingredientes con su costo
+      const ingredientesHtml = r.ingredientes
+        .map(i => {
+          const c = costoIngrediente(i).toFixed(2);
+          return `<p>${i.codigo}:${i.cantidad}${i.unidad}→$${c}</p>`;
+        })
+        .join('');
+
+      // 2) Suma total de todos los ingredientes
+      const totalCosto = r.ingredientes
+        .reduce((sum, i) => sum + costoIngrediente(i), 0)
+        .toFixed(2);
+
+      return `
+      <div class="card">
+        <div class="card-header">${r.codigo} – ${r.nombre}</div>
+        <div class="seccion1">
+          <div class="div2"><strong>Categoría:</strong> ${r.categoria}</div>
+          ${r.imagen ? `<div class="div2"><img src="${r.imagen}" style="max-width:100%"></div>` : ''}
+          <div class="div2">${ingredientesHtml}</div>
+          <p><strong>Costo total:</strong> $${totalCosto}</p>
+          <div class="div2">
+            <button class="btnNormal" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
+            <button class="btnNormal" onclick="eliminarReceta('${r.codigo}')">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    })
+    .join('');
+}
+
+// 5) Rellena el formulario para editar una receta
+function cargarEnForm(r) {
+  editMode = true;
+  document.getElementById('receta-codigo').value = r.codigo;
+  document.getElementById('receta-codigo').disabled = true;
+  document.getElementById('receta-nombre').value = r.nombre;
+
+  const selCat = document.getElementById('receta-categoria');
+  if (categorias.includes(r.categoria)) {
+    selCat.value = r.categoria;
+    document
+      .getElementById('wrapper-receta-categoria-nueva')
+      .classList.add('hidden');
+  } else {
+    selCat.value = '__nueva__';
+    document
+      .getElementById('wrapper-receta-categoria-nueva')
+      .classList.remove('hidden');
+    document.getElementById('receta-categoria-nueva').value = r.categoria;
+  }
+
+  document.getElementById('receta-imagen').value = r.imagen || '';
+
+  // ingredientes: vaciamos y agregamos filas
+  const cont = document.getElementById('ingredientes-container');
+  cont.innerHTML = '';
+  r.ingredientes.forEach(i => agregarFila(i));
+}
+
+// 6) Guarda o actualiza receta, enviando total de cada fila
+async function guardarReceta() {
+  const cod = document.getElementById('receta-codigo').value.trim();
+  const nom = document.getElementById('receta-nombre').value.trim();
+  if (!cod || !nom) return await showAlert('Código y nombre requeridos');
+
+  let cat = document.getElementById('receta-categoria').value;
+  if (cat === '__nueva__') {
+    const n = document.getElementById('receta-categoria-nueva').value.trim();
+    if (n && !categorias.includes(n)) categorias.push(n);
+    cat = n;
+  }
+
+  const ingredientes = Array.from(
+    document
+      .getElementById('ingredientes-container')
+      .querySelectorAll('.item-row')
+  ).map(row => {
+    const [selP, inpC, selU, inpT] = row.children;
+    return {
+      codigo: selP.value,
+      cantidad: Number(inpC.value) || 0,
+      unidad: selU.value,
+      total: Number(inpT.value) || 0
+    };
+  });
+
+  await postOpNotify(
+    'guardarCocina',
+    {
+      codigo: cod,
+      nombre: nom,
+      categoria: cat,
+      imagen: document.getElementById('receta-imagen').value.trim(),
+      ingredientes: JSON.stringify(ingredientes)
+    },
+    'Receta guardada'
+  );
+
+  await cargarRecetas();
+  limpiarForm();
+}
+
+// 7) Elimina receta
+async function eliminarReceta(codigo) {
+  const ok = await showConfirm(`¿Eliminar receta ${codigo}?`);
+  if (!ok) return;
+  await postOpNotify('eliminarCocina', { codigo }, 'Receta eliminada');
+  await cargarRecetas();
+}
+
+// 8) Helpers: mismos selects que Ventas/Almacén
+function crearSelectProductos() {
+  const sel = document.createElement('select');
+  almacenData.forEach(p => {
+    const opt = new Option(
+      `${p.name} (${p.cantidad}${p.unidadDeMedida})`,
+      p.codigo
+    );
+    opt.dataset.unit = p.unidadDeMedida.trim().toLowerCase();
+    sel.append(opt);
+  });
+  return sel;
+}
+function crearSelectUnidad(cat, val = '') {
+  const sel = document.createElement('select');
+  CATEGORIAS[cat].forEach(u => sel.append(new Option(u, u)));
+  if (val) sel.value = val;
+  return sel;
+}
+
+// 9) Construye cada fila exactamente igual que en Ventas
+// Contador global para generar IDs únicos
+let filaCounter = 0;
+
+// Helpers para generar <option> de productos/unidades
+function crearOptionsProductos(selectedCodigo) {
+  return almacenData
+    .map(p => {
+      const unit = p.unidadDeMedida.trim().toLowerCase();
+      const sel  = String(p.codigo) === String(selectedCodigo) ? ' selected' : '';
+      return `<option value="${p.codigo}" data-unit="${unit}"${sel}>
+        ${p.name} (${p.cantidad}${p.unidadDeMedida})
+      </option>`;
+    })
+    .join('');
+}
+
+function crearOptionsUnidades(categoria, selectedUnidad) {
+  return CATEGORIAS[categoria]
+    .map(u => {
+      const sel = u === selectedUnidad ? ' selected' : '';
+      return `<option value="${u}"${sel}>${u}</option>`;
+    })
+    .join('');
+}
+
+function agregarFila(item = {}) {
+  const cont = document.getElementById('ingredientes-container');
+  // 1) Generar un ID único para esta fila
+  const id = ++filaCounter;
+
+  // 2) Determinar unidad inicial
+  const primerP = item.codigo
+    ? almacenData.find(p => String(p.codigo) === String(item.codigo))
+    : almacenData[0];
+  const unidadDef = primerP.unidadDeMedida.trim().toLowerCase();
+  const unidad0   = item.unidad || unidadDef;
+  const cat0      = categoriaDe(unidad0);
+
+  // 3) Construir el HTML de la fila, con IDs en los selects
+  const rowHTML = `
+    <div class="item-row" id="fila-${id}">
+      <select class="mutinput" id="sel-producto-${id}">
+        ${crearOptionsProductos(item.codigo)}
+      </select>
+
+      <input
+        type="number"
+        min="1"
+        value="${item.cantidad || 1}"
+        placeholder="Cantidad"
+        id="inp-cantidad-${id}"
+      >
+
+      <select class="mutinput" id="sel-unidad-${id}">
+        ${crearOptionsUnidades(cat0, unidad0)}
+      </select>
+
+      <button class="btnNormal" type="button" id="btn-remove-${id}">−</button>
+    </div>
+  `;
+  cont.insertAdjacentHTML('beforeend', rowHTML);
+
+  // 4) Recuperar por ID
+  const selP = document.getElementById(`sel-producto-${id}`);
+  let   selU = document.getElementById(`sel-unidad-${id}`);
+  const btn  = document.getElementById(`btn-remove-${id}`);
+
+  // 5) Al cambiar producto, regenerar select de unidades
+  selP.addEventListener('change', () => {
+    const nuevaUnit = selP.selectedOptions[0].dataset.unit;
+    const nuevaCat  = categoriaDe(nuevaUnit);
+    const opciones  = crearOptionsUnidades(nuevaCat, nuevaUnit);
+
+    // Sólo actualizamos innerHTML de <select id="sel-unidad-id">
+    selU.innerHTML = opciones;
+  });
+
+  // 6) Botón de eliminar
+  btn.addEventListener('click', () => {
+    document.getElementById(`fila-${id}`).remove();
+  });
+}
+
+
+// 11) Limpia formulario
+function limpiarForm() {
+  editMode = false;
+  ['receta-codigo', 'receta-nombre', 'receta-imagen', 'receta-categoria', 'receta-categoria-nueva'].forEach(
+    id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      else el.value = '';
+    }
+  );
+  document.getElementById('receta-codigo').disabled = false;
+  document.getElementById('ingredientes-container').innerHTML = '';
+  document.getElementById('wrapper-receta-categoria-nueva').classList.add('hidden');
+}
+
+  // CARGA GENERAL
+  async function loadData() {
+    const [alm, comp, vent] = await Promise.all([
+      callApi({op:'obtenerAlmacen'}),
+      callApi({op:'obtenerCompras'}),
+      callApi({op:'obtenerVentas'})
+    ]);
+    almacenData = alm.data; comprasData = comp.data; ventData = vent.data;
+    buildProductInfo();
+    renderStockTable();
+    renderComprasTable();
+    await cargarVentas();
+    updateTopStats();
+  }
+
   window.onload = async () => {
-    // vincular paginación
-    document.querySelectorAll('nav.top-nav button')
-      .forEach(btn=> btn.addEventListener('click', ()=> cambiarSeccion(btn.dataset.sec)));
     resetForm();
+    document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     await loadData();
+    await cargarRecetas();
   };
 </script>
-
 </body>
 </html>
