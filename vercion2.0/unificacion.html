@@ -5,20 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>StockFlow</title>
+  <title>StockFlow Pro</title>
   <style>
     :root {
       --primary: #6c5ce7;
       --primary-dark: #5d4ec9;
+      --primary-light: #e9e7ff;
       --secondary: #00cec9;
+      --secondary-light: #e0f7f6;
       --danger: #ff7675;
+      --danger-light: #ffeded;
       --success: #00b894;
+      --success-light: #e6f8f5;
       --warning: #fdcb6e;
+      --warning-light: #fff8e9;
       --dark: #2d3436;
-      --light: #f7f9fc;
+      --light: #f8fafc;
       --gray: #dfe6e9;
-      --card-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      --gray-light: #f1f5f9;
+      --border: #e2e8f0;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.06);
       --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --radius: 12px;
+      --header-height: 70px;
     }
     
     * {
@@ -33,9 +42,9 @@
       background: var(--light);
       color: var(--dark);
       padding: 0;
-      padding-bottom: 120px; /* Más espacio para el footer */
+      padding-bottom: 120px;
       font-size: 14px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
     
     /* HEADER */
@@ -44,11 +53,13 @@
       top: 0;
       z-index: 100;
       background: white;
-      padding: 15px;
+      padding: 0 20px;
+      height: var(--header-height);
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--border);
     }
     
     .app-header h1 {
@@ -57,23 +68,32 @@
       color: var(--primary);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
     
     .app-header .stats {
       display: flex;
-      gap: 15px;
+      gap: 20px;
       font-size: 0.8rem;
     }
     
     .stat-item {
       text-align: center;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      background: var(--primary-light);
+      min-width: 80px;
+    }
+    
+    .stat-item i {
+      font-size: 0.9rem;
+      margin-bottom: 3px;
     }
     
     .stat-item strong {
       display: block;
       font-size: 1.1rem;
-      margin-top: 3px;
+      margin-top: 2px;
       color: var(--primary);
     }
     
@@ -87,7 +107,8 @@
       display: flex;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
       z-index: 100;
-      height: 60px;
+      height: 70px;
+      border-top: 1px solid var(--border);
     }
     
     .nav-btn {
@@ -102,11 +123,13 @@
       background: transparent;
       transition: var(--transition);
       padding: 8px 0;
+      position: relative;
     }
     
     .nav-btn i {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       margin-bottom: 3px;
+      transition: var(--transition);
     }
     
     .nav-btn.active {
@@ -114,10 +137,29 @@
       background: rgba(108, 92, 231, 0.05);
     }
     
+    .nav-btn.active i {
+      transform: translateY(-3px);
+    }
+    
+    .nav-badge {
+      position: absolute;
+      top: 8px;
+      right: 20px;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 0.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
     /* RESUMEN VENTAS */
     .sales-summary {
       position: fixed;
-      bottom: 60px; /* Encima de la barra de navegación */
+      bottom: 70px;
       left: 0;
       width: 100%;
       background: var(--dark);
@@ -126,12 +168,25 @@
       padding: 8px 0;
       z-index: 99;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(255,255,255,0.1);
     }
     
     .summary-item {
       flex: 1;
       text-align: center;
       padding: 5px;
+      position: relative;
+    }
+    
+    .summary-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 1px;
+      background: rgba(255,255,255,0.2);
     }
     
     .summary-item.total {
@@ -141,19 +196,20 @@
     
     .summary-item span {
       display: block;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 600;
+      margin-top: 3px;
     }
     
     /* SECCIONES */
     .section {
       display: none;
-      padding: 15px;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
     }
     
     .section.active {
       display: block;
-      animation: fadeIn 0.3s ease;
     }
     
     @keyframes fadeIn {
@@ -163,49 +219,52 @@
     
     .section-title {
       font-size: 1.3rem;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       color: var(--primary);
-      padding-bottom: 8px;
+      padding-bottom: 10px;
       border-bottom: 2px solid var(--gray);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      font-weight: 600;
     }
     
     /* TARJETAS */
     .card {
       background: white;
-      border-radius: 12px;
+      border-radius: var(--radius);
       box-shadow: var(--card-shadow);
       overflow: hidden;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       transition: var(--transition);
+      border: 1px solid var(--border);
     }
     
-    .card:active {
+    .card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
     
     .card-header {
       background: var(--primary);
       color: white;
-      padding: 12px 15px;
+      padding: 15px 20px;
       font-weight: 600;
       font-size: 1rem;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
     
     .card-body {
-      padding: 15px;
+      padding: 20px;
     }
     
     .card-row {
       display: flex;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--gray);
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-light);
     }
     
     .card-row:last-child {
@@ -217,18 +276,20 @@
     .card-label {
       flex: 1;
       color: #777;
+      font-weight: 500;
     }
     
     .card-value {
       flex: 1;
       text-align: right;
       font-weight: 500;
+      color: var(--dark);
     }
     
     .card-actions {
       display: flex;
-      gap: 8px;
-      margin-top: 10px;
+      gap: 10px;
+      margin-top: 15px;
     }
     
     /* FORMULARIOS */
@@ -238,15 +299,16 @@
     
     .form-label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       font-weight: 500;
       color: var(--dark);
+      font-size: 0.9rem;
     }
     
     .form-input, .form-select {
       width: 100%;
       padding: 12px 15px;
-      border: 1px solid var(--gray);
+      border: 1px solid var(--border);
       border-radius: 8px;
       font-family: 'Poppins', sans-serif;
       font-size: 1rem;
@@ -262,8 +324,8 @@
     
     .form-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
     
     .form-row > * {
@@ -287,8 +349,14 @@
       gap: 8px;
     }
     
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
     .btn:active {
-      transform: translateY(2px);
+      transform: translateY(1px);
+      box-shadow: none;
     }
     
     .btn-primary {
@@ -296,14 +364,26 @@
       color: white;
     }
     
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    
     .btn-secondary {
       background: var(--secondary);
       color: white;
     }
     
+    .btn-secondary:hover {
+      background: #00b8b5;
+    }
+    
     .btn-danger {
       background: var(--danger);
       color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #ff5e5d;
     }
     
     .btn-outline {
@@ -312,9 +392,14 @@
       color: var(--primary);
     }
     
+    .btn-outline:hover {
+      background: var(--primary-light);
+    }
+    
     .btn-icon {
       padding: 10px;
       width: auto;
+      border-radius: 50%;
     }
     
     /* MODAL */
@@ -329,22 +414,32 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 15px;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: all;
     }
     
     .modal-content {
       background: white;
       border-radius: 16px;
       width: 100%;
-      max-width: 400px;
+      max-width: 500px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       overflow: hidden;
-      animation: modalIn 0.3s ease;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease;
     }
     
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+    .modal-backdrop.show .modal-content {
+      transform: translateY(0);
+      opacity: 1;
     }
     
     .modal-header {
@@ -365,8 +460,8 @@
       padding: 15px 20px;
       display: flex;
       gap: 10px;
-      background: #f8f9fa;
-      border-top: 1px solid var(--gray);
+      background: var(--gray-light);
+      border-top: 1px solid var(--border);
     }
     
     /* LISTAS */
@@ -376,33 +471,41 @@
     
     .list-item {
       background: white;
-      border-radius: 8px;
-      padding: 12px 15px;
-      margin-bottom: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: var(--card-shadow);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      cursor: pointer;
     }
     
-    .list-item:active {
-      background: #f8f9fa;
+    .list-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
     }
     
     .list-title {
       font-weight: 500;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      color: var(--dark);
     }
     
     .list-subtitle {
       font-size: 0.85rem;
       color: #777;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     
     /* ESTADOS */
     .status-badge {
       display: inline-block;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 500;
@@ -450,6 +553,14 @@
       margin-top: 15px;
     }
     
+    .flex {
+      display: flex;
+    }
+    
+    .gap-10 {
+      gap: 10px;
+    }
+    
     /* ANIMACIONES */
     .fade-in {
       animation: fadeIn 0.3s ease;
@@ -457,11 +568,12 @@
     
     /* SCROLLBAR */
     ::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
     }
     
     ::-webkit-scrollbar-track {
       background: #f1f1f1;
+      border-radius: 10px;
     }
     
     ::-webkit-scrollbar-thumb {
@@ -472,13 +584,282 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #a0a0a0;
     }
+    
+    /* DASHBOARD */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .dashboard-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--primary);
+    }
+    
+    .dashboard-card-title {
+      font-size: 0.9rem;
+      color: #777;
+      margin-bottom: 10px;
+    }
+    
+    .dashboard-card-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .dashboard-card-subtitle {
+      font-size: 0.85rem;
+      color: #777;
+    }
+    
+    /* FILTROS */
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-item {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    /* CHARTS */
+    .chart-container {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    
+    .chart-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* LOADER */
+    .loader {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(108, 92, 231, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* SEARCH */
+    .search-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 15px 12px 45px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      background: white;
+      transition: var(--transition);
+    }
+    
+    .search-input:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
+    }
+    
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      border: 1px dashed var(--border);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--gray);
+      margin-bottom: 15px;
+    }
+    
+    .empty-state h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+    
+    .empty-state p {
+      color: #777;
+      margin-bottom: 20px;
+    }
+    
+    /* PRODUCT GRID */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .product-card {
+      background: white;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+      height: 150px;
+      background: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      font-size: 3rem;
+    }
+    
+    .product-body {
+      padding: 15px;
+    }
+    
+    .product-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--dark);
+    }
+    
+    .product-subtitle {
+      font-size: 0.85rem;
+      color: #777;
+      margin-bottom: 10px;
+    }
+    
+    .product-price {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+    
+    /* NOTIFICATIONS */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: var(--radius);
+      padding: 15px 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+      border-left: 4px solid var(--success);
+      transform: translateX(110%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 350px;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--dark);
+    }
+    
+    .notification-content {
+      font-size: 0.9rem;
+      color: #777;
+    }
+    
+    .notification-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: transparent;
+      border: none;
+      color: #777;
+      cursor: pointer;
+    }
+    
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .app-header .stats {
+        gap: 10px;
+      }
+      
+      .stat-item {
+        min-width: 70px;
+        padding: 6px 8px;
+      }
+      
+      .form-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
 
   <!-- HEADER -->
   <header class="app-header">
-    <h1><i class="fas fa-boxes"></i> StockFlow</h1>
+    <h1><i class="fas fa-boxes"></i> StockFlow Pro</h1>
     <div class="stats">
       <div class="stat-item">
         <i class="fas fa-warehouse"></i> Inv<br><strong id="stat-inventory">0.00</strong>
@@ -492,6 +873,13 @@
     </div>
   </header>
 
+  <!-- NOTIFICATION -->
+  <div class="notification" id="notification">
+    <button class="notification-close" onclick="hideNotification()"><i class="fas fa-times"></i></button>
+    <div class="notification-title" id="notification-title">Operación exitosa</div>
+    <div class="notification-content" id="notification-content">Los cambios se han guardado correctamente</div>
+  </div>
+
   <!-- RESUMEN VENTAS -->
   <div class="sales-summary">
     <div class="summary-item">Efectivo<br><span id="sum-efectivo">0.00</span></div>
@@ -502,22 +890,170 @@
 
   <!-- SECCIONES -->
   <main>
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2 class="section-title"><i class="fas fa-chart-line"></i> Panel de Control</h2>
+      
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Valor Total del Inventario</div>
+          <div class="dashboard-card-value">$<span id="dashboard-inventory">0.00</span></div>
+          <div class="dashboard-card-subtitle">Último mes: <span id="dashboard-inventory-change">+0.0%</span></div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Ventas del Mes</div>
+          <div class="dashboard-card-value">$<span id="dashboard-sales">0.00</span></div>
+          <div class="dashboard-card-subtitle">vs mes anterior: <span id="dashboard-sales-change">+0.0%</span></div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Productos con Stock Bajo</div>
+          <div class="dashboard-card-value"><span id="dashboard-low-stock">0</span></div>
+          <div class="dashboard-card-subtitle">Necesitan reposición inmediata</div>
+        </div>
+        
+        <div class="dashboard-card">
+          <div class="dashboard-card-title">Recetas Populares</div>
+          <div class="dashboard-card-value"><span id="dashboard-top-recipe">-</span></div>
+          <div class="dashboard-card-subtitle">Más vendida este mes</div>
+        </div>
+      </div>
+      
+      <div class="filters">
+        <div class="filter-item">
+          <label class="form-label">Rango de Fechas</label>
+          <select class="form-select" id="dashboard-range">
+            <option value="7">Últimos 7 días</option>
+            <option value="30" selected>Últimos 30 días</option>
+            <option value="90">Últimos 90 días</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        
+        <div class="filter-item" id="custom-dates" style="display: none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Desde</label>
+              <input type="date" class="form-input" id="dashboard-from">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hasta</label>
+              <input type="date" class="form-input" id="dashboard-to">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title"><i class="fas fa-chart-bar"></i> Ventas por Día</div>
+        <canvas id="sales-chart"></canvas>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-title"><i class="fas fa-chart-pie"></i> Métodos de Pago</div>
+        <canvas id="payment-chart"></canvas>
+      </div>
+    </section>
+
     <!-- STOCK -->
-    <section id="stock" class="section active">
+    <section id="stock" class="section">
       <h2 class="section-title"><i class="fas fa-box-open"></i> Stock de Productos</h2>
       
-      <button class="btn btn-primary mb-15" onclick="addNewProducto()">
-        <i class="fas fa-plus"></i> Nuevo Producto
-      </button>
+      <div class="filters">
+        <div class="filter-item">
+          <label class="form-label">Buscar Producto</label>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="stock-search" placeholder="Buscar por nombre o código...">
+          </div>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Categoría</label>
+          <select class="form-select" id="stock-category">
+            <option value="">Todas las categorías</option>
+            <option value="peso">Peso (kg/g)</option>
+            <option value="volumen">Volumen (l/ml)</option>
+            <option value="conteo">Conteo (pz)</option>
+          </select>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Estado</label>
+          <select class="form-select" id="stock-status">
+            <option value="">Todos</option>
+            <option value="low">Stock Bajo</option>
+            <option value="medium">Stock Medio</option>
+            <option value="good">Stock Bueno</option>
+            <option value="excess">Excedente</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+        </div>
+      </div>
       
-      <div id="stock-list" class="list"></div>
+      <div class="flex gap-10 mb-15">
+        <button class="btn btn-primary" onclick="addNewProducto()">
+          <i class="fas fa-plus"></i> Nuevo Producto
+        </button>
+        
+        <button class="btn btn-outline" onclick="exportStock()">
+          <i class="fas fa-file-export"></i> Exportar
+        </button>
+      </div>
+      
+      <div id="stock-grid" class="product-grid"></div>
+      
+      <div id="stock-empty" class="empty-state" style="display: none;">
+        <i class="fas fa-box-open"></i>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta cambiar los filtros o agregar un nuevo producto</p>
+        <button class="btn btn-primary" onclick="addNewProducto()">
+          <i class="fas fa-plus"></i> Agregar Producto
+        </button>
+      </div>
     </section>
 
     <!-- COMPRAS -->
     <section id="compras" class="section">
       <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Historial de Compras</h2>
       
+      <div class="filters">
+        <div class="filter-item">
+          <label class="form-label">Buscar</label>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="purchase-search" placeholder="Buscar compra...">
+          </div>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Proveedor</label>
+          <select class="form-select" id="purchase-supplier">
+            <option value="">Todos los proveedores</option>
+          </select>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Rango de Fechas</label>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="date" class="form-input" id="purchase-from">
+            </div>
+            <div class="form-group">
+              <input type="date" class="form-input" id="purchase-to">
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div id="compras-list" class="list"></div>
+      
+      <div id="purchase-empty" class="empty-state" style="display: none;">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>No se encontraron compras</h3>
+        <p>Intenta cambiar los filtros o registrar una nueva compra</p>
+      </div>
     </section>
 
     <!-- VENTAS -->
@@ -546,13 +1082,18 @@
           
           <div id="items-container" class="mb-15"></div>
           
-          <button class="btn btn-outline mb-15" onclick="agregarItemVenta()">
-            <i class="fas fa-plus"></i> Agregar producto
-          </button>
+          <div class="form-row">
+            <div class="card-value" style="flex: 2; text-align: right; font-weight: 700; font-size: 1.2rem;">
+              Total: $<span id="sale-total">0.00</span>
+            </div>
+            <button class="btn btn-outline" style="flex: 1;" onclick="agregarItemVenta()">
+              <i class="fas fa-plus"></i> Agregar producto
+            </button>
+          </div>
           
           <div class="form-row">
             <button class="btn btn-primary" onclick="guardarVenta()">
-              <i class="fas fa-save"></i> Guardar
+              <i class="fas fa-save"></i> Guardar Venta
             </button>
             <button class="btn btn-outline" onclick="resetForm()">
               <i class="fas fa-times"></i> Cancelar
@@ -561,8 +1102,47 @@
         </div>
       </div>
       
-      <h3 class="section-title"><i class="fas fa-receipt"></i> Tickets</h3>
+      <h3 class="section-title"><i class="fas fa-receipt"></i> Historial de Ventas</h3>
+      
+      <div class="filters">
+        <div class="filter-item">
+          <label class="form-label">Buscar</label>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="sale-search" placeholder="Buscar venta...">
+          </div>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Método de Pago</label>
+          <select class="form-select" id="sale-payment">
+            <option value="">Todos</option>
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+          </select>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Rango de Fechas</label>
+          <div class="form-row">
+            <div class="form-group">
+              <input type="date" class="form-input" id="sale-from">
+            </div>
+            <div class="form-group">
+              <input type="date" class="form-input" id="sale-to">
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div id="tickets-list" class="list"></div>
+      
+      <div id="sale-empty" class="empty-state" style="display: none;">
+        <i class="fas fa-receipt"></i>
+        <h3>No se encontraron ventas</h3>
+        <p>Intenta cambiar los filtros o registrar una nueva venta</p>
+      </div>
     </section>
 
     <!-- RECETAS -->
@@ -588,7 +1168,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Categoría</label>
-              <select class="form-select" id="receta-categoria"></select>
+              <input class="form-input" id="receta-categoria" type="text" placeholder="Nueva categoría">
             </div>
             <div class="form-group">
               <label class="form-label">Imagen (URL)</label>
@@ -615,17 +1195,56 @@
       </div>
       
       <h3 class="section-title"><i class="fas fa-book"></i> Recetas</h3>
-      <div id="recetas-list" class="list"></div>
+      
+      <div class="filters">
+        <div class="filter-item">
+          <label class="form-label">Buscar Receta</label>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" id="recipe-search" placeholder="Buscar receta...">
+          </div>
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Categoría</label>
+          <input class="form-input" id="recipe-category" type="text" placeholder="Filtrar por categoría">
+        </div>
+        
+        <div class="filter-item">
+          <label class="form-label">Ordenar por</label>
+          <select class="form-select" id="recipe-sort">
+            <option value="name">Nombre</option>
+            <option value="popularity">Popularidad</option>
+            <option value="cost">Costo</option>
+            <option value="price">Precio</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="recetas-list" class="product-grid"></div>
+      
+      <div id="recipe-empty" class="empty-state" style="display: none;">
+        <i class="fas fa-utensils"></i>
+        <h3>No se encontraron recetas</h3>
+        <p>Intenta cambiar los filtros o crear una nueva receta</p>
+        <button class="btn btn-primary" onclick="limpiarForm()">
+          <i class="fas fa-plus"></i> Crear Receta
+        </button>
+      </div>
     </section>
   </main>
 
   <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-sec="stock" onclick="cambiarSeccion('stock')">
+    <button class="nav-btn active" data-sec="dashboard" onclick="cambiarSeccion('dashboard')">
+      <i class="fas fa-chart-line"></i> Dashboard
+    </button>
+    <button class="nav-btn" data-sec="stock" onclick="cambiarSeccion('stock')">
       <i class="fas fa-boxes"></i> Stock
     </button>
     <button class="nav-btn" data-sec="compras" onclick="cambiarSeccion('compras')">
       <i class="fas fa-shopping-cart"></i> Compras
+      <span class="nav-badge" id="purchase-badge" style="display: none;">0</span>
     </button>
     <button class="nav-btn" data-sec="ventas" onclick="cambiarSeccion('ventas')">
       <i class="fas fa-cash-register"></i> Ventas
@@ -636,7 +1255,7 @@
   </nav>
 
   <!-- MODAL REUTILIZABLE -->
-  <div id="modal-backdrop" class="modal-backdrop" style="display:none;">
+  <div id="modal-backdrop" class="modal-backdrop">
     <div class="modal-content">
       <div id="modal-header" class="modal-header"></div>
       <div id="modal-body" class="modal-body"></div>
@@ -644,6 +1263,9 @@
     </div>
   </div>
 
+  <!-- CHARTS LIBRARY -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
 <script>
   // CONSTANTES
   const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
@@ -653,7 +1275,41 @@
 
   // ESTADO GLOBAL
   let almacenData = [], comprasData = [], ventData = [], cocData = [];
-  let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
+  let recetas = [], recetasData = [], productInfo = {}, editMode = false;
+  let salesChart, paymentChart;
+
+  // NOTIFICACIONES
+  function showNotification(title, content, type = 'success') {
+    const notification = document.getElementById('notification');
+    const notificationTitle = document.getElementById('notification-title');
+    const notificationContent = document.getElementById('notification-content');
+    
+    notificationTitle.textContent = title;
+    notificationContent.textContent = content;
+    
+    // Reset classes
+    notification.className = 'notification';
+    
+    // Add type class
+    if (type === 'success') {
+      notification.style.borderLeftColor = 'var(--success)';
+    } else if (type === 'error') {
+      notification.style.borderLeftColor = 'var(--danger)';
+    } else if (type === 'warning') {
+      notification.style.borderLeftColor = 'var(--warning)';
+    }
+    
+    notification.classList.add('show');
+    
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000);
+  }
+  
+  function hideNotification() {
+    document.getElementById('notification').classList.remove('show');
+  }
 
   // MODAL REUTILIZABLE
   const modal = {
@@ -668,18 +1324,19 @@
       const btnOk = document.createElement('button');
       btnOk.className = 'btn btn-primary';
       btnOk.textContent = 'OK';
-      btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
+      btnOk.onclick = () => (modal.backdrop.classList.remove('show'), res(true));
       modal.footer.append(btnOk);
       if (confirm) {
         const btnCancel = document.createElement('button');
         btnCancel.className = 'btn btn-outline';
         btnCancel.textContent = 'Cancelar';
-        btnCancel.onclick = () => (modal.backdrop.style.display = 'none', res(false));
+        btnCancel.onclick = () => (modal.backdrop.classList.remove('show'), res(false));
         modal.footer.append(btnCancel);
       }
-      modal.backdrop.style.display = 'flex';
+      modal.backdrop.classList.add('show');
     })
   };
+  
   const showAlert   = msg => modal.show({ title: '¡Atención!', message: msg });
   const showConfirm = msg => modal.show({ title: 'Confirma', message: msg, confirm: true });
 
@@ -689,6 +1346,7 @@
     Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
     return fetch(url).then(r => r.json());
   };
+  
   async function postOpNotify(op, params = {}, successTitle = 'Éxito') {
     try {
       const data = await postOp(op, params);
@@ -701,6 +1359,7 @@
       throw err;
     }
   }
+  
   const postOp = async (op, params = {}) => {
     const fd = new FormData(); fd.append('op', op);
     Object.entries(params).forEach(([k,v]) => fd.append(k,v));
@@ -735,15 +1394,22 @@
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat],
         name: it.name,
-        active: it.active !== false // Por defecto activo
+        active: it.active !== false,
+        proveedor: it.proveedor || 'Sin proveedor'
       };
     });
   }
 
   // RENDER STOCK
   function renderStockTable() {
-    const list = document.getElementById('stock-list'); 
-    list.innerHTML = '';
+    const grid = document.getElementById('stock-grid'); 
+    const emptyState = document.getElementById('stock-empty');
+    grid.innerHTML = '';
+    
+    const searchTerm = document.getElementById('stock-search').value.toLowerCase();
+    const categoryFilter = document.getElementById('stock-category').value;
+    const statusFilter = document.getElementById('stock-status').value;
+    
     const compMap = {}, usedMap = {};
     
     comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
@@ -754,8 +1420,10 @@
       );
     }));
     
+    let hasItems = false;
+    
     almacenData.forEach(it => {
-      const info    = productInfo[it.codigo];
+      const info    = productInfo[it.codigo] || {};
       const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
       const bought  = compMap[it.codigo]||0;
       const used    = usedMap[it.codigo]||0;
@@ -780,19 +1448,37 @@
       // Verificar si el producto está en uso
       const enUso = buscarRecetasConProducto(it.codigo).length > 0;
       
+      // Filtrar por búsqueda
+      const matchesSearch = it.name.toLowerCase().includes(searchTerm) || 
+                           String(it.codigo).includes(searchTerm);
+      
+      // Filtrar por categoría
+      const matchesCategory = categoryFilter ? info.categoria === categoryFilter : true;
+      
+      // Filtrar por estado
+      let matchesStatus = true;
+      if (statusFilter === 'low' && pct > 30) matchesStatus = false;
+      if (statusFilter === 'medium' && (pct <= 30 || pct > 50)) matchesStatus = false;
+      if (statusFilter === 'good' && (pct <= 50 || pct > 90)) matchesStatus = false;
+      if (statusFilter === 'excess' && pct <= 90) matchesStatus = false;
+      if (statusFilter === 'inactive' && info.active) matchesStatus = false;
+      
+      if (!matchesSearch || !matchesCategory || !matchesStatus) return;
+      
+      hasItems = true;
+      
       const item = document.createElement('div');
-      item.className = 'list-item';
+      item.className = 'product-card';
       item.innerHTML = `
-        <div>
-          <div class="list-title">${it.name} ${!info.active ? '<span class="status-badge status-low">Inactivo</span>' : ''}</div>
-          <div class="list-subtitle">#${it.codigo} | ${it.unidadDeMedida}</div>
-          <div class="list-subtitle">Restante: ${humanizeComposite(remain,info.categoria)}</div>
-          <div class="list-subtitle">Estado: <span class="status-badge ${estado}">${estadoText}</span></div>
+        <div class="product-image">
+          <i class="fas fa-box"></i>
         </div>
-        <div>
-          <span class="list-title">$${parseFloat(it.precio).toFixed(2)}</span>
-          <div class="list-subtitle">${it.proveedor || 'Sin proveedor'}</div>
-          <div class="list-subtitle status-badge status-reposicion">Rep: $${valorReposicion}</div>
+        <div class="product-body">
+          <div class="product-title">${it.name} ${!info.active ? '<span class="status-badge status-low">Inactivo</span>' : ''}</div>
+          <div class="product-subtitle">#${it.codigo} | ${it.unidadDeMedida}</div>
+          <div class="product-subtitle">${humanizeComposite(remain,info.categoria)} disponibles</div>
+          <div class="product-subtitle"><span class="status-badge ${estado}">${estadoText}</span></div>
+          <div class="product-price">$${parseFloat(it.precio).toFixed(2)}</div>
         </div>
       `;
       
@@ -905,8 +1591,10 @@
         });
       });
       
-      list.appendChild(item);
+      grid.appendChild(item);
     });
+    
+    emptyState.style.display = hasItems ? 'none' : 'block';
   }
 
   // Buscar recetas que usan un producto
@@ -930,6 +1618,7 @@
     });
     buildProductInfo(); 
     renderStockTable();
+    showNotification('Producto creado', 'Puedes editar los detalles del nuevo producto', 'success');
   }
   
   async function saveAlmacen(codigo) {
@@ -945,6 +1634,7 @@
       proveedor: document.getElementById(`prov-${codigo}`).value
     }, 'Almacén actualizado');
     await loadData();
+    showNotification('Producto actualizado', 'Los cambios se han guardado correctamente', 'success');
   }
   
   async function deleteAlmacen(codigo) {
@@ -1010,6 +1700,7 @@
     }
     
     await loadData();
+    showNotification('Producto eliminado', 'El producto ha sido eliminado del inventario', 'success');
   }
   
   async function buyProduct(id) {
@@ -1030,17 +1721,43 @@
       unidad: uni
     },'Compra registrada');
     await loadData();
+    showNotification('Compra registrada', 'El producto ha sido añadido al inventario', 'success');
   }
 
   // RENDER COMPRAS
   function renderComprasTable() {
     const list = document.getElementById('compras-list'); 
+    const emptyState = document.getElementById('purchase-empty');
     list.innerHTML = '';
+    
+    const searchTerm = document.getElementById('purchase-search').value.toLowerCase();
+    const supplierFilter = document.getElementById('purchase-supplier').value;
+    const fromDate = document.getElementById('purchase-from').value;
+    const toDate = document.getElementById('purchase-to').value;
+    
+    let hasItems = false;
+    
     comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c => {
       const prod = almacenData.find(x=>x.codigo==c.idProducto);
       if (!prod) return;
-      const info  = productInfo[c.idProducto];
+      const info  = productInfo[c.idProducto] || {};
       const total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
+      
+      // Filtrar por búsqueda
+      const matchesSearch = prod.name.toLowerCase().includes(searchTerm) || 
+                           String(c.idCompra).includes(searchTerm);
+      
+      // Filtrar por proveedor
+      const matchesSupplier = supplierFilter ? prod.proveedor === supplierFilter : true;
+      
+      // Filtrar por fecha
+      const compDate = new Date(c.fecha);
+      const matchesDate = (!fromDate || compDate >= new Date(fromDate)) && 
+                         (!toDate || compDate <= new Date(toDate));
+      
+      if (!matchesSearch || !matchesSupplier || !matchesDate) return;
+      
+      hasItems = true;
       
       const item = document.createElement('div');
       item.className = 'list-item';
@@ -1109,6 +1826,8 @@
       
       list.appendChild(item);
     });
+    
+    emptyState.style.display = hasItems ? 'none' : 'block';
   }
   
   async function saveCompra(idC,idP) {
@@ -1124,6 +1843,7 @@
       precio:(productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0)
     }, 'Compra guardada');
     await loadData();
+    showNotification('Compra actualizada', 'Los cambios se han guardado correctamente', 'success');
   }
   
   async function deleteCompra(idC,idP) {
@@ -1131,6 +1851,7 @@
     if (!ok) return;
     await postOpNotify('eliminarCompras',{idCompra:idC,idProducto:idP},'Compra eliminada');
     await loadData();
+    showNotification('Compra eliminada', 'La compra ha sido eliminada del historial', 'success');
   }
 
   // NAVEGACIÓN
@@ -1140,6 +1861,11 @@
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.getElementById(sec).classList.add('active');
     window.scrollTo(0, 0);
+    
+    // Actualizar datos específicos de la sección
+    if (sec === 'dashboard') {
+      updateDashboard();
+    }
   }
 
   // VENTAS
@@ -1147,12 +1873,12 @@
     const row = document.createElement('div'); 
     row.className = 'form-row';
     row.innerHTML = `
-      <select class="form-select" onchange="recalcRow(this)" onclick="recalcRow(this)" style="flex: 2;">
+      <select class="form-select" onchange="recalcRow(this)" style="flex: 2;">
         ${recetas.map(r => `<option value="${r.codigo}" ${r.codigo===cod?'selected':''}>${r.nombre}</option>`).join('')}
       </select>
-      <input class="form-input" type="number" min="1" value="${cant}" placeholder="Cant" onclick="recalcRow(this)" oninput="recalcRow(this)">
+      <input class="form-input" type="number" min="1" value="${cant}" placeholder="Cant" oninput="recalcRow(this)">
       <input class="form-input" type="number" value="${tot}" placeholder="Total" readonly>
-      <button class="btn btn-icon btn-danger" type="button" onclick="this.parentNode.remove()">
+      <button class="btn btn-icon btn-danger" type="button" onclick="this.parentNode.remove(); updateSaleTotal()">
         <i class="fas fa-times"></i>
       </button>
     `;
@@ -1166,10 +1892,21 @@
     const inpTot = row.children[2];
     const rec = recetas.find(x => x.codigo === sel.value) || { precio: 0 };
     inpTot.value = (Number(rec.precio) * Number(inpCant.value || 0)).toFixed(2);
+    updateSaleTotal();
   }
   
   function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
+    updateSaleTotal();
+  }
+  
+  function updateSaleTotal() {
+    let total = 0;
+    document.querySelectorAll('#items-container .form-row').forEach(row => {
+      const totalInput = row.querySelector('input[type="number"]:last-child');
+      total += parseFloat(totalInput.value) || 0;
+    });
+    document.getElementById('sale-total').textContent = total.toFixed(2);
   }
   
   function renderTicketCard(v) {
@@ -1236,9 +1973,37 @@
     const res = await callApi({op:'obtenerVentas'});
     ventData = res.status==='success'?res.data:ventData;
     const list = document.getElementById('tickets-list'); 
+    const emptyState = document.getElementById('sale-empty');
     list.innerHTML='';
-    ventData.forEach(v=>list.append(renderTicketCard(v)));
+    
+    const searchTerm = document.getElementById('sale-search').value.toLowerCase();
+    const paymentFilter = document.getElementById('sale-payment').value;
+    const fromDate = document.getElementById('sale-from').value;
+    const toDate = document.getElementById('sale-to').value;
+    
+    let hasItems = false;
+    
+    ventData.forEach(v => {
+      // Filtrar por búsqueda
+      const matchesSearch = v.id.toString().includes(searchTerm) || 
+                           v.venta.some(item => item.producto.toLowerCase().includes(searchTerm));
+      
+      // Filtrar por método de pago
+      const matchesPayment = paymentFilter ? v.metodoPago === paymentFilter : true;
+      
+      // Filtrar por fecha
+      const saleDate = new Date(v.fecha);
+      const matchesDate = (!fromDate || saleDate >= new Date(fromDate)) && 
+                         (!toDate || saleDate <= new Date(toDate));
+      
+      if (!matchesSearch || !matchesPayment || !matchesDate) return;
+      
+      hasItems = true;
+      list.append(renderTicketCard(v));
+    });
+    
     actualizarResumen(ventData);
+    emptyState.style.display = hasItems ? 'none' : 'block';
   }
   
   function startEdit(v) {
@@ -1247,8 +2012,9 @@
     document.getElementById('form-pago').value    = v.metodoPago;
     const cont = document.getElementById('items-container'); cont.innerHTML = '';
     v.venta.forEach(itm => cont.append(crearItemRow(itm.codigo, itm.cantidad, itm.total)));
-    modal.backdrop.style.display = 'none';
+    modal.backdrop.classList.remove('show');
     cambiarSeccion('ventas');
+    updateSaleTotal();
   }
   
   function resetForm() {
@@ -1256,6 +2022,7 @@
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     document.getElementById('form-pago').value = 'Efectivo';
     document.getElementById('items-container').innerHTML = '';
+    updateSaleTotal();
   }
   
   // ACTUALIZAR RESUMEN DE VENTAS
@@ -1284,10 +2051,12 @@
       return await showAlert('Agrega al menos un producto');
     }
     
-    const ventaItems = Array.from(rows).map(r => {
-      const [sel, ic, it] = r.children;
+    const ventaItems = Array.from(rows).map(row => {
+      const sel = row.querySelector('select');
+      const inpCant = row.querySelector('input[type="number"]:first-child');
+      const inpTot = row.querySelector('input[type="number"]:last-child');
       const rec = recetas.find(x => x.codigo === sel.value) || { nombre: '', precio: 0 };
-      return { codigo: sel.value, producto: rec.nombre, cantidad: Number(ic.value) || 0, total: Number(it.value) || 0 };
+      return { codigo: sel.value, producto: rec.nombre, cantidad: Number(inpCant.value) || 0, total: Number(inpTot.value) || 0 };
     });
     
     const payload = {
@@ -1301,6 +2070,7 @@
     await postOpNotify('guardarVentas', { venta: JSON.stringify(payload) }, 'Venta guardada');
     resetForm();
     await loadData();
+    showNotification('Venta registrada', 'La venta ha sido guardada correctamente', 'success');
   }
   
   async function eliminarVenta(id) {
@@ -1308,6 +2078,7 @@
     if (!ok) return;
     await postOpNotify('eliminarVentas',{id},'Venta eliminada');
     await loadData();
+    showNotification('Venta eliminada', 'La venta ha sido eliminada del historial', 'success');
   }
 
   // RECETAS
@@ -1329,7 +2100,9 @@
       return {
         codigo: r.codigo,
         nombre: r.nombre,
-        precio: (costo * MARGEN).toFixed(2)
+        precio: (costo * MARGEN).toFixed(2),
+        categoria: r.categoria,
+        costo: costo
       };
     });
   }
@@ -1337,40 +2110,61 @@
   async function cargarRecetas() {
     await fetchRecetas();
     recetasData = cocData;
-    categorias = [...new Set(recetasData.map(r => r.categoria))];
-
-    const sel = document.getElementById('receta-categoria');
-    sel.innerHTML = [
-      '<option value="">-- Selecciona --</option>',
-      ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
-    ].join('');
-
     mostrarRecetas();
   }
 
   function mostrarRecetas() {
-    const list = document.getElementById('recetas-list'); 
-    list.innerHTML = '';
+    const grid = document.getElementById('recetas-list'); 
+    const emptyState = document.getElementById('recipe-empty');
+    grid.innerHTML = '';
     
-    recetasData.forEach(r => {
-      const costo = r.ingredientes.reduce((sum, ing) => {
-        const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
-        if (!p) return sum;
-        const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
-        return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
-      }, 0).toFixed(2);
+    const searchTerm = document.getElementById('recipe-search').value.toLowerCase();
+    const categoryFilter = document.getElementById('recipe-category').value.toLowerCase();
+    const sortBy = document.getElementById('recipe-sort').value;
+    
+    // Filtrar recetas
+    let filteredRecipes = recetasData.filter(r => {
+      const matchesSearch = r.nombre.toLowerCase().includes(searchTerm) || 
+                           r.codigo.toLowerCase().includes(searchTerm);
+      const matchesCategory = categoryFilter ? r.categoria.toLowerCase().includes(categoryFilter) : true;
+      return matchesSearch && matchesCategory;
+    });
+    
+    // Ordenar recetas
+    filteredRecipes.sort((a, b) => {
+      if (sortBy === 'name') return a.nombre.localeCompare(b.nombre);
+      if (sortBy === 'popularity') {
+        const aSales = ventData.reduce((sum, v) => sum + v.venta.filter(i => i.codigo === a.codigo).length, 0);
+        const bSales = ventData.reduce((sum, v) => sum + v.venta.filter(i => i.codigo === b.codigo).length, 0);
+        return bSales - aSales;
+      }
+      if (sortBy === 'cost') {
+        const aCost = recetas.find(r => r.codigo === a.codigo)?.costo || 0;
+        const bCost = recetas.find(r => r.codigo === b.codigo)?.costo || 0;
+        return bCost - aCost;
+      }
+      if (sortBy === 'price') {
+        const aPrice = recetas.find(r => r.codigo === a.codigo)?.precio || 0;
+        const bPrice = recetas.find(r => r.codigo === b.codigo)?.precio || 0;
+        return bPrice - aPrice;
+      }
+      return 0;
+    });
+    
+    filteredRecipes.forEach(r => {
+      const recetaInfo = recetas.find(x => x.codigo === r.codigo) || {};
       
       const item = document.createElement('div');
-      item.className = 'list-item';
+      item.className = 'product-card';
       item.innerHTML = `
-        <div>
-          <div class="list-title">${r.nombre}</div>
-          <div class="list-subtitle">#${r.codigo} | ${r.categoria}</div>
-          <div class="list-subtitle">${r.ingredientes.length} ingredientes</div>
+        <div class="product-image" style="${r.imagen ? `background-image: url('${r.imagen}'); background-size: cover;` : ''}">
+          ${!r.imagen ? `<i class="fas fa-utensils"></i>` : ''}
         </div>
-        <div>
-          <div class="list-title">$${(costo * MARGEN).toFixed(2)}</div>
-          <div class="list-subtitle">Costo: $${costo}</div>
+        <div class="product-body">
+          <div class="product-title">${r.nombre}</div>
+          <div class="product-subtitle">#${r.codigo} | ${r.categoria}</div>
+          <div class="product-subtitle">${r.ingredientes.length} ingredientes</div>
+          <div class="product-price">$${recetaInfo.precio || '0.00'}</div>
         </div>
       `;
       
@@ -1381,16 +2175,16 @@
             const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad))* 
                         (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad) : 0;
             
-// Estado del producto según productInfo
-const infoProd = productInfo[p?.codigo] || {};
-const estado = p
-  ? (infoProd.active
-      ? ''
-      : '<span class="status-badge status-low">Inactivo</span>')
-  : '<span class="status-badge status-low">No encontrado</span>';
+            // Estado del producto según productInfo
+            const infoProd = productInfo[p?.codigo] || {};
+            const estado = p
+              ? (infoProd.active
+                  ? ''
+                  : '<span class="status-badge status-low">Inactivo</span>')
+              : '<span class="status-badge status-low">No encontrado</span>';
 
-// Nombre del producto o código si no se encuentra
-const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
+            // Nombre del producto o código si no se encuentra
+            const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
             
             return `
             <div class="card-row">
@@ -1424,11 +2218,11 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
             ${ingredientesHtml}
             <div class="card-row">
               <div class="card-label">Costo total</div>
-              <div class="card-value">$${costo}</div>
+              <div class="card-value">$${recetaInfo.costo?.toFixed(2) || '0.00'}</div>
             </div>
             <div class="card-row">
               <div class="card-label">Precio de venta</div>
-              <div class="card-value">$${(costo * MARGEN).toFixed(2)}</div>
+              <div class="card-value">$${recetaInfo.precio || '0.00'}</div>
             </div>
             <div class="card-actions">
               <button class="btn btn-primary" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
@@ -1445,8 +2239,10 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
         });
       });
       
-      list.appendChild(item);
+      grid.appendChild(item);
     });
+    
+    emptyState.style.display = filteredRecipes.length ? 'none' : 'block';
   }
 
   function cargarEnForm(r) {
@@ -1460,7 +2256,7 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
     cont.innerHTML = '';
     r.ingredientes.forEach(i => agregarFila(i));
     
-    modal.backdrop.style.display = 'none';
+    modal.backdrop.classList.remove('show');
     cambiarSeccion('recetas');
   }
 
@@ -1468,6 +2264,10 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
     const cod = document.getElementById('receta-codigo').value.trim();
     const nom = document.getElementById('receta-nombre').value.trim();
     const cat = document.getElementById('receta-categoria').value;
+    
+    if (!cod || !nom || !cat) {
+      return showAlert('Completa todos los campos obligatorios');
+    }
     
     const ingredientes = Array.from(
       document.getElementById('ingredientes-container').querySelectorAll('.form-row')
@@ -1479,6 +2279,10 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
         unidad: selU.value
       };
     });
+    
+    if (ingredientes.length === 0) {
+      return showAlert('Agrega al menos un ingrediente');
+    }
     
     const receta = {
       codigo: cod,
@@ -1502,6 +2306,7 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
 
     await cargarRecetas();
     limpiarForm();
+    showNotification('Receta guardada', 'Los cambios se han guardado correctamente', 'success');
   }
 
   async function eliminarReceta(codigo) {
@@ -1509,164 +2314,325 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
     if (!ok) return;
     await postOpNotify('eliminarCocina', { codigo }, 'Receta eliminada');
     await cargarRecetas();
+    showNotification('Receta eliminada', 'La receta ha sido eliminada del sistema', 'success');
   }
 
   function agregarFila(item = {}) {
-  const cont = document.getElementById('ingredientes-container');
-  const row = document.createElement('div');
-  row.className = 'form-row';
+    const cont = document.getElementById('ingredientes-container');
+    const row = document.createElement('div');
+    row.className = 'form-row';
 
-  // 1) Construimos el <select> de productos
-  const opcionesProductos = almacenData
-    .map(p => `<option value="${p.codigo}">${p.name}</option>`)
-    .join('');
-
-  row.innerHTML = `
-    <select class="form-select producto-select">
-      <option value="">-- Seleccione --</option>
-      ${opcionesProductos}
-    </select>
-    <input class="form-input cantidad-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
-    <select class="form-select unidad-select">
-      <option value="">-- Unidad --</option>
-      <!-- Aquí iremos inyectando dinámicamente -->
-    </select>
-    <button class="btn btn-icon btn-danger" type="button">
-      <i class="fas fa-times"></i>
-    </button>
-  `;
-
-  // 2) Referencias a los selects y al input
-  const productoSelect = row.querySelector('.producto-select');
-  const unidadSelect   = row.querySelector('.unidad-select');
-  const cantidadInput  = row.querySelector('.cantidad-input');
-  const btnRemove      = row.querySelector('button');
-
-  // 3) Función para poblar las unidades según productInfo
-  function poblarUnidades(codigoProducto, unidadInicial = '') {
-    unidadSelect.innerHTML = ''; 
-    if (!codigoProducto || !productInfo[codigoProducto]) {
-      unidadSelect.innerHTML = `<option value="">-- Unidad --</option>`;
-      return;
-    }
-    const opciones = productInfo[codigoProducto].opcionesUnidad;
-    unidadSelect.innerHTML = opciones
-      .map(u => `<option value="${u}"${u === unidadInicial ? ' selected' : ''}>${u}</option>`)
+    // 1) Construimos el <select> de productos
+    const opcionesProductos = almacenData
+      .map(p => `<option value="${p.codigo}">${p.name}</option>`)
       .join('');
+
+    row.innerHTML = `
+      <select class="form-select producto-select">
+        <option value="">-- Seleccione --</option>
+        ${opcionesProductos}
+      </select>
+      <input class="form-input cantidad-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
+      <select class="form-select unidad-select">
+        <option value="">-- Unidad --</option>
+        <!-- Aquí iremos inyectando dinámicamente -->
+      </select>
+      <button class="btn btn-icon btn-danger" type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    `;
+
+    // 2) Referencias a los selects y al input
+    const productoSelect = row.querySelector('.producto-select');
+    const unidadSelect   = row.querySelector('.unidad-select');
+    const cantidadInput  = row.querySelector('.cantidad-input');
+    const btnRemove      = row.querySelector('button');
+
+    // 3) Función para poblar las unidades según productInfo
+    function poblarUnidades(codigoProducto, unidadInicial = '') {
+      unidadSelect.innerHTML = ''; 
+      if (!codigoProducto || !productInfo[codigoProducto]) {
+        unidadSelect.innerHTML = `<option value="">-- Unidad --</option>`;
+        return;
+      }
+      const opciones = productInfo[codigoProducto].opcionesUnidad;
+      unidadSelect.innerHTML = opciones
+        .map(u => `<option value="${u}"${u === unidadInicial ? ' selected' : ''}>${u}</option>`)
+        .join('');
+    }
+
+    // 4) Cuando cambie el producto, actualizamos unidades
+    productoSelect.addEventListener('change', () => {
+      poblarUnidades(productoSelect.value);
+    });
+
+    // 5) Si estamos en modo edición (item trae código y unidad), preseleccionamos
+    if (item.codigo) {
+      productoSelect.value = item.codigo;
+      poblarUnidades(item.codigo, item.unidad);
+      cantidadInput.value = item.cantidad || 1;
+    }
+
+    // 6) Remover fila
+    btnRemove.addEventListener('click', () => row.remove());
+
+    cont.appendChild(row);
   }
-
-  // 4) Cuando cambie el producto, actualizamos unidades
-  productoSelect.addEventListener('change', () => {
-    poblarUnidades(productoSelect.value);
-  });
-
-  // 5) Si estamos en modo edición (item trae código y unidad), preseleccionamos
-  if (item.codigo) {
-    productoSelect.value = item.codigo;
-    poblarUnidades(item.codigo, item.unidad);
-    cantidadInput.value = item.cantidad || 1;
-  }
-
-  // 6) Remover fila
-  btnRemove.addEventListener('click', () => row.remove());
-
-  cont.appendChild(row);
-}
-
 
   function limpiarForm() {
     editMode = false;
     document.getElementById('receta-codigo').value = '';
     document.getElementById('receta-nombre').value = '';
-    document.getElementById('receta-categoria').selectedIndex = 0;
+    document.getElementById('receta-categoria').value = '';
     document.getElementById('receta-imagen').value = '';
     document.getElementById('ingredientes-container').innerHTML = '';
   }
 
+  // DASHBOARD
+  function updateDashboard() {
+    // Actualizar valores principales
+    let totalInv = 0, totalCompras = 0, totalRestock = 0;
+    const compMap = {}, usedMap = {};
 
+    // Calcular compras
+    comprasData.forEach(c => {
+      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
+      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
+    });
 
+    // Calcular uso en ventas
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+      if (!rec) return;
+      rec.ingredientes.forEach(ing => {
+        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+      });
+    }));
 
+    // Calcular inventario y reposición
+    let lowStockCount = 0;
+    almacenData.forEach(it => {
+      const infoI = productInfo[it.codigo] || { priceBase: 0 };
+      const bought = compMap[it.codigo] || 0;
+      const used   = usedMap[it.codigo] || 0;
+      const remain = bought - used;
 
+      totalInv += remain * infoI.priceBase;
 
-/**
- * Muestra el modal con la carta de detalle/edit del producto dado
- */
-function openProductModal(codigo) {
-  const it = almacenData.find(p => String(p.codigo) === String(codigo));
-  if (!it) return;
+      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+      const pct = recBase ? remain/recBase*100 : 0;
+      if (pct <= 30) lowStockCount++;
+      
+      const delta   = recBase - remain;
+      if (delta > 0) {
+        totalRestock += delta * infoI.priceBase;
+      }
+    });
 
-  // Genera aquí exactamente el mismo HTML que usas en renderStockTable() al hacer clic
-  // (los inputs con id="precio-<codigo>", etc.)
-  const card = document.createElement('div');
-  card.className = 'card fade-in';
-  card.innerHTML = `
-    <div class="card-header">${it.name}</div>
-    <div class="card-body">
-      <!-- ... el resto de inputs/selects ... -->
-      <div class="form-row">
-        <button class="btn btn-primary" onclick="saveAlmacen('${codigo}')">
-          <i class="fas fa-save"></i> Guardar
-        </button>
-      </div>
-    </div>
-  `;
+    // Actualizar UI
+    document.getElementById('dashboard-inventory').textContent = totalInv.toFixed(2);
+    document.getElementById('dashboard-sales').textContent = ventData.reduce((sum, v) => 
+      sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0).toFixed(2);
+    document.getElementById('dashboard-low-stock').textContent = lowStockCount;
+    
+    // Receta más popular
+    let topRecipe = '-';
+    let maxSales = 0;
+    recetas.forEach(r => {
+      const sales = ventData.reduce((sum, v) => 
+        sum + v.venta.filter(i => i.codigo === r.codigo).length, 0);
+      if (sales > maxSales) {
+        maxSales = sales;
+        topRecipe = r.nombre;
+      }
+    });
+    document.getElementById('dashboard-top-recipe').textContent = topRecipe;
+    
+    // Actualizar gráficos
+    updateCharts();
+  }
+  
+  function updateCharts() {
+    // Datos para gráfico de ventas por día (últimos 7 días)
+    const today = new Date();
+    const dates = [];
+    const salesData = [];
+    
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(today.getDate() - i);
+      const dateStr = date.toISOString().slice(0,10);
+      dates.push(date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
+      
+      const daySales = ventData.filter(v => v.fecha.slice(0,10) === dateStr)
+        .reduce((sum, v) => sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
+      salesData.push(daySales);
+    }
+    
+    // Gráfico de ventas
+    const salesCtx = document.getElementById('sales-chart').getContext('2d');
+    if (salesChart) salesChart.destroy();
+    
+    salesChart = new Chart(salesCtx, {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Ventas ($)',
+          data: salesData,
+          backgroundColor: 'rgba(108, 92, 231, 0.7)',
+          borderColor: 'rgba(108, 92, 231, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.05)'
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+    
+    // Datos para gráfico de métodos de pago
+    const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta'];
+    const paymentData = paymentMethods.map(method => 
+      ventData.filter(v => v.metodoPago === method)
+        .reduce((sum, v) => sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0)
+    );
+    
+    // Gráfico de métodos de pago
+    const paymentCtx = document.getElementById('payment-chart').getContext('2d');
+    if (paymentChart) paymentChart.destroy();
+    
+    paymentChart = new Chart(paymentCtx, {
+      type: 'doughnut',
+      data: {
+        labels: paymentMethods,
+        datasets: [{
+          data: paymentData,
+          backgroundColor: [
+            'rgba(0, 184, 148, 0.7)',
+            'rgba(108, 92, 231, 0.7)',
+            'rgba(255, 118, 117, 0.7)'
+          ],
+          borderColor: [
+            'rgba(0, 184, 148, 1)',
+            'rgba(108, 92, 231, 1)',
+            'rgba(255, 118, 117, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  }
 
-  modal.show({
-    title: 'Restablecer producto',
-    message: card.innerHTML
-  });
-}
-
-
-
-
-
-
+  // EXPORTAR DATOS
+  function exportStock() {
+    let csv = 'Código,Nombre,Precio,Cantidad,Unidad,Stock Recomendado,Proveedor,Estado\n';
+    
+    almacenData.forEach(p => {
+      const info = productInfo[p.codigo] || {};
+      const estado = info.active ? 'Activo' : 'Inactivo';
+      csv += `"${p.codigo}","${p.name}",${p.precio},${p.cantidad},"${p.unidadDeMedida}",${p.stockRecomendado},"${p.proveedor || ''}","${estado}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'stock_export.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showNotification('Exportación completada', 'El inventario se ha exportado como CSV', 'success');
+  }
 
   // ACTUALIZAR ESTADÍSTICAS SUPERIORES
   function updateTopStats() {
-  let totalInv = 0, totalCompras = 0, totalRestock = 0;
-  const compMap = {}, usedMap = {};
+    let totalInv = 0, totalCompras = 0, totalRestock = 0;
+    const compMap = {}, usedMap = {};
 
-  // Calcular compras
-  comprasData.forEach(c => {
-    compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
-    // Usa un precio base por defecto 0 si no existe productInfo
-    const infoC = productInfo[c.idProducto] || { priceBase: 0 };
-    totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
-  });
-
-  // Calcular uso en ventas
-  ventData.forEach(v => v.venta.forEach(it => {
-    const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
-    if (!rec) return;
-    rec.ingredientes.forEach(ing => {
-      usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+    // Calcular compras
+    comprasData.forEach(c => {
+      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
+      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
     });
-  }));
 
-  // Calcular inventario y reposición
-  almacenData.forEach(it => {
-    // Protege también aquí
-    const infoI = productInfo[it.codigo] || { priceBase: 0 };
-    const bought = compMap[it.codigo] || 0;
-    const used   = usedMap[it.codigo] || 0;
-    const remain = bought - used;
+    // Calcular uso en ventas
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+      if (!rec) return;
+      rec.ingredientes.forEach(ing => {
+        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+      });
+    }));
 
-    totalInv += remain * infoI.priceBase;
+    // Calcular inventario y reposición
+    almacenData.forEach(it => {
+      const infoI = productInfo[it.codigo] || { priceBase: 0 };
+      const bought = compMap[it.codigo] || 0;
+      const used   = usedMap[it.codigo] || 0;
+      const remain = bought - used;
 
-    const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-    const delta   = recBase - remain;
-    if (delta > 0) {
-      totalRestock += delta * infoI.priceBase;
+      totalInv += remain * infoI.priceBase;
+
+      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+      const delta   = recBase - remain;
+      if (delta > 0) {
+        totalRestock += delta * infoI.priceBase;
+      }
+    });
+
+    document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
+    document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
+    document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
+    
+    // Actualizar badge de compras (productos con stock bajo)
+    let lowStockCount = 0;
+    almacenData.forEach(it => {
+      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+      const bought  = compMap[it.codigo]||0;
+      const used    = usedMap[it.codigo]||0;
+      const remain  = bought - used;
+      const pct     = recBase ? remain/recBase*100 : 0;
+      if (pct <= 30) lowStockCount++;
+    });
+    
+    const purchaseBadge = document.getElementById('purchase-badge');
+    if (lowStockCount > 0) {
+      purchaseBadge.textContent = lowStockCount;
+      purchaseBadge.style.display = 'flex';
+    } else {
+      purchaseBadge.style.display = 'none';
     }
-  });
-
-  document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
-  document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
-  document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
-}
-
+  }
 
   // CARGA GENERAL
   async function loadData() {
@@ -1690,13 +2656,48 @@ function openProductModal(codigo) {
     renderComprasTable();
     await cargarVentas();
     await cargarRecetas();
-    updateTopStats(); // Actualizar estadísticas superiores
+    updateTopStats();
+    
+    // Actualizar proveedores en filtro
+    const supplierSelect = document.getElementById('purchase-supplier');
+    const suppliers = [...new Set(almacenData.map(p => p.proveedor).filter(p => p))];
+    supplierSelect.innerHTML = '<option value="">Todos los proveedores</option>' + 
+      suppliers.map(s => `<option value="${s}">${s}</option>`).join('');
+    
+    if (document.getElementById('dashboard').classList.contains('active')) {
+      updateDashboard();
+    }
   }
 
   // Inicialización
   window.onload = async () => {
     resetForm();
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+    
+    // Configurar eventos de filtros
+    document.getElementById('stock-search').addEventListener('input', renderStockTable);
+    document.getElementById('stock-category').addEventListener('change', renderStockTable);
+    document.getElementById('stock-status').addEventListener('change', renderStockTable);
+    
+    document.getElementById('purchase-search').addEventListener('input', renderComprasTable);
+    document.getElementById('purchase-supplier').addEventListener('change', renderComprasTable);
+    document.getElementById('purchase-from').addEventListener('change', renderComprasTable);
+    document.getElementById('purchase-to').addEventListener('change', renderComprasTable);
+    
+    document.getElementById('sale-search').addEventListener('input', cargarVentas);
+    document.getElementById('sale-payment').addEventListener('change', cargarVentas);
+    document.getElementById('sale-from').addEventListener('change', cargarVentas);
+    document.getElementById('sale-to').addEventListener('change', cargarVentas);
+    
+    document.getElementById('recipe-search').addEventListener('input', mostrarRecetas);
+    document.getElementById('recipe-category').addEventListener('input', mostrarRecetas);
+    document.getElementById('recipe-sort').addEventListener('change', mostrarRecetas);
+    
+    document.getElementById('dashboard-range').addEventListener('change', function() {
+      document.getElementById('custom-dates').style.display = 
+        this.value === 'custom' ? 'block' : 'none';
+    });
+    
     await loadData();
   };
 </script>
