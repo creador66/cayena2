@@ -1381,12 +1381,16 @@
             const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad))* 
                         (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad) : 0;
             
-            // Estado del producto
-            const estado = p ? (p.active ? '' : '<span class="status-badge status-low">Inactivo</span>') : 
-                              '<span class="status-badge status-low">No encontrado</span>';
-            
-            // Nombre del producto o código si no se encuentra
-            const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
+// Estado del producto según productInfo
+const infoProd = productInfo[p?.codigo] || {};
+const estado = p
+  ? (infoProd.active
+      ? ''
+      : '<span class="status-badge status-low">Inactivo</span>')
+  : '<span class="status-badge status-low">No encontrado</span>';
+
+// Nombre del producto o código si no se encuentra
+const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
             
             return `
             <div class="card-row">
@@ -1508,45 +1512,47 @@
   }
 
   function agregarFila(item = {}) {
-    const cont = document.getElementById('ingredientes-container');
-    const row = document.createElement('div');
-    row.className = 'form-row';
-    
-    const opcionesProductos = almacenData
-      .map(p => `<option value="${p.codigo}">${p.name}</option>`)
-      .join('');
-    
-    row.innerHTML = `
-      <select class="form-select">
-        <option value="">-- Seleccione --</option>
-        ${opcionesProductos}
-      </select>
-      <input class="form-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
-      <select class="form-select">
-        <option value="g">g</option>
-        <option value="kg">kg</option>
-        <option value="ml">ml</option>
-        <option value="l">l</option>
-        <option value="pz">pz</option>
-      </select>
-      <button class="btn btn-icon btn-danger" type="button">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-    
-    if (item.codigo) {
-      row.querySelector('select:first-child').value = item.codigo;
-    }
-    if (item.unidad) {
-      row.querySelector('select:last-child').value = item.unidad;
-    }
-    
-    row.querySelector('button').addEventListener('click', () => {
-      row.remove();
-    });
-    
-    cont.appendChild(row);
+  const cont = document.getElementById('ingredientes-container');
+  const row = document.createElement('div');
+  row.className = 'form-row';
+
+  const opcionesProductos = almacenData
+    .map(p => `<option value="${p.codigo}">${p.name}</option>`)
+    .join('');
+
+  row.innerHTML = `
+    <select class="form-select">
+      <option value="">-- Seleccione --</option>
+      ${opcionesProductos}
+    </select>
+    <input class="form-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
+    <select class="form-select">
+      <option value="g">g</option>
+      <option value="kg">kg</option>
+      <option value="ml">ml</option>
+      <option value="l">l</option>
+      <option value="pz">pz</option>
+    </select>
+    <button class="btn btn-icon btn-danger" type="button">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+
+  // en lugar de select:last-child usa querySelectorAll
+  const selects = row.querySelectorAll('select');
+  if (item.codigo) {
+    selects[0].value = item.codigo;   // asigna producto
   }
+  if (item.unidad) {
+    selects[1].value = item.unidad;   // asigna unidad
+  }
+
+  row.querySelector('button').addEventListener('click', () => {
+    row.remove();
+  });
+
+  cont.appendChild(row);
+}
 
   function limpiarForm() {
     editMode = false;
@@ -1557,45 +1563,90 @@
     document.getElementById('ingredientes-container').innerHTML = '';
   }
 
+
+
+
+
+
+/**
+ * Muestra el modal con la carta de detalle/edit del producto dado
+ */
+function openProductModal(codigo) {
+  const it = almacenData.find(p => String(p.codigo) === String(codigo));
+  if (!it) return;
+
+  // Genera aquí exactamente el mismo HTML que usas en renderStockTable() al hacer clic
+  // (los inputs con id="precio-<codigo>", etc.)
+  const card = document.createElement('div');
+  card.className = 'card fade-in';
+  card.innerHTML = `
+    <div class="card-header">${it.name}</div>
+    <div class="card-body">
+      <!-- ... el resto de inputs/selects ... -->
+      <div class="form-row">
+        <button class="btn btn-primary" onclick="saveAlmacen('${codigo}')">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.show({
+    title: 'Restablecer producto',
+    message: card.innerHTML
+  });
+}
+
+
+
+
+
+
+
   // ACTUALIZAR ESTADÍSTICAS SUPERIORES
   function updateTopStats() {
-    let totalInv = 0, totalCompras = 0, totalRestock = 0;
-    const compMap = {}, usedMap = {};
-    
-    // Calcular compras
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
-      totalCompras += productInfo[c.idProducto].priceBase * c.cantidad * FACTORES[c.unidad];
+  let totalInv = 0, totalCompras = 0, totalRestock = 0;
+  const compMap = {}, usedMap = {};
+
+  // Calcular compras
+  comprasData.forEach(c => {
+    compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+    // Usa un precio base por defecto 0 si no existe productInfo
+    const infoC = productInfo[c.idProducto] || { priceBase: 0 };
+    totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
+  });
+
+  // Calcular uso en ventas
+  ventData.forEach(v => v.venta.forEach(it => {
+    const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+    if (!rec) return;
+    rec.ingredientes.forEach(ing => {
+      usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
     });
-    
-    // Calcular uso en ventas
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
-      rec && rec.ingredientes.forEach(ing => {
-        usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
-      });
-    }));
-    
-    // Calcular inventario y reposición
-    almacenData.forEach(it => {
-      const info = productInfo[it.codigo];
-      const bought = compMap[it.codigo]||0;
-      const used = usedMap[it.codigo]||0;
-      const remain = bought - used;
-      
-      totalInv += remain * info.priceBase;
-      
-      const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
-      const delta = recBase - remain;
-      if (delta > 0) {
-        totalRestock += delta * info.priceBase;
-      }
-    });
-    
-    document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
-    document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
-    document.getElementById('stat-restock').textContent = totalRestock.toFixed(2);
-  }
+  }));
+
+  // Calcular inventario y reposición
+  almacenData.forEach(it => {
+    // Protege también aquí
+    const infoI = productInfo[it.codigo] || { priceBase: 0 };
+    const bought = compMap[it.codigo] || 0;
+    const used   = usedMap[it.codigo] || 0;
+    const remain = bought - used;
+
+    totalInv += remain * infoI.priceBase;
+
+    const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+    const delta   = recBase - remain;
+    if (delta > 0) {
+      totalRestock += delta * infoI.priceBase;
+    }
+  });
+
+  document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
+  document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
+  document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
+}
+
 
   // CARGA GENERAL
   async function loadData() {
