@@ -475,6 +475,26 @@
       border-radius: 0 5px 5px 0;
       font-size: 0.9rem;
     }
+    
+    .product-in-use {
+      background-color: #fff8e1;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    
+    .product-in-use ul {
+      margin: 5px 0 0 20px;
+    }
+    
+    .product-in-use li {
+      margin-bottom: 3px;
+    }
+    
+    .inactive-product {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
   </style>
 </head>
 <body>
@@ -612,7 +632,7 @@
     footer:   document.getElementById('modal-footer'),
     show: ({ title = '', message = '', confirm = false }) => new Promise(res => {
       modal.header.textContent = title;
-      modal.body.textContent   = message;
+      modal.body.innerHTML   = message;
       modal.footer.innerHTML   = '';
       const btnOk = Object.assign(document.createElement('button'), { textContent: 'OK', className: 'btn-primary' });
       btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
@@ -679,7 +699,8 @@
         priceBase: parseFloat(it.precio)/base || 0,
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat],
-        name: it.name
+        name: it.name,
+        active: it.active !== false // Por defecto activo
       };
     });
   }
@@ -717,11 +738,21 @@
       const totalB = (info.priceBase*bought).toFixed(2);
       const totalU = (info.priceBase*used).toFixed(2);
       const totalR = (info.priceBase*remain).toFixed(2);
+      
+      // Verificar si el producto está en uso
+      const enUso = buscarRecetasConProducto(it.codigo).length > 0;
 
-      const card = document.createElement('div'); card.className = 'card';
+      const card = document.createElement('div'); 
+      card.className = 'card';
+      if (!info.active) card.classList.add('inactive-product');
+      
       card.innerHTML = `
-        <div class="card-header">#${it.codigo}</div>
+        <div class="card-header">#${it.codigo} ${info.active ? '' : '(Inactivo)'}</div>
         <div class="seccion1">
+          ${enUso ? `<div class="product-in-use">
+            <strong>Este producto está en uso en recetas</strong>
+          </div>` : ''}
+          
           <label><input class="name2" type="text" id="name-${it.codigo}" value="${it.name||''}"></label>
           <label class="div2">Precio:<input type="number" step=".01" id="precio-${it.codigo}" value="${it.precio||0}"></label>
           <label class="div2">Cant.inicial:<input type="number" id="cant-${it.codigo}" value="${it.cantidad||0}"></label>
@@ -790,9 +821,19 @@
 
   // ACCIONES STOCK/COMPRAS
   async function addNewProducto() {
-    almacenData.push({ codigo: Date.now(), name:'', precio:0, cantidad:0, unidadDeMedida:'pz', stockRecomendado:0, proveedor:'' });
+    almacenData.push({ 
+      codigo: Date.now(), 
+      name:'', 
+      precio:0, 
+      cantidad:0, 
+      unidadDeMedida:'pz', 
+      stockRecomendado:0, 
+      proveedor:'',
+      active: true
+    });
     buildProductInfo(); renderStockTable();
   }
+  
   async function saveAlmacen(codigo) {
     const name = document.getElementById(`name-${codigo}`).value.trim();
     if (!name) {
@@ -811,12 +852,80 @@
     }, 'Almacén actualizado');
     await loadData();
   }
+  
+  // Buscar recetas que usan un producto
+  function buscarRecetasConProducto(codigoProducto) {
+    return cocData.filter(receta => 
+      receta.ingredientes.some(ing => ing.codigo == codigoProducto && parseFloat(ing.cantidad) > 0)
+    ).map(receta => receta.nombre);
+  }
+  
   async function deleteAlmacen(codigo) {
-    const ok = await showConfirm(`¿Eliminar producto ${codigo}?`);
-    if (!ok) return;
-    await postOpNotify('eliminarAlmacen',{codigo},'Producto eliminado');
+    // Buscar recetas que usan este producto
+    const recetasQueLoUsan = buscarRecetasConProducto(codigo);
+    
+    if (recetasQueLoUsan.length > 0) {
+      const message = `
+        <div class="product-in-use">
+          <p><strong>¡Advertencia!</strong> Este producto está siendo usado en las siguientes recetas:</p>
+          <ul>
+            ${recetasQueLoUsan.map(r => `<li>${r}</li>`).join('')}
+          </ul>
+          <p>Si continúa, el producto se marcará como inactivo y en las recetas su cantidad se establecerá a 0.</p>
+        </div>
+        <p>¿Desea continuar con la eliminación?</p>
+      `;
+      
+      const ok = await showConfirm(message);
+      if (!ok) return;
+      
+      // Actualizar las recetas: poner a 0 la cantidad de este ingrediente
+      for (const receta of cocData) {
+        // Si la receta contiene el ingrediente
+        if (receta.ingredientes.some(ing => ing.codigo == codigo)) {
+          // Actualizar cada ingrediente que coincida
+          receta.ingredientes = receta.ingredientes.map(ing => {
+            if (ing.codigo == codigo) {
+              return { ...ing, cantidad: 0 };
+            }
+            return ing;
+          });
+          // Guardar la receta actualizada
+          await postOp('guardarCocina', {
+            codigo: receta.codigo,
+            nombre: receta.nombre,
+            categoria: receta.categoria,
+            imagen: receta.imagen || '',
+            ingredientes: JSON.stringify(receta.ingredientes)
+          });
+        }
+      }
+      
+      // Marcar el producto como inactivo en lugar de eliminarlo
+      const producto = almacenData.find(p => p.codigo == codigo);
+      if (producto) {
+        producto.active = false;
+        await postOpNotify('guardarAlmacen', {
+          codigo,
+          name: producto.name,
+          precio: producto.precio,
+          cantidad: producto.cantidad,
+          unidadDeMedida: producto.unidadDeMedida,
+          stockRecomendado: producto.stockRecomendado,
+          proveedor: producto.proveedor,
+          active: false
+        }, 'Producto marcado como inactivo');
+      }
+    } else {
+      // Si no está en uso, eliminarlo completamente
+      const ok = await showConfirm(`¿Eliminar producto ${codigo}?`);
+      if (!ok) return;
+      await postOpNotify('eliminarAlmacen',{codigo},'Producto eliminado');
+    }
+    
     await loadData();
   }
+  
   async function buyProduct(id) {
     const info = productInfo[id];
     const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
@@ -844,6 +953,7 @@
     const uni  = document.getElementById(`unit-${idC}`).value;
     document.getElementById(`total-${idC}`).textContent = (info.priceBase*qty*FACTORES[uni]).toFixed(2);
   }
+  
   async function saveCompra(idC,idP) {
     const qty  = parseFloat(document.getElementById(`qty-${idC}`).value)||0;
     if (qty<=0) {
@@ -859,6 +969,7 @@
     }, 'Compra guardada');
     await loadData();
   }
+  
   async function deleteCompra(idC,idP) {
     const ok = await showConfirm(`¿Eliminar compra ${idC}?`);
     if (!ok) return;
@@ -887,6 +998,7 @@
     `;
     return row;
   }
+  
   function recalcRow(el) {
     const row = el.closest('.item-row');
     const sel    = row.children[0];
@@ -895,9 +1007,11 @@
     const rec = recetas.find(x => x.codigo === sel.value) || { precio: 0 };
     inpTot.value = (Number(rec.precio) * Number(inpCant.value || 0)).toFixed(2);
   }
+  
   function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
   }
+  
   function renderTicketCard(v) {
     const fechaStr = new Date(v.fecha).toLocaleDateString();
     const itemsHtml = v.venta.map(it => `<div class="ticket-item">${it.producto} x${it.cantidad} = $${it.total}</div>`).join('');
@@ -925,6 +1039,7 @@
     `;
     return card;
   }
+  
   async function cargarVentas() {
     await fetchRecetas();
     const res = await callApi({op:'obtenerVentas'});
@@ -933,6 +1048,7 @@
     ventData.forEach(v=>grid.append(renderTicketCard(v)));
     actualizarResumen(ventData);
   }
+  
   function startEdit(v) {
     document.getElementById('form-id').value      = v.id;
     document.getElementById('form-title').textContent = 'Editar Venta';
@@ -941,6 +1057,7 @@
     const cont = document.getElementById('items-container'); cont.innerHTML = '';
     v.venta.forEach(itm => cont.append(crearItemRow(itm.codigo, itm.cantidad, itm.total)));
   }
+  
   function resetForm() {
     document.getElementById('form-id').value = '';
     document.getElementById('form-title').textContent = 'Nueva Venta';
@@ -965,8 +1082,12 @@
         const recipe = cocData.find(r => r.codigo === item.codigo);
         if (recipe) {
           recipe.ingredientes.forEach(ing => {
-            const baseUsed = ing.cantidad * FACTORES[ing.unidad] * item.cantidad;
-            availableStock[ing.codigo] = (availableStock[ing.codigo] || 0) - baseUsed;
+            // Solo considerar productos activos
+            const producto = almacenData.find(p => p.codigo == ing.codigo);
+            if (producto && producto.active !== false) {
+              const baseUsed = ing.cantidad * FACTORES[ing.unidad] * item.cantidad;
+              availableStock[ing.codigo] = (availableStock[ing.codigo] || 0) - baseUsed;
+            }
           });
         }
       });
@@ -978,6 +1099,10 @@
       if (!recipe) continue;
       
       for (const ing of recipe.ingredientes) {
+        // Saltar ingredientes con productos inactivos o cantidad 0
+        const producto = almacenData.find(p => p.codigo == ing.codigo);
+        if (!producto || producto.active === false || parseFloat(ing.cantidad) === 0) continue;
+        
         const unit = ing.unidad.trim().toLowerCase();
         if (!(unit in FACTORES)) {
           return { valido: false, mensaje: `Unidad no reconocida: ${ing.unidad} en la receta ${recipe.codigo}` };
@@ -1067,6 +1192,7 @@
     document.getElementById('sum-tarjeta').textContent      = ta.toFixed(2);
     document.getElementById('sum-total').textContent        = (e+t+ta).toFixed(2);
   }
+  
   function updateTopStats() {
     let totalInv=0, totalCompras=0, totalRestock=0;
     const compMap={}, usedMap={};
@@ -1077,10 +1203,17 @@
     ventData.forEach(v=>v.venta.forEach(it=>{
       const rec=cocData.find(r=>String(r.codigo)===String(it.codigo));
       rec && rec.ingredientes.forEach(ing=>{
-        usedMap[ing.codigo]=(usedMap[ing.codigo]||0)+ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+        // Solo considerar productos activos
+        const producto = almacenData.find(p => p.codigo == ing.codigo);
+        if (producto && producto.active !== false && parseFloat(ing.cantidad) > 0) {
+          usedMap[ing.codigo]=(usedMap[ing.codigo]||0)+ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+        }
       });
     }));
     almacenData.forEach(it=>{
+      // Solo considerar productos activos
+      if (it.active === false) return;
+      
       const info=productInfo[it.codigo];
       const bought=compMap[it.codigo]||0;
       const used=usedMap[it.codigo]||0;
@@ -1101,18 +1234,20 @@
     if (cocR.status === 'success') {
       cocData = cocR.data.map(r => ({
         ...r,
-        ingredientes:
-          typeof r.ingredientes === 'string'
-            ? JSON.parse(r.ingredientes)
-            : r.ingredientes
+        ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
       }));
     }
     recetas = cocData.map(r => {
       const costo = r.ingredientes.reduce((sum, ing) => {
+        // Saltar ingredientes con cantidad 0
+        if (parseFloat(ing.cantidad) === 0) return sum;
+        
         const p = almacenData.find(
           x => String(x.codigo) === String(ing.codigo)
         );
-        if (!p) return sum;
+        // Solo considerar productos activos
+        if (!p || p.active === false) return sum;
+        
         const basePrice =
           p.precio /
           (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
@@ -1158,8 +1293,13 @@
     cont.innerHTML = recetasData
       .map(r => {
         function costoIngrediente(i) {
+          // Si la cantidad es 0, costo 0
+          if (parseFloat(i.cantidad) === 0) return 0;
+          
           const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
-          if (!p) return 0;
+          // Si el producto no existe o está inactivo, costo 0
+          if (!p || p.active === false) return 0;
+          
           const unidadInv = p.unidadDeMedida.trim().toLowerCase();
           const unidadRec = i.unidad.trim().toLowerCase();
           const precioPorUnidadMinima =
@@ -1170,7 +1310,15 @@
         const ingredientesHtml = r.ingredientes
           .map(i => {
             const c = costoIngrediente(i).toFixed(2);
-            return `<p>${i.codigo}:${i.cantidad}${i.unidad}→$${c}</p>`;
+            const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
+            
+            if (parseFloat(i.cantidad) === 0) {
+              return `<p class="stock-alert">${i.codigo}: ${i.cantidad}${i.unidad} (eliminado) → $0.00</p>`;
+            } else if (!p || p.active === false) {
+              return `<p class="stock-alert">${i.codigo}: ${i.cantidad}${i.unidad} (producto inactivo) → $0.00</p>`;
+            } else {
+              return `<p>${i.codigo}: ${i.cantidad}${i.unidad} → $${c}</p>`;
+            }
           })
           .join('');
 
@@ -1356,8 +1504,9 @@
     const opcionesProductos = almacenData
       .map(p => {
         const sel  = String(p.codigo) === String(item.codigo) ? ' selected' : '';
-        return `<option value="${p.codigo}" data-unit="${p.unidadDeMedida.trim().toLowerCase()}"${sel}>
-          ${p.name} (${p.cantidad}${p.unidadDeMedida})
+        const inactiveClass = p.active === false ? 'inactive-product' : '';
+        return `<option value="${p.codigo}" data-unit="${p.unidadDeMedida.trim().toLowerCase()}"${sel} class="${inactiveClass}">
+          ${p.name} (${p.cantidad}${p.unidadDeMedida}) ${p.active === false ? '(Inactivo)' : ''}
         </option>`;
       })
       .join('');
@@ -1435,16 +1584,26 @@
 
   // CARGA GENERAL
   async function loadData() {
-    const [alm, comp, vent] = await Promise.all([
+    const [alm, comp, vent, coc] = await Promise.all([
       callApi({op:'obtenerAlmacen'}),
       callApi({op:'obtenerCompras'}),
-      callApi({op:'obtenerVentas'})
+      callApi({op:'obtenerVentas'}),
+      callApi({op:'obtenerCocina'})
     ]);
-    almacenData = alm.data; comprasData = comp.data; ventData = vent.data;
+    almacenData = alm.data; 
+    comprasData = comp.data; 
+    ventData = vent.data;
+    if (coc.status === 'success') {
+      cocData = coc.data.map(r => ({
+        ...r,
+        ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
+      }));
+    }
     buildProductInfo();
     renderStockTable();
     renderComprasTable();
     await cargarVentas();
+    await cargarRecetas();
     updateTopStats();
   }
 
@@ -1452,7 +1611,6 @@
     resetForm();
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     await loadData();
-    await cargarRecetas();
     
     // Limpiar clases de error al cambiar valores
     document.querySelectorAll('input, select').forEach(el => {
