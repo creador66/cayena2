@@ -33,7 +33,7 @@
       background: var(--light);
       color: var(--dark);
       padding: 0;
-      padding-bottom: 70px;
+      padding-bottom: 120px; /* Más espacio para el footer */
       font-size: 14px;
       line-height: 1.5;
     }
@@ -112,6 +112,37 @@
     .nav-btn.active {
       color: var(--primary);
       background: rgba(108, 92, 231, 0.05);
+    }
+    
+    /* RESUMEN VENTAS */
+    .sales-summary {
+      position: fixed;
+      bottom: 60px; /* Encima de la barra de navegación */
+      left: 0;
+      width: 100%;
+      background: var(--dark);
+      color: white;
+      display: flex;
+      padding: 8px 0;
+      z-index: 99;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .summary-item {
+      flex: 1;
+      text-align: center;
+      padding: 5px;
+    }
+    
+    .summary-item.total {
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .summary-item span {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
     }
     
     /* SECCIONES */
@@ -397,6 +428,11 @@
       color: var(--primary);
     }
     
+    .status-reposicion {
+      background: rgba(45, 52, 54, 0.15);
+      color: var(--dark);
+    }
+    
     /* UTILIDADES */
     .hidden {
       display: none !important;
@@ -455,6 +491,14 @@
       </div>
     </div>
   </header>
+
+  <!-- RESUMEN VENTAS -->
+  <div class="sales-summary">
+    <div class="summary-item">Efectivo<br><span id="sum-efectivo">0.00</span></div>
+    <div class="summary-item">Transferencia<br><span id="sum-transferencia">0.00</span></div>
+    <div class="summary-item">Tarjeta<br><span id="sum-tarjeta">0.00</span></div>
+    <div class="summary-item total">Total<br><span id="sum-total">0.00</span></div>
+  </div>
 
   <!-- SECCIONES -->
   <main>
@@ -730,6 +774,9 @@
         ? `Ordenar ${humanizeComposite(delta,info.categoria)}`
         : `Sobrante ${humanizeComposite(-delta,info.categoria)}`;
       
+      // Calcular valor de reposición
+      const valorReposicion = (delta * info.priceBase).toFixed(2);
+      
       // Verificar si el producto está en uso
       const enUso = buscarRecetasConProducto(it.codigo).length > 0;
       
@@ -745,6 +792,7 @@
         <div>
           <span class="list-title">$${parseFloat(it.precio).toFixed(2)}</span>
           <div class="list-subtitle">${it.proveedor || 'Sin proveedor'}</div>
+          <div class="list-subtitle status-badge status-reposicion">Rep: $${valorReposicion}</div>
         </div>
       `;
       
@@ -814,8 +862,16 @@
               <div class="card-value"><span class="status-badge ${estado}">${estadoText}</span></div>
             </div>
             <div class="card-row">
-              <div class="card-label">Acción</div>
+              <div class="card-label">Valor inventario</div>
+              <div class="card-value">$${(remain * info.priceBase).toFixed(2)}</div>
+            </div>
+            <div class="card-row">
+              <div class="card-label">Reposición necesaria</div>
               <div class="card-value">${accion}</div>
+            </div>
+            <div class="card-row">
+              <div class="card-label">Valor reposición</div>
+              <div class="card-value">$${valorReposicion}</div>
             </div>
             <div class="form-row mt-15">
               <div class="form-group">
@@ -1182,6 +1238,7 @@
     const list = document.getElementById('tickets-list'); 
     list.innerHTML='';
     ventData.forEach(v=>list.append(renderTicketCard(v)));
+    actualizarResumen(ventData);
   }
   
   function startEdit(v) {
@@ -1199,6 +1256,20 @@
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     document.getElementById('form-pago').value = 'Efectivo';
     document.getElementById('items-container').innerHTML = '';
+  }
+  
+  // ACTUALIZAR RESUMEN DE VENTAS
+  function actualizarResumen(vs) {
+    let e = 0, t = 0, ta = 0;
+    vs.forEach(v => {
+      if (v.metodoPago === 'Efectivo') e += v.venta.reduce((sum, i) => sum + Number(i.total), 0);
+      else if (v.metodoPago === 'Transferencia') t += v.venta.reduce((sum, i) => sum + Number(i.total), 0);
+      else ta += v.venta.reduce((sum, i) => sum + Number(i.total), 0);
+    });
+    document.getElementById('sum-efectivo').textContent = e.toFixed(2);
+    document.getElementById('sum-transferencia').textContent = t.toFixed(2);
+    document.getElementById('sum-tarjeta').textContent = ta.toFixed(2);
+    document.getElementById('sum-total').textContent = (e + t + ta).toFixed(2);
   }
   
   async function guardarVenta() {
@@ -1307,8 +1378,24 @@
         const ingredientesHtml = r.ingredientes
           .map(i => {
             const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
-            const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad) * (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad)) : 0;
-            return `<div class="card-row"><div>${i.codigo}: ${i.cantidad}${i.unidad}</div><div>$${c.toFixed(2)}</div></div>`;
+            const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad))* 
+                        (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad) : 0;
+            
+            // Estado del producto
+            const estado = p ? (p.active ? '' : '<span class="status-badge status-low">Inactivo</span>') : 
+                              '<span class="status-badge status-low">No encontrado</span>';
+            
+            // Nombre del producto o código si no se encuentra
+            const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
+            
+            return `
+            <div class="card-row">
+              <div>
+                <div>${nombreProducto} ${estado}</div>
+                <div class="list-subtitle">${i.cantidad}${i.unidad} | #${i.codigo}</div>
+              </div>
+              <div class="card-value">$${c.toFixed(2)}</div>
+            </div>`;
           })
           .join('');
 
@@ -1470,6 +1557,46 @@
     document.getElementById('ingredientes-container').innerHTML = '';
   }
 
+  // ACTUALIZAR ESTADÍSTICAS SUPERIORES
+  function updateTopStats() {
+    let totalInv = 0, totalCompras = 0, totalRestock = 0;
+    const compMap = {}, usedMap = {};
+    
+    // Calcular compras
+    comprasData.forEach(c => {
+      compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad];
+      totalCompras += productInfo[c.idProducto].priceBase * c.cantidad * FACTORES[c.unidad];
+    });
+    
+    // Calcular uso en ventas
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+      rec && rec.ingredientes.forEach(ing => {
+        usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad;
+      });
+    }));
+    
+    // Calcular inventario y reposición
+    almacenData.forEach(it => {
+      const info = productInfo[it.codigo];
+      const bought = compMap[it.codigo]||0;
+      const used = usedMap[it.codigo]||0;
+      const remain = bought - used;
+      
+      totalInv += remain * info.priceBase;
+      
+      const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
+      const delta = recBase - remain;
+      if (delta > 0) {
+        totalRestock += delta * info.priceBase;
+      }
+    });
+    
+    document.getElementById('stat-inventory').textContent = totalInv.toFixed(2);
+    document.getElementById('stat-purchases').textContent = totalCompras.toFixed(2);
+    document.getElementById('stat-restock').textContent = totalRestock.toFixed(2);
+  }
+
   // CARGA GENERAL
   async function loadData() {
     const [alm, comp, vent, coc] = await Promise.all([
@@ -1492,6 +1619,7 @@
     renderComprasTable();
     await cargarVentas();
     await cargarRecetas();
+    updateTopStats(); // Actualizar estadísticas superiores
   }
 
   // Inicialización
