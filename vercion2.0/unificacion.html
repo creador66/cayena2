@@ -1516,43 +1516,63 @@ const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
   const row = document.createElement('div');
   row.className = 'form-row';
 
+  // 1) Construimos el <select> de productos
   const opcionesProductos = almacenData
     .map(p => `<option value="${p.codigo}">${p.name}</option>`)
     .join('');
 
   row.innerHTML = `
-    <select class="form-select">
+    <select class="form-select producto-select">
       <option value="">-- Seleccione --</option>
       ${opcionesProductos}
     </select>
-    <input class="form-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
-    <select class="form-select">
-      <option value="g">g</option>
-      <option value="kg">kg</option>
-      <option value="ml">ml</option>
-      <option value="l">l</option>
-      <option value="pz">pz</option>
+    <input class="form-input cantidad-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
+    <select class="form-select unidad-select">
+      <option value="">-- Unidad --</option>
+      <!-- Aquí iremos inyectando dinámicamente -->
     </select>
     <button class="btn btn-icon btn-danger" type="button">
       <i class="fas fa-times"></i>
     </button>
   `;
 
-  // en lugar de select:last-child usa querySelectorAll
-  const selects = row.querySelectorAll('select');
-  if (item.codigo) {
-    selects[0].value = item.codigo;   // asigna producto
-  }
-  if (item.unidad) {
-    selects[1].value = item.unidad;   // asigna unidad
+  // 2) Referencias a los selects y al input
+  const productoSelect = row.querySelector('.producto-select');
+  const unidadSelect   = row.querySelector('.unidad-select');
+  const cantidadInput  = row.querySelector('.cantidad-input');
+  const btnRemove      = row.querySelector('button');
+
+  // 3) Función para poblar las unidades según productInfo
+  function poblarUnidades(codigoProducto, unidadInicial = '') {
+    unidadSelect.innerHTML = ''; 
+    if (!codigoProducto || !productInfo[codigoProducto]) {
+      unidadSelect.innerHTML = `<option value="">-- Unidad --</option>`;
+      return;
+    }
+    const opciones = productInfo[codigoProducto].opcionesUnidad;
+    unidadSelect.innerHTML = opciones
+      .map(u => `<option value="${u}"${u === unidadInicial ? ' selected' : ''}>${u}</option>`)
+      .join('');
   }
 
-  row.querySelector('button').addEventListener('click', () => {
-    row.remove();
+  // 4) Cuando cambie el producto, actualizamos unidades
+  productoSelect.addEventListener('change', () => {
+    poblarUnidades(productoSelect.value);
   });
+
+  // 5) Si estamos en modo edición (item trae código y unidad), preseleccionamos
+  if (item.codigo) {
+    productoSelect.value = item.codigo;
+    poblarUnidades(item.codigo, item.unidad);
+    cantidadInput.value = item.cantidad || 1;
+  }
+
+  // 6) Remover fila
+  btnRemove.addEventListener('click', () => row.remove());
 
   cont.appendChild(row);
 }
+
 
   function limpiarForm() {
     editMode = false;
