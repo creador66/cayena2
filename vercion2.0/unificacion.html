@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <title>StockFlow Pro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <title>IAEgoStock Pro</title>
   <style>
     :root {
       --primary: #6c5ce7;
@@ -314,11 +315,7 @@
       font-weight: 500;
     }
     
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
+    
     
     /* FORMULARIOS */
     .form-group {
@@ -400,10 +397,18 @@
       color: var(--primary);
     }
     .div3{
+      
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
+      
     }
+.div2{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  
+}
     
     .btn-icon {
       padding: 10px;
@@ -711,13 +716,13 @@
   <main>
     <!-- STOCK -->
     <section id="stock" class="section active">
-      <div class="justify-between flex">
+      <div class="justify-between">
         <h2 class="section-title"><i class="fas fa-box-open"></i> Stock de Productos</h2>
-        <div>
+        <div class="div2">
           <button class="btn btn-primary" onclick="addNewProducto()">
             <i class="fas fa-plus"></i> Nuevo Producto
           </button>
-          <button class="btn btn-secondary" onclick="exportarDatos()" style="margin-top: 10px;">
+          <button class="btn btn-secondary" onclick="exportarDatos()">
             <i class="fas fa-file-export"></i> Exportar Datos
           </button>
         </div>
@@ -1392,7 +1397,7 @@
                 </select>
               </div>
             </div>
-            <div class="card-actions">
+            <div class="div3">
               <button class="btn btn-icon btn-primary" onclick="buyProduct('${it.codigo}')">
                 <i class="fas fa-cart-plus"></i>
               </button>
@@ -1447,56 +1452,95 @@
   }
 
   function solicitarNumeroWhatsApp() {
-    const modalContent = document.createElement('div');
-    modalContent.innerHTML = `
-      <div style="padding: 15px;">
-        <p>Ingrese el número de teléfono (con código de país, sin espacios ni caracteres especiales):</p>
-        <input type="tel" id="whatsapp-number" class="form-input" placeholder="Ej: 5491123456789" style="width: 100%; padding: 10px; margin-bottom: 15px;">
-        <button class="btn btn-primary" onclick="enviarWhatsApp()" style="width: 100%;">
-          <i class="fab fa-whatsapp"></i> Enviar
-        </button>
-      </div>
-    `;
-    
-    modal.show({
-      title: 'Enviar por WhatsApp',
-      message: modalContent.innerHTML
+  // 1) Leemos lo que haya en localStorage (o cadena vacía si no existe)
+  const savedNumber = localStorage.getItem('whatsappNumber') || '';
+
+  // 2) Construimos el contenido del modal
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div style="padding: 15px;">
+      <p>Ingrese el número de teléfono (con código de país, sin espacios ni caracteres especiales):</p>
+      <input
+        type="tel"
+        id="whatsapp-number"
+        class="form-input"
+        placeholder="Ej: 5491123456789"
+        style="width: 100%; padding: 10px; margin-bottom: 15px;"
+        value="${savedNumber}"
+      >
+      <button
+        class="btn btn-primary"
+        onclick="enviarWhatsApp()"
+        style="width: 100%;"
+      >
+        <i class="fab fa-whatsapp"></i> Enviar
+      </button>
+    </div>
+  `;
+
+  // 3) Mostramos el modal
+  modal.show({
+    title: 'Enviar por WhatsApp',
+    message: modalContent.innerHTML
+  });
+
+  // 4) Cuando el modal esté en el DOM, atamos el listener al input
+  //    Usamos un pequeño delay para asegurarnos de que se haya renderizado
+  setTimeout(() => {
+    const input = document.getElementById('whatsapp-number');
+    if (!input) return;
+
+    // Cada vez que cambie su valor, actualizamos localStorage
+    input.addEventListener('input', () => {
+      localStorage.setItem('whatsappNumber', input.value.trim());
     });
-  }
+  }, 100);
+}
 
   function enviarWhatsApp() {
-    const numero = document.getElementById('whatsapp-number').value.trim();
-    if (!numero) {
-      return showAlert('Por favor, ingrese un número de teléfono.');
-    }
-    
-    const datos = getDatosExportacion();
-    
-    // Formatear los datos como texto
-    let texto = '📋 *Lista de Compras Generada por StockFlow Pro* 📋\n\n';
-    texto += '*Fecha:* ' + new Date().toLocaleDateString() + '\n';
-    texto += '*Productos Filtrados:* ' + datos.length + '\n\n';
-    
-    datos.forEach((prod, index) => {
-      texto += `*${index + 1}. ${prod.nombre}*\n`;
-      texto += `   🔢 Código: ${prod.codigo}\n`;
-      texto += `   📦 Existencias: ${prod.existencias}\n`;
-      texto += `   🟡 Estado: ${prod.estado}\n`;
-      texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
-      texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
-    });
-    
-    // Calcular totales
-    const totalReposicion = datos.reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0).toFixed(2);
-    texto += `*TOTAL REPOSICIÓN:* $${totalReposicion}\n\n`;
-    
-    // Codificar el texto para URL
-    const textoCodificado = encodeURIComponent(texto);
-    const url = `https://wa.me/${numero}?text=${textoCodificado}`;
-    
-    // Abrir en una nueva pestaña
-    window.open(url, '_blank');
+  const numero = document.getElementById('whatsapp-number').value.trim();
+  if (!numero) {
+    return showAlert('Por favor, ingrese un número de teléfono.');
   }
+
+  const datos = getDatosExportacion();
+
+  // Formatear los datos como texto
+  let texto = '📋 *Lista de Compras Generada por IAEgoStock Pro* 📋\n\n';
+  texto += '*Fecha:* ' + new Date().toLocaleDateString() + '\n';
+  texto += '*Productos Filtrados:* ' + datos.length + '\n\n';
+
+  datos.forEach((prod, index) => {
+    texto += `*${index + 1}. ${prod.nombre}*\n`;
+    texto += `   🔢 Código: ${prod.codigo}\n`;
+    texto += `   📦 Existencias: ${prod.existencias}\n`;
+    texto += `   🟡 Estado: ${prod.estado}\n`;
+    texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
+    texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
+  });
+
+  // Calcular totales
+  const totalReposicion = datos
+    .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
+    .toFixed(2);
+  texto += `*TOTAL REPOSICIÓN:* $${totalReposicion}\n\n`;
+
+  // Codificar el texto para URL
+  const textoCodificado = encodeURIComponent(texto);
+  const url = `https://wa.me/${numero}?text=${textoCodificado}`;
+
+  // Crear un <a> temporal y disparar el click para abrir en nueva pestaña
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  // Por seguridad
+  a.rel = 'noopener noreferrer';
+  // No queremos que se muestre en la página
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
   function getDatosExportacion() {
     const compMap = {}, usedMap = {};
@@ -1537,30 +1581,122 @@
     });
   }
 
-
-
-  function exportarCSV() {
-    const datos = getDatosExportacion();
-    let csv = "Producto,Código,Existencias,Estado,Reposición,Valor Reposición\n";
-    
-    datos.forEach(prod => {
-      csv += `"${prod.nombre}","${prod.codigo}","${prod.existencias}","${prod.estado}","${prod.reponer}","${prod.valorReposicion}"\n`;
-    });
-    
-    // Calcular total de reposición
-    const totalReposicion = datos.reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0).toFixed(2);
-    csv += `\n"","","","","TOTAL","${totalReposicion}"`;
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `reporte_stock_${new Date().toISOString().slice(0,10)}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+function exportarPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    return showAlert('La librería jsPDF no está cargada.');
   }
+  const { jsPDF } = window.jspdf;
+  const datos    = getDatosExportacion();
+  const doc      = new jsPDF({ unit: 'pt', format: 'letter' });
+  const margin   = 40;
+  const lineH    = 16;
+  const pageW    = doc.internal.pageSize.getWidth();
+  const pageH    = doc.internal.pageSize.getHeight();
+  let   y        = margin;
+
+  // --- Encabezado ---
+  doc.setFontSize(16).text('Reporte de IAEgoStock Pro', margin, y);
+  y += lineH * 1.2;
+  doc.setFontSize(11)
+     .text(`Fecha: ${new Date().toLocaleDateString()}`, margin, y);
+  y += lineH;
+  doc.text(`Productos listados: ${datos.length}`, margin, y);
+  y += lineH * 1.5;
+
+  // --- Cabecera Tabla con fondo ---
+  const colsX = [0, 30, 200, 260, 340, 420, 490];
+  const headers = ['No.', 'Producto', 'Código', 'Existencias', 'Estado', 'Reponer', 'Valor Repo.'];
+
+  doc.setFillColor(60, 120, 216);
+  doc.setTextColor(255);
+  doc.setFontSize(12);
+  headers.forEach((h, i) => {
+    const x = margin + colsX[i];
+    doc.rect(x - 2, y - lineH + 4, (i === 1 ? 150 : 60), lineH, 'F');
+    doc.text(h, x, y);
+  });
+
+  // línea bajo encabezado
+  doc.setDrawColor(0);
+  y += lineH;
+  doc.line(margin, y - 4, pageW - margin, y - 4);
+
+  // Restaurar estilos para filas
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+
+  // --- Filas ---
+  datos.forEach((p, idx) => {
+    if (y + lineH > pageH - margin) {
+      doc.addPage();
+      y = margin;
+    }
+    // sombreado alterno
+    if (idx % 2 === 1) {
+      doc.setFillColor(240);
+      doc.rect(margin, y - lineH + 4, pageW - 2 * margin, lineH, 'F');
+    }
+    const vals = [
+      String(idx + 1),
+      p.nombre,
+      String(p.codigo),
+      String(p.existencias),
+      p.estado,
+      String(p.reponer),
+      `$${parseFloat(p.valorReposicion).toFixed(2)}`
+    ];
+    vals.forEach((txt, i) => {
+      const x = margin + colsX[i];
+      if (i === 1) {
+        doc.text(txt, x, y, { maxWidth: 150 });
+      } else {
+        doc.text(txt, x, y);
+      }
+    });
+    y += lineH;
+  });
+
+  // --- Total reposición ---
+  if (y + lineH > pageH - margin) {
+    doc.addPage();
+    y = margin;
+  }
+  const total = datos.reduce((s, p) => s + parseFloat(p.valorReposicion), 0).toFixed(2);
+  y += lineH;
+  doc.setFontSize(12).text(`TOTAL REPOSICIÓN: $${total}`, margin, y);
+
+  // Mostrar PDF
+  window.location.href = doc.output('bloburl');
+}
+
+
+function exportarCSV() {
+  const datos = getDatosExportacion();
+
+  // 1) Cabecera CSV
+  let csv = 'Producto,Código,Existencias,Estado,Reposición,Valor Reposición\n';
+
+  // 2) Filas de datos (escapando comillas)
+  const escape = str => String(str).replace(/"/g, '""');
+  datos.forEach(prod => {
+    csv += `"${escape(prod.nombre)}","${escape(prod.codigo)}","${escape(prod.existencias)}","${escape(prod.estado)}","${escape(prod.reponer)}","${escape(prod.valorReposicion)}"\n`;
+  });
+
+  // 3) Total reposición
+  const totalReposicion = datos
+    .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
+    .toFixed(2);
+  csv += `\n"","","","","TOTAL","${totalReposicion}"`;
+
+  // 4) Crear blob y generar URL
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+
+  window.location.href = url;
+
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
 
   // ACTUALIZAR ESTADÍSTICAS SUPERIORES (basadas en filtros)
   function updateTopStats() {
@@ -1795,7 +1931,7 @@
               <div class="card-label">Total</div>
               <div class="card-value">$${total}</div>
             </div>
-            <div class="card-actions">
+            <div class="div2">
               <button class="btn btn-icon btn-primary" onclick="saveCompra('${c.idCompra}','${c.idProducto}')">
                 <i class="fas fa-save"></i>
               </button>
@@ -1918,7 +2054,7 @@
             <div class="card-label">Total</div>
             <div class="card-value">$${total}</div>
           </div>
-          <div class="card-actions">
+          <div class="div2">
             <button class="btn btn-primary" onclick='startEdit(${JSON.stringify(v)})'>Editar</button>
             <button class="btn btn-danger" onclick="eliminarVenta('${v.id}')">
               <i class="fas fa-trash"></i> Eliminar
@@ -2178,7 +2314,7 @@
               <div class="card-label">Precio de venta</div>
               <div class="card-value">$${(costo * MARGEN).toFixed(2)}</div>
             </div>
-            <div class="card-actions">
+            <div class="div2">
               <button class="btn btn-primary" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
               <button class="btn btn-danger" onclick="eliminarReceta('${r.codigo}')">
                 <i class="fas fa-trash"></i> Eliminar
