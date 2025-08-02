@@ -27,7 +27,6 @@
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
-      
     }
   
     body {
@@ -35,7 +34,7 @@
       background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
       color: var(--dark);
       padding: 0;
-      padding-bottom: 120px; /* Más espacio para el footer */
+      padding-bottom: 120px;
       font-size: 14px;
       line-height: 1.6;
     }
@@ -124,7 +123,7 @@
     .sales-summary {
       font-size: 10px;
       position: fixed;
-      bottom: 60px; /* Encima de la barra de navegación */
+      bottom: 60px;
       left: 0;
       width: 100%;
       background: var(--dark);
@@ -138,7 +137,6 @@
     .summary-item {
       flex: 1;
       text-align: center;
-      
     }
     
     .summary-item.total {
@@ -368,7 +366,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      
       border-radius: 8px;
       font-family: 'Poppins', sans-serif;
       font-weight: 600;
@@ -376,8 +373,6 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      
-      
     }
     
     .btn:active {
@@ -406,8 +401,8 @@
     }
     .div3{
       display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
     
     .btn-icon {
@@ -548,7 +543,6 @@ gap: 8px;
     }
     
     .mb-15 {
-      
       margin-bottom: 15px;
       margin-top: 15px;
     }
@@ -635,14 +629,62 @@ gap: 8px;
         flex-direction: column;
       }
     }
+    
+    /* EXPORTAR DATOS */
+    .export-section {
+      margin-top: 20px;
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 15px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    .export-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .export-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .export-option:hover {
+      background: #eef2f7;
+      transform: translateY(-3px);
+    }
+    
+    .export-option i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    
+    .export-option.pdf i {
+      color: #e74c3c;
+    }
+    
+    .export-option.whatsapp i {
+      color: #25D366;
+    }
+    
+    .export-option.csv i {
+      color: #27ae60;
+    }
   </style>
 </head>
 <body>
 
   <!-- HEADER -->
   <header class="app-header">
-    <h1><i class="fa-regular fa-eye-slash"></i>
- IAEgo</h1>
+    <h1><i class="fa-regular fa-eye-slash"></i> IAEgo</h1>
   
     <div class="stats">
       <div class="stat-item">
@@ -669,12 +711,16 @@ gap: 8px;
   <main>
     <!-- STOCK -->
     <section id="stock" class="section active">
-      
-      <div class="">
+      <div class="justify-between flex">
         <h2 class="section-title"><i class="fas fa-box-open"></i> Stock de Productos</h2>
-        <button class="btn btn-primary" onclick="addNewProducto()">
-          <i class="fas fa-plus"></i> Nuevo Producto
-        </button>
+        <div>
+          <button class="btn btn-primary" onclick="addNewProducto()">
+            <i class="fas fa-plus"></i> Nuevo Producto
+          </button>
+          <button class="btn btn-secondary" onclick="exportarDatos()" style="margin-top: 10px;">
+            <i class="fas fa-file-export"></i> Exportar Datos
+          </button>
+        </div>
       </div>
       
       <!-- Filtros Stock -->
@@ -810,15 +856,11 @@ gap: 8px;
             </div>
           </div>
           
-<div id="items-container" class="mb-15"></div>
+          <div id="items-container" class="mb-15"></div>
           <div class="div3">
-            
-
-          <button class="btn btn-outline" onclick="agregarItemVenta()">
-            <i class="fas fa-plus"></i> Agregar
-          </button>
-          
-
+            <button class="btn btn-outline" onclick="agregarItemVenta()">
+              <i class="fas fa-plus"></i> Agregar
+            </button>
             <button class="btn btn-primary" onclick="guardarVenta()">
               <i class="fas fa-save"></i> Guardar
             </button>
@@ -885,7 +927,6 @@ gap: 8px;
     <section id="recetas" class="section">
       <div class="">
         <h2 class="section-title"><i class="fas fa-utensils"></i> Gestión de Recetas</h2>
-
       </div>
       
       <div class="card mb-15">
@@ -918,23 +959,16 @@ gap: 8px;
           <h3 class="section-title"><i class="fas fa-carrot"></i> Ingredientes</h3>
           <div id="ingredientes-container" class="mb-15"></div>
           <div class="div3">
-            
-
-          
-          <button class="btn btn-outline" onclick="agregarFila()">
-            <i class="fas fa-plus"></i> Agregar
-          </button>
-          
-
+            <button class="btn btn-outline" onclick="agregarFila()">
+              <i class="fas fa-plus"></i> Agregar
+            </button>
             <button class="btn btn-primary" onclick="guardarReceta()">
               <i class="fas fa-save"></i> Guardar
             </button>
             <button class="btn btn-outline" onclick="limpiarForm()">
               <i class="fas fa-broom"></i> Limpiar
             </button>
-            
           </div>
-
         </div>
       </div>
       
@@ -1094,6 +1128,7 @@ gap: 8px;
     c === 'volumen' ?
     ((l => (l ? l + 'l ' : '') + ((b % 1000) ? (b % 1000) + 'ml' : '') || '0ml')(Math.trunc(b / 1000))) :
     `${b.toFixed(0)}pz`;
+
   // PRODUCT INFO
   function buildProductInfo() {
     productInfo = {};
@@ -1106,7 +1141,7 @@ gap: 8px;
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat],
         name: it.name,
-        active: it.active !== false // Por defecto activo
+        active: it.active !== false
       };
     });
   }
@@ -1182,6 +1217,7 @@ gap: 8px;
     document.getElementById('filter-stock-indicator').textContent = filterCount;
     
     renderStockTable();
+    updateTopStats(); // Actualizar estadísticas con datos filtrados
   }
   
   function resetStockFilters() {
@@ -1193,183 +1229,9 @@ gap: 8px;
     filteredStock = [];
     document.getElementById('filter-stock-indicator').textContent = '0';
     renderStockTable();
+    updateTopStats(); // Actualizar estadísticas con todos los datos
   }
-  
-  // FILTROS COMPRAS
-  function applyComprasFilters() {
-    const search = document.getElementById('filter-compras-search').value.toLowerCase();
-    const provider = document.getElementById('filter-compras-provider').value.toLowerCase();
-    const fromDate = document.getElementById('filter-compras-from').value;
-    const toDate = document.getElementById('filter-compras-to').value;
-    
-    comprasFilters = { search, provider, fromDate, toDate };
-    
-    filteredCompras = comprasData.filter(compra => {
-      // Obtener información del producto
-      const product = almacenData.find(p => p.codigo == compra.idProducto);
-      if (!product) return false;
-      
-      // Filtro de búsqueda
-      if (search && !product.name.toLowerCase().includes(search) && 
-          !String(compra.idProducto).toLowerCase().includes(search)) {
-        return false;
-      }
-      
-      // Filtro por proveedor
-      if (provider && product.proveedor && !product.proveedor.toLowerCase().includes(provider)) {
-        return false;
-      }
-      
-      // Filtro por fecha
-      if (fromDate && compra.fecha < fromDate) return false;
-      if (toDate && compra.fecha > toDate) return false;
-      
-      return true;
-    });
-    
-    // Actualizar contador de filtros
-    const filterCount = Object.values(comprasFilters).filter(f => f).length;
-    document.getElementById('filter-compras-indicator').textContent = filterCount;
-    
-    renderComprasTable();
-  }
-  
-  function resetComprasFilters() {
-    document.getElementById('filter-compras-search').value = '';
-    document.getElementById('filter-compras-provider').value = '';
-    document.getElementById('filter-compras-from').value = '';
-    document.getElementById('filter-compras-to').value = '';
-    comprasFilters = {};
-    filteredCompras = [];
-    document.getElementById('filter-compras-indicator').textContent = '0';
-    renderComprasTable();
-  }
-  
-  // FILTROS VENTAS
-  function applyVentasFilters() {
-    const search = document.getElementById('filter-ventas-search').value.toLowerCase();
-    const payment = document.getElementById('filter-ventas-payment').value;
-    const fromDate = document.getElementById('filter-ventas-from').value;
-    const toDate = document.getElementById('filter-ventas-to').value;
-    
-    ventasFilters = { search, payment, fromDate, toDate };
-    
-    filteredVentas = ventData.filter(venta => {
-      // Filtro por método de pago
-      if (payment && venta.metodoPago !== payment) return false;
-      
-      // Filtro por fecha
-      if (fromDate && venta.fecha < fromDate) return false;
-      if (toDate && venta.fecha > toDate) return false;
-      
-      // Filtro de búsqueda
-      if (search) {
-        let found = false;
-        for (const item of venta.venta) {
-          const receta = recetas.find(r => r.codigo === item.codigo);
-          if (receta && receta.nombre.toLowerCase().includes(search)) {
-            found = true;
-            break;
-          }
-          if (String(item.codigo).includes(search)) {
-            found = true;
-            break;
-          }
-        }
-        if (!found) return false;
-      }
-      
-      return true;
-    });
-    
-    // Actualizar contador de filtros
-    const filterCount = Object.values(ventasFilters).filter(f => f).length;
-    document.getElementById('filter-ventas-indicator').textContent = filterCount;
-    
-    cargarVentas();
-  }
-  
-  function resetVentasFilters() {
-    document.getElementById('filter-ventas-search').value = '';
-    document.getElementById('filter-ventas-payment').value = '';
-    document.getElementById('filter-ventas-from').value = '';
-    document.getElementById('filter-ventas-to').value = '';
-    ventasFilters = {};
-    filteredVentas = [];
-    document.getElementById('filter-ventas-indicator').textContent = '0';
-    cargarVentas();
-  }
-  
-  // FILTROS RECETAS
-  function applyRecetasFilters() {
-    const search = document.getElementById('filter-recetas-search').value.toLowerCase();
-    const category = document.getElementById('filter-recetas-category').value;
-    const status = document.getElementById('filter-recetas-status').value;
-    
-    recetasFilters = { search, category, status };
-    
-    filteredRecetas = recetasData.filter(receta => {
-      // Filtro de búsqueda
-      if (search && !receta.nombre.toLowerCase().includes(search) && 
-          !String(receta.codigo).toLowerCase().includes(search)) {
-        return false;
-      }
-      
-      // Filtro por categoría
-      if (category && receta.categoria !== category) {
-        return false;
-      }
-      
-      // Filtro por estado de ingredientes
-      if (status) {
-        let hasInactive = false;
-        
-        for (const ing of receta.ingredientes) {
-          const product = almacenData.find(p => p.codigo == ing.codigo);
-          if (product && product.active === false) {
-            hasInactive = true;
-            break;
-          }
-        }
-        
-        if (status === 'active' && hasInactive) return false;
-        if (status === 'inactive' && !hasInactive) return false;
-      }
-      
-      return true;
-    });
-    
-    // Actualizar contador de filtros
-    const filterCount = Object.values(recetasFilters).filter(f => f).length;
-    document.getElementById('filter-recetas-indicator').textContent = filterCount;
-    
-    mostrarRecetas();
-  }
-  
-  function resetRecetasFilters() {
-    document.getElementById('filter-recetas-search').value = '';
-    document.getElementById('filter-recetas-category').value = '';
-    document.getElementById('filter-recetas-status').value = '';
-    recetasFilters = {};
-    filteredRecetas = [];
-    document.getElementById('filter-recetas-indicator').textContent = '0';
-    mostrarRecetas();
-  }
-  
-  // TOGGLE FILTROS
-  function toggleFilter(section) {
-    const controls = document.getElementById(`filter-${section}-controls`);
-    const icon = document.getElementById(`filter-${section}-icon`);
-    
-    if (controls.style.display === 'none' || controls.style.display === '') {
-      controls.style.display = 'grid';
-      icon.className = 'fas fa-chevron-up';
-    } else {
-      controls.style.display = 'none';
-      icon.className = 'fas fa-chevron-down';
-    }
-  }
-  
+
   // RENDER STOCK
   function renderStockTable() {
     const list = document.getElementById('stock-list'); 
@@ -1552,6 +1414,197 @@ gap: 8px;
       
       list.appendChild(item);
     });
+  }
+
+  // EXPORTAR DATOS
+  function exportarDatos() {
+    const modalContent = document.createElement('div');
+    modalContent.innerHTML = `
+      <div style="text-align: center; padding: 20px;">
+        <h3>Exportar Datos Filtrados</h3>
+        <p>Seleccione el formato de exportación:</p>
+        <div class="export-options">
+          <div class="export-option pdf" onclick="exportarPDF()">
+            <i class="fas fa-file-pdf"></i>
+            <span>PDF</span>
+          </div>
+          <div class="export-option whatsapp" onclick="solicitarNumeroWhatsApp()">
+            <i class="fab fa-whatsapp"></i>
+            <span>WhatsApp</span>
+          </div>
+          <div class="export-option csv" onclick="exportarCSV()">
+            <i class="fas fa-file-csv"></i>
+            <span>CSV</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    modal.show({
+      title: 'Exportar Datos',
+      message: modalContent.innerHTML
+    });
+  }
+
+  function solicitarNumeroWhatsApp() {
+    const modalContent = document.createElement('div');
+    modalContent.innerHTML = `
+      <div style="padding: 15px;">
+        <p>Ingrese el número de teléfono (con código de país, sin espacios ni caracteres especiales):</p>
+        <input type="tel" id="whatsapp-number" class="form-input" placeholder="Ej: 5491123456789" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+        <button class="btn btn-primary" onclick="enviarWhatsApp()" style="width: 100%;">
+          <i class="fab fa-whatsapp"></i> Enviar
+        </button>
+      </div>
+    `;
+    
+    modal.show({
+      title: 'Enviar por WhatsApp',
+      message: modalContent.innerHTML
+    });
+  }
+
+  function enviarWhatsApp() {
+    const numero = document.getElementById('whatsapp-number').value.trim();
+    if (!numero) {
+      return showAlert('Por favor, ingrese un número de teléfono.');
+    }
+    
+    const datos = getDatosExportacion();
+    
+    // Formatear los datos como texto
+    let texto = '📋 *Lista de Compras Generada por StockFlow Pro* 📋\n\n';
+    texto += '*Fecha:* ' + new Date().toLocaleDateString() + '\n';
+    texto += '*Productos Filtrados:* ' + datos.length + '\n\n';
+    
+    datos.forEach((prod, index) => {
+      texto += `*${index + 1}. ${prod.nombre}*\n`;
+      texto += `   🔢 Código: ${prod.codigo}\n`;
+      texto += `   📦 Existencias: ${prod.existencias}\n`;
+      texto += `   🟡 Estado: ${prod.estado}\n`;
+      texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
+      texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
+    });
+    
+    // Calcular totales
+    const totalReposicion = datos.reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0).toFixed(2);
+    texto += `*TOTAL REPOSICIÓN:* $${totalReposicion}\n\n`;
+    
+    // Codificar el texto para URL
+    const textoCodificado = encodeURIComponent(texto);
+    const url = `https://wa.me/${numero}?text=${textoCodificado}`;
+    
+    // Abrir en una nueva pestaña
+    window.open(url, '_blank');
+  }
+
+  function getDatosExportacion() {
+    const compMap = {}, usedMap = {};
+    
+    comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
+      rec && rec.ingredientes.forEach(ing =>
+        usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad
+      );
+    }));
+    
+    const productos = filteredStock.length ? filteredStock : almacenData;
+    
+    return productos.map(it => {
+      const info    = productInfo[it.codigo] || {};
+      const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
+      const bought  = compMap[it.codigo]||0;
+      const used    = usedMap[it.codigo]||0;
+      const remain  = bought - used;
+      const pct     = recBase ? remain/recBase*100 : 0;
+      const estado  = pct <= 30 ? 'Bajo' 
+                    : pct <= 50 ? 'Medio'
+                    : pct <=90 ? 'Bueno'
+                    :             'Excedente';
+      const delta   = recBase - remain;
+      const reponer = delta > 0 ? humanizeComposite(delta, info.categoria) : 'Sobrante';
+      const valorReposicion = (delta > 0 ? delta * (info.priceBase || 0) : 0).toFixed(2);
+      
+      return {
+        nombre: it.name,
+        codigo: it.codigo,
+        existencias: humanizeComposite(remain, info.categoria),
+        estado: estado,
+        reponer: reponer,
+        valorReposicion: valorReposicion
+      };
+    });
+  }
+
+
+
+  function exportarCSV() {
+    const datos = getDatosExportacion();
+    let csv = "Producto,Código,Existencias,Estado,Reposición,Valor Reposición\n";
+    
+    datos.forEach(prod => {
+      csv += `"${prod.nombre}","${prod.codigo}","${prod.existencias}","${prod.estado}","${prod.reponer}","${prod.valorReposicion}"\n`;
+    });
+    
+    // Calcular total de reposición
+    const totalReposicion = datos.reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0).toFixed(2);
+    csv += `\n"","","","","TOTAL","${totalReposicion}"`;
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `reporte_stock_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  // ACTUALIZAR ESTADÍSTICAS SUPERIORES (basadas en filtros)
+  function updateTopStats() {
+    let totalInv = 0, totalCompras = 0, totalRestock = 0;
+    const compMap = {}, usedMap = {};
+
+    // Calcular compras
+    comprasData.forEach(c => {
+      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
+      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
+    });
+
+    // Calcular uso en ventas
+    ventData.forEach(v => v.venta.forEach(it => {
+      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+      if (!rec) return;
+      rec.ingredientes.forEach(ing => {
+        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+      });
+    }));
+
+    // Obtener los productos a considerar (filtrados o todos)
+    const productos = filteredStock.length ? filteredStock : almacenData;
+
+    // Calcular inventario y reposición
+    productos.forEach(it => {
+      const infoI = productInfo[it.codigo] || { priceBase: 0 };
+      const bought = compMap[it.codigo] || 0;
+      const used   = usedMap[it.codigo] || 0;
+      const remain = bought - used;
+
+      totalInv += remain * infoI.priceBase;
+
+      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+      const delta   = recBase - remain;
+      if (delta > 0) {
+        totalRestock += delta * infoI.priceBase;
+      }
+    });
+
+    document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
+    document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
+    document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
   }
 
   // ACCIONES STOCK/COMPRAS
@@ -2277,48 +2330,18 @@ gap: 8px;
     document.getElementById('ingredientes-container').innerHTML = '';
   }
 
-  // ACTUALIZAR ESTADÍSTICAS SUPERIORES
-  function updateTopStats() {
-    let totalInv = 0, totalCompras = 0, totalRestock = 0;
-    const compMap = {}, usedMap = {};
-
-    // Calcular compras
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
-      // Usa un precio base por defecto 0 si no existe productInfo
-      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
-      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
-    });
-
-    // Calcular uso en ventas
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
-      if (!rec) return;
-      rec.ingredientes.forEach(ing => {
-        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
-      });
-    }));
-
-    // Calcular inventario y reposición
-    almacenData.forEach(it => {
-      // Protege también aquí
-      const infoI = productInfo[it.codigo] || { priceBase: 0 };
-      const bought = compMap[it.codigo] || 0;
-      const used   = usedMap[it.codigo] || 0;
-      const remain = bought - used;
-
-      totalInv += remain * infoI.priceBase;
-
-      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-      const delta   = recBase - remain;
-      if (delta > 0) {
-        totalRestock += delta * infoI.priceBase;
-      }
-    });
-
-    document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
-    document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
-    document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
+  // TOGGLE FILTROS
+  function toggleFilter(section) {
+    const controls = document.getElementById(`filter-${section}-controls`);
+    const icon = document.getElementById(`filter-${section}-icon`);
+    
+    if (controls.style.display === 'none' || controls.style.display === '') {
+      controls.style.display = 'grid';
+      icon.className = 'fas fa-chevron-up';
+    } else {
+      controls.style.display = 'none';
+      icon.className = 'fas fa-chevron-down';
+    }
   }
 
   // CARGA GENERAL
@@ -2343,8 +2366,14 @@ gap: 8px;
     renderComprasTable();
     await cargarVentas();
     await cargarRecetas();
-    updateTopStats(); // Actualizar estadísticas superiores
+    updateTopStats();
+    
+    
+    
+    
+    // Actualizar estadísticas superiores
   }
+
 
   // Inicialización
   window.onload = async () => {
@@ -2358,6 +2387,16 @@ gap: 8px;
     
     await loadData();
   };
+
+
+
+
+
+
+
+
+
+
 </script>
 </body>
 </html>
