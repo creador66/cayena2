@@ -896,6 +896,28 @@
       
       <div id="stock-list" class="list"></div>
     </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- SECCIÓN BALANCES ACTUALIZADA -->
     <section id="balances" class="section">
         <div class="justify-between">
@@ -911,29 +933,35 @@
         </div>
         
         <!-- Resumen de Totales -->
-        <div class="div2">
-          <div class="total-card ventas">
-            <h3>Total Ventas</h3>
-            <div class="value" id="total-ventas">$0.00</div>
-            <div class="sub-value" id="ventas-filtro">Todos los métodos</div>
+        <div class="div3">
+            <div class="total-card ventas">
+              <h3>Total Ventas</h3>
+              <div class="value" id="total-ventas">$0.00</div>
+              <div class="sub-value" id="ventas-filtro">Todos los métodos</div>
+            </div>
+            <div class="total-card ingresos">
+              <h3>Otros Ingresos</h3>
+              <div class="value" id="total-otros-ingresos">$0.00</div>
+              <div class="sub-value">Registros activos</div>
+            </div>
+            <div class="total-card gastos">
+              <h3>Otros Gastos</h3>
+              <div class="value" id="total-gastos">$0.00</div>
+              <div class="sub-value">Registros activos</div>
+            </div>
           </div>
-          <div class="total-card ingresos">
-            <h3>Otros Ingresos</h3>
-            <div class="value" id="total-otros-ingresos">$0.00</div>
-            <div class="sub-value">Registros activos</div>
+          <div class="div2">
+            <div class="total-card gastos-inventario">
+              <h3>Gastos de Inventario</h3>
+              <div class="value" id="total-gastos-inventario">$0.00</div>
+              <div class="sub-value">Suma de todas las compras</div>
+            </div>
+            <div class="total-card neto">
+              <h3>Total Neto</h3>
+              <div class="value" id="total-neto">$0.00</div>
+              <div class="sub-value">Ventas + Ingresos - Gastos</div>
+            </div>
           </div>
-          <div class="total-card gastos">
-            <h3>Total Gastos</h3>
-            <div class="value" id="total-gastos">$0.00</div>
-            <div class="sub-value">Registros activos</div>
-          </div>
-          <div class="total-card neto">
-            <h3>Total Neto</h3>
-            <div class="value" id="total-neto">$0.00</div>
-            <div class="sub-value">Ventas + Ingresos - Gastos</div>
-          </div>
-        </div>
-        
         <!-- Filtros por método de pago -->
         <div class="payment-filter">
           <button class="payment-filter-btn" data-pago="todos" onclick="filterByPayment('todos')">
@@ -993,6 +1021,21 @@
         
         <div id="balances-list" class="list"></div>
       </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2766,36 +2809,42 @@ function exportarCSV() {
     }
 
     function updateBalancesSummary() {
-      const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
-      
-      // Calcular total de ventas
-      const totalVentas = calculateSalesTotal(currentPaymentFilter);
-      
-      // Calcular otros ingresos (solo registros activos de tipo ingreso)
-      const totalOtrosIngresos = dataToRender
-        .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
-        .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-      
-      // Calcular gastos (solo registros activos de tipo deducible)
-      const totalGastos = dataToRender
-        .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
-        .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-      
-      // Calcular neto
-      const totalNeto = totalVentas + totalOtrosIngresos - totalGastos;
-      
-      // Actualizar DOM
-      document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
-      document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
-      document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
-      document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
-      
-      // Actualizar texto del filtro
-      const filtroText = currentPaymentFilter === 'todos' 
-        ? 'Todos los métodos' 
-        : `Solo ${currentPaymentFilter}`;
-      document.getElementById('ventas-filtro').textContent = filtroText;
-    }
+  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+  
+  // Calcular total de ventas
+  const totalVentas = calculateSalesTotal(currentPaymentFilter);
+  
+  // Calcular otros ingresos
+  const totalOtrosIngresos = dataToRender
+    .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
+    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+  
+  // Calcular otros gastos
+  const totalGastos = dataToRender
+    .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
+    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+  
+  // Obtener el valor de compras del resumen superior (ya calculado correctamente)
+  const totalCompras = parseFloat(
+    document.getElementById('stat-purchases').textContent || '0'
+  );
+  
+  // Calcular neto restando todos los gastos
+  const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
+  
+  // Actualizar DOM
+  document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
+  document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
+  document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
+  document.getElementById('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
+  document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
+  
+  // Actualizar texto del filtro
+  const filtroText = currentPaymentFilter === 'todos' 
+    ? 'Todos los métodos' 
+    : `Solo ${currentPaymentFilter}`;
+  document.getElementById('ventas-filtro').textContent = filtroText;
+}
 
     function renderBalancesTable() {
       const list = document.getElementById('balances-list');
@@ -3064,8 +3113,8 @@ function exportarCSV() {
       await cargarVentas();
       await cargarRecetas();
       renderBalancesTable();   // Renderizar balances
-      updateBalancesSummary(); // Actualizar resumen de balances
       updateTopStats();
+      updateBalancesSummary(); // Actualizar resumen de balances
     }
 
   // Inicialización
