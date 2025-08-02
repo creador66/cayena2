@@ -10,24 +10,16 @@
     :root {
       --primary: #6c5ce7;
       --primary-dark: #5d4ec9;
-      --primary-light: #e9e7ff;
       --secondary: #00cec9;
-      --secondary-light: #e0f7f6;
       --danger: #ff7675;
-      --danger-light: #ffeded;
       --success: #00b894;
-      --success-light: #e6f8f5;
       --warning: #fdcb6e;
-      --warning-light: #fff8e9;
       --dark: #2d3436;
-      --light: #f8fafc;
+      --light: #f7f9fc;
       --gray: #dfe6e9;
-      --gray-light: #f1f5f9;
-      --border: #e2e8f0;
-      --card-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      --card-shadow: 0 4px 15px rgba(0,0,0,0.08);
       --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      --radius: 12px;
-      --header-height: 70px;
+      --border-radius: 10px;
     }
     
     * {
@@ -35,14 +27,15 @@
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      
     }
   
     body {
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--light);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f1 100%);
       color: var(--dark);
       padding: 0;
-      padding-bottom: 120px;
+      padding-bottom: 120px; /* Más espacio para el footer */
       font-size: 14px;
       line-height: 1.6;
     }
@@ -53,48 +46,41 @@
       top: 0;
       z-index: 100;
       background: white;
-      padding: 0 20px;
-      height: var(--header-height);
+      padding: 15px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid var(--border);
+      background: linear-gradient(to right, #6c5ce7, #5d4ec9);
+      color: white;
     }
     
     .app-header h1 {
-      font-size: 1.4rem;
+      font-size: 15px;
       font-weight: 700;
-      color: var(--primary);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 4px;
     }
     
     .app-header .stats {
       display: flex;
-      gap: 20px;
+      gap: 15px;
       font-size: 0.8rem;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 12px;
+      border-radius: var(--border-radius);
     }
     
     .stat-item {
       text-align: center;
-      padding: 8px 12px;
-      border-radius: var(--radius);
-      background: var(--primary-light);
-      min-width: 80px;
-    }
-    
-    .stat-item i {
-      font-size: 0.9rem;
-      margin-bottom: 3px;
+      min-width: 70px;
     }
     
     .stat-item strong {
       display: block;
       font-size: 1.1rem;
-      margin-top: 2px;
-      color: var(--primary);
+      margin-top: 3px;
     }
     
     /* NAVEGACIÓN INFERIOR */
@@ -107,8 +93,7 @@
       display: flex;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
       z-index: 100;
-      height: 70px;
-      border-top: 1px solid var(--border);
+      height: 60px;
     }
     
     .nav-btn {
@@ -123,13 +108,11 @@
       background: transparent;
       transition: var(--transition);
       padding: 8px 0;
-      position: relative;
     }
     
     .nav-btn i {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       margin-bottom: 3px;
-      transition: var(--transition);
     }
     
     .nav-btn.active {
@@ -137,56 +120,25 @@
       background: rgba(108, 92, 231, 0.05);
     }
     
-    .nav-btn.active i {
-      transform: translateY(-3px);
-    }
-    
-    .nav-badge {
-      position: absolute;
-      top: 8px;
-      right: 20px;
-      background: var(--danger);
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 0.6rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
     /* RESUMEN VENTAS */
     .sales-summary {
+      font-size: 10px;
       position: fixed;
-      bottom: 70px;
+      bottom: 60px; /* Encima de la barra de navegación */
       left: 0;
       width: 100%;
       background: var(--dark);
       color: white;
       display: flex;
-      padding: 8px 0;
+      padding: 2px 0;
       z-index: 99;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      border-top: 1px solid rgba(255,255,255,0.1);
     }
     
     .summary-item {
       flex: 1;
       text-align: center;
-      padding: 5px;
-      position: relative;
-    }
-    
-    .summary-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 60%;
-      width: 1px;
-      background: rgba(255,255,255,0.2);
+      
     }
     
     .summary-item.total {
@@ -196,16 +148,15 @@
     
     .summary-item span {
       display: block;
-      font-size: 1.1rem;
+      font-size: 15px;
       font-weight: 600;
-      margin-top: 3px;
     }
     
     /* SECCIONES */
     .section {
       display: none;
-      padding: 20px;
-      animation: fadeIn 0.4s ease;
+      padding: 15px;
+      animation: fadeIn 0.3s ease;
     }
     
     .section.active {
@@ -219,52 +170,133 @@
     
     .section-title {
       font-size: 1.3rem;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       color: var(--primary);
-      padding-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 2px solid var(--gray);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+    }
+    
+    /* SISTEMA DE FILTRADO */
+    .filter-section {
+      margin-top: 10px;
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+      position: relative;
+    }
+    
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+    
+    .filter-title {
       font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .filter-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+    
+    .filter-group {
+      margin-bottom: 10px;
+    }
+    
+    .filter-label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    .filter-input, .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      background: white;
+      transition: var(--transition);
+    }
+    
+    .filter-input:focus, .filter-select:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+    
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .btn-filter {
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .btn-filter-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-filter-reset {
+      background: #f1f2f6;
+      color: #666;
     }
     
     /* TARJETAS */
     .card {
       background: white;
-      border-radius: var(--radius);
+      border-radius: var(--border-radius);
       box-shadow: var(--card-shadow);
       overflow: hidden;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       transition: var(--transition);
-      border: 1px solid var(--border);
     }
     
     .card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
     }
     
     .card-header {
       background: var(--primary);
       color: white;
-      padding: 15px 20px;
+      padding: 12px 15px;
       font-weight: 600;
       font-size: 1rem;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
     
     .card-body {
-      padding: 20px;
+      padding: 15px;
     }
     
     .card-row {
       display: flex;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--gray-light);
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray);
     }
     
     .card-row:last-child {
@@ -276,20 +308,18 @@
     .card-label {
       flex: 1;
       color: #777;
-      font-weight: 500;
     }
     
     .card-value {
       flex: 1;
       text-align: right;
       font-weight: 500;
-      color: var(--dark);
     }
     
     .card-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 8px;
+      margin-top: 10px;
     }
     
     /* FORMULARIOS */
@@ -299,16 +329,15 @@
     
     .form-label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 5px;
       font-weight: 500;
       color: var(--dark);
-      font-size: 0.9rem;
     }
     
     .form-input, .form-select {
       width: 100%;
       padding: 12px 15px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--gray);
       border-radius: 8px;
       font-family: 'Poppins', sans-serif;
       font-size: 1rem;
@@ -324,8 +353,8 @@
     
     .form-row {
       display: flex;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
     
     .form-row > * {
@@ -334,10 +363,12 @@
     
     /* BOTONES */
     .btn {
+      width: 100%;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px;
+      
       border-radius: 8px;
       font-family: 'Poppins', sans-serif;
       font-weight: 600;
@@ -345,18 +376,12 @@
       border: none;
       cursor: pointer;
       transition: var(--transition);
-      width: 100%;
-      gap: 8px;
-    }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      
+      
     }
     
     .btn:active {
-      transform: translateY(1px);
-      box-shadow: none;
+      transform: translateY(2px);
     }
     
     .btn-primary {
@@ -364,17 +389,9 @@
       color: white;
     }
     
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-    
     .btn-secondary {
       background: var(--secondary);
       color: white;
-    }
-    
-    .btn-secondary:hover {
-      background: #00b8b5;
     }
     
     .btn-danger {
@@ -382,24 +399,20 @@
       color: white;
     }
     
-    .btn-danger:hover {
-      background: #ff5e5d;
-    }
-    
     .btn-outline {
       background: transparent;
       border: 1px solid var(--primary);
       color: var(--primary);
     }
-    
-    .btn-outline:hover {
-      background: var(--primary-light);
+    .div3{
+      display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 8px;
     }
     
     .btn-icon {
       padding: 10px;
       width: auto;
-      border-radius: 50%;
     }
     
     /* MODAL */
@@ -414,32 +427,22 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    
-    .modal-backdrop.show {
-      opacity: 1;
-      pointer-events: all;
+      padding: 15px;
     }
     
     .modal-content {
       background: white;
       border-radius: 16px;
       width: 100%;
-      max-width: 500px;
+      max-width: 400px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       overflow: hidden;
-      transform: translateY(20px);
-      opacity: 0;
-      transition: all 0.3s ease;
+      animation: modalIn 0.3s ease;
     }
     
-    .modal-backdrop.show .modal-content {
-      transform: translateY(0);
-      opacity: 1;
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     .modal-header {
@@ -460,8 +463,8 @@
       padding: 15px 20px;
       display: flex;
       gap: 10px;
-      background: var(--gray-light);
-      border-top: 1px solid var(--border);
+      background: #f8f9fa;
+      border-top: 1px solid var(--gray);
     }
     
     /* LISTAS */
@@ -471,41 +474,35 @@
     
     .list-item {
       background: white;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 10px;
-      box-shadow: var(--card-shadow);
+      border-radius: var(--border-radius);
+      padding: 12px 15px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid var(--border);
       transition: var(--transition);
-      cursor: pointer;
     }
     
     .list-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+      transform: translateX(3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     
     .list-title {
       font-weight: 500;
-      margin-bottom: 5px;
-      color: var(--dark);
+      margin-bottom: 3px;
     }
     
     .list-subtitle {
       font-size: 0.85rem;
       color: #777;
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
     
     /* ESTADOS */
     .status-badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 4px 8px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 500;
@@ -536,6 +533,11 @@
       color: var(--dark);
     }
     
+    .status-inactive {
+      background: rgba(189, 195, 199, 0.15);
+      color: #7f8c8d;
+    }
+    
     /* UTILIDADES */
     .hidden {
       display: none !important;
@@ -546,7 +548,9 @@
     }
     
     .mb-15 {
+      
       margin-bottom: 15px;
+      margin-top: 15px;
     }
     
     .mt-15 {
@@ -561,6 +565,10 @@
       gap: 10px;
     }
     
+    .justify-between {
+      justify-content: space-between;
+    }
+    
     /* ANIMACIONES */
     .fade-in {
       animation: fadeIn 0.3s ease;
@@ -568,12 +576,11 @@
     
     /* SCROLLBAR */
     ::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
     
     ::-webkit-scrollbar-track {
       background: #f1f1f1;
-      border-radius: 10px;
     }
     
     ::-webkit-scrollbar-thumb {
@@ -585,272 +592,47 @@
       background: #a0a0a0;
     }
     
-    /* DASHBOARD */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .dashboard-card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .dashboard-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 5px;
-      height: 100%;
+    /* INDICADOR DE FILTROS ACTIVOS */
+    .filter-indicator {
       background: var(--primary);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 5px;
     }
     
-    .dashboard-card-title {
-      font-size: 0.9rem;
-      color: #777;
-      margin-bottom: 10px;
-    }
-    
-    .dashboard-card-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 5px;
-    }
-    
-    .dashboard-card-subtitle {
-      font-size: 0.85rem;
-      color: #777;
-    }
-    
-    /* FILTROS */
-    .filters {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .filter-item {
-      flex: 1;
-      min-width: 200px;
-    }
-    
-    /* CHARTS */
-    .chart-container {
-      background: white;
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--border);
-      margin-bottom: 20px;
-    }
-    
-    .chart-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-      color: var(--dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    /* LOADER */
-    .loader {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      border: 3px solid rgba(108, 92, 231, 0.3);
-      border-radius: 50%;
-      border-top-color: var(--primary);
-      animation: spin 1s ease-in-out infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* SEARCH */
-    .search-container {
-      position: relative;
-      margin-bottom: 20px;
-    }
-    
-    .search-input {
-      width: 100%;
-      padding: 12px 15px 12px 45px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: 'Poppins', sans-serif;
-      font-size: 1rem;
-      background: white;
-      transition: var(--transition);
-    }
-    
-    .search-input:focus {
-      border-color: var(--primary);
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-    }
-    
-    .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #777;
-    }
-    
-    /* EMPTY STATE */
-    .empty-state {
+    /* MENSAJE SIN RESULTADOS */
+    .no-results {
       text-align: center;
-      padding: 40px 20px;
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--card-shadow);
-      border: 1px dashed var(--border);
+      padding: 30px;
+      color: #7f8c8d;
     }
     
-    .empty-state i {
+    .no-results i {
       font-size: 3rem;
-      color: var(--gray);
       margin-bottom: 15px;
-    }
-    
-    .empty-state h3 {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-      color: var(--dark);
-    }
-    
-    .empty-state p {
-      color: #777;
-      margin-bottom: 20px;
-    }
-    
-    /* PRODUCT GRID */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    
-    .product-card {
-      background: white;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--card-shadow);
-      border: 1px solid var(--border);
-      transition: var(--transition);
-      cursor: pointer;
-    }
-    
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    }
-    
-    .product-image {
-      height: 150px;
-      background: var(--gray-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gray);
-      font-size: 3rem;
-    }
-    
-    .product-body {
-      padding: 15px;
-    }
-    
-    .product-title {
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: var(--dark);
-    }
-    
-    .product-subtitle {
-      font-size: 0.85rem;
-      color: #777;
-      margin-bottom: 10px;
-    }
-    
-    .product-price {
-      font-weight: 700;
-      color: var(--primary);
-      font-size: 1.1rem;
-    }
-    
-    /* NOTIFICATIONS */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: white;
-      border-radius: var(--radius);
-      padding: 15px 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-      border-left: 4px solid var(--success);
-      transform: translateX(110%);
-      transition: transform 0.3s ease;
-      z-index: 1000;
-      max-width: 350px;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification-title {
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: var(--dark);
-    }
-    
-    .notification-content {
-      font-size: 0.9rem;
-      color: #777;
-    }
-    
-    .notification-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      color: #777;
-      cursor: pointer;
+      color: #dfe6e9;
     }
     
     /* RESPONSIVE */
     @media (max-width: 768px) {
-      .app-header .stats {
+      .filter-controls {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-header {
+        flex-direction: column;
         gap: 10px;
       }
       
-      .stat-item {
-        min-width: 70px;
-        padding: 6px 8px;
+      .app-header .stats {
+        width: 100%;
+        justify-content: space-around;
       }
       
       .form-row {
         flex-direction: column;
-        gap: 15px;
-      }
-      
-      .dashboard-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -859,26 +641,21 @@
 
   <!-- HEADER -->
   <header class="app-header">
-    <h1><i class="fas fa-boxes"></i> StockFlow Pro</h1>
+    <h1><i class="fa-regular fa-eye-slash"></i>
+ IAEgo</h1>
+  
     <div class="stats">
       <div class="stat-item">
-        <i class="fas fa-warehouse"></i> Inv<br><strong id="stat-inventory">0.00</strong>
+        <i class="fas fa-warehouse"></i> Inventario<br><strong id="stat-inventory">0.00</strong>
       </div>
       <div class="stat-item">
-        <i class="fas fa-shopping-cart"></i> Com<br><strong id="stat-purchases">0.00</strong>
+        <i class="fas fa-shopping-cart"></i> Compras<br><strong id="stat-purchases">0.00</strong>
       </div>
       <div class="stat-item">
-        <i class="fas fa-truck-loading"></i> Rep<br><strong id="stat-restock">0.00</strong>
+        <i class="fas fa-truck-loading"></i> Reposición<br><strong id="stat-restock">0.00</strong>
       </div>
     </div>
   </header>
-
-  <!-- NOTIFICATION -->
-  <div class="notification" id="notification">
-    <button class="notification-close" onclick="hideNotification()"><i class="fas fa-times"></i></button>
-    <div class="notification-title" id="notification-title">Operación exitosa</div>
-    <div class="notification-content" id="notification-content">Los cambios se han guardado correctamente</div>
-  </div>
 
   <!-- RESUMEN VENTAS -->
   <div class="sales-summary">
@@ -890,170 +667,123 @@
 
   <!-- SECCIONES -->
   <main>
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="section active">
-      <h2 class="section-title"><i class="fas fa-chart-line"></i> Panel de Control</h2>
-      
-      <div class="dashboard-grid">
-        <div class="dashboard-card">
-          <div class="dashboard-card-title">Valor Total del Inventario</div>
-          <div class="dashboard-card-value">$<span id="dashboard-inventory">0.00</span></div>
-          <div class="dashboard-card-subtitle">Último mes: <span id="dashboard-inventory-change">+0.0%</span></div>
-        </div>
-        
-        <div class="dashboard-card">
-          <div class="dashboard-card-title">Ventas del Mes</div>
-          <div class="dashboard-card-value">$<span id="dashboard-sales">0.00</span></div>
-          <div class="dashboard-card-subtitle">vs mes anterior: <span id="dashboard-sales-change">+0.0%</span></div>
-        </div>
-        
-        <div class="dashboard-card">
-          <div class="dashboard-card-title">Productos con Stock Bajo</div>
-          <div class="dashboard-card-value"><span id="dashboard-low-stock">0</span></div>
-          <div class="dashboard-card-subtitle">Necesitan reposición inmediata</div>
-        </div>
-        
-        <div class="dashboard-card">
-          <div class="dashboard-card-title">Recetas Populares</div>
-          <div class="dashboard-card-value"><span id="dashboard-top-recipe">-</span></div>
-          <div class="dashboard-card-subtitle">Más vendida este mes</div>
-        </div>
-      </div>
-      
-      <div class="filters">
-        <div class="filter-item">
-          <label class="form-label">Rango de Fechas</label>
-          <select class="form-select" id="dashboard-range">
-            <option value="7">Últimos 7 días</option>
-            <option value="30" selected>Últimos 30 días</option>
-            <option value="90">Últimos 90 días</option>
-            <option value="custom">Personalizado</option>
-          </select>
-        </div>
-        
-        <div class="filter-item" id="custom-dates" style="display: none;">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Desde</label>
-              <input type="date" class="form-input" id="dashboard-from">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Hasta</label>
-              <input type="date" class="form-input" id="dashboard-to">
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="chart-container">
-        <div class="chart-title"><i class="fas fa-chart-bar"></i> Ventas por Día</div>
-        <canvas id="sales-chart"></canvas>
-      </div>
-      
-      <div class="chart-container">
-        <div class="chart-title"><i class="fas fa-chart-pie"></i> Métodos de Pago</div>
-        <canvas id="payment-chart"></canvas>
-      </div>
-    </section>
-
     <!-- STOCK -->
-    <section id="stock" class="section">
-      <h2 class="section-title"><i class="fas fa-box-open"></i> Stock de Productos</h2>
+    <section id="stock" class="section active">
       
-      <div class="filters">
-        <div class="filter-item">
-          <label class="form-label">Buscar Producto</label>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" id="stock-search" placeholder="Buscar por nombre o código...">
-          </div>
-        </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Categoría</label>
-          <select class="form-select" id="stock-category">
-            <option value="">Todas las categorías</option>
-            <option value="peso">Peso (kg/g)</option>
-            <option value="volumen">Volumen (l/ml)</option>
-            <option value="conteo">Conteo (pz)</option>
-          </select>
-        </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Estado</label>
-          <select class="form-select" id="stock-status">
-            <option value="">Todos</option>
-            <option value="low">Stock Bajo</option>
-            <option value="medium">Stock Medio</option>
-            <option value="good">Stock Bueno</option>
-            <option value="excess">Excedente</option>
-            <option value="inactive">Inactivos</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="flex gap-10 mb-15">
+      <div class="">
+        <h2 class="section-title"><i class="fas fa-box-open"></i> Stock de Productos</h2>
         <button class="btn btn-primary" onclick="addNewProducto()">
           <i class="fas fa-plus"></i> Nuevo Producto
         </button>
+      </div>
+      
+      <!-- Filtros Stock -->
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter('stock')">
+          <div class="filter-title">
+            <i class="fas fa-filter"></i> Filtros 
+            <span id="filter-stock-indicator" class="filter-indicator">0</span>
+          </div>
+          <i class="fas fa-chevron-down" id="filter-stock-icon"></i>
+        </div>
         
-        <button class="btn btn-outline" onclick="exportStock()">
-          <i class="fas fa-file-export"></i> Exportar
-        </button>
+        <div class="filter-controls" id="filter-stock-controls">
+          <div class="filter-group">
+            <label class="filter-label">Buscar producto</label>
+            <input type="text" class="filter-input" id="filter-stock-search" placeholder="Nombre o código">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Estado</label>
+            <select class="filter-select" id="filter-stock-status">
+              <option value="">Todos</option>
+              <option value="low">Bajo</option>
+              <option value="medium">Medio</option>
+              <option value="good">Bueno</option>
+              <option value="excess">Excedente</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Actividad</label>
+            <select class="filter-select" id="filter-stock-active">
+              <option value="">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Categoría</label>
+            <select class="filter-select" id="filter-stock-category">
+              <option value="">Todas</option>
+              <option value="peso">Peso</option>
+              <option value="volumen">Volumen</option>
+              <option value="conteo">Conteo</option>
+            </select>
+          </div>
+          
+          <div class="filter-actions">
+            <button class="btn-filter btn-filter-primary" onclick="applyStockFilters()">
+              <i class="fas fa-check"></i> Aplicar
+            </button>
+            <button class="btn-filter btn-filter-reset" onclick="resetStockFilters()">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
+          </div>
+        </div>
       </div>
       
-      <div id="stock-grid" class="product-grid"></div>
-      
-      <div id="stock-empty" class="empty-state" style="display: none;">
-        <i class="fas fa-box-open"></i>
-        <h3>No se encontraron productos</h3>
-        <p>Intenta cambiar los filtros o agregar un nuevo producto</p>
-        <button class="btn btn-primary" onclick="addNewProducto()">
-          <i class="fas fa-plus"></i> Agregar Producto
-        </button>
-      </div>
+      <div id="stock-list" class="list"></div>
     </section>
 
     <!-- COMPRAS -->
     <section id="compras" class="section">
       <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Historial de Compras</h2>
       
-      <div class="filters">
-        <div class="filter-item">
-          <label class="form-label">Buscar</label>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" id="purchase-search" placeholder="Buscar compra...">
+      <!-- Filtros Compras -->
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter('compras')">
+          <div class="filter-title">
+            <i class="fas fa-filter"></i> Filtros 
+            <span id="filter-compras-indicator" class="filter-indicator">0</span>
           </div>
+          <i class="fas fa-chevron-down" id="filter-compras-icon"></i>
         </div>
         
-        <div class="filter-item">
-          <label class="form-label">Proveedor</label>
-          <select class="form-select" id="purchase-supplier">
-            <option value="">Todos los proveedores</option>
-          </select>
-        </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Rango de Fechas</label>
-          <div class="form-row">
-            <div class="form-group">
-              <input type="date" class="form-input" id="purchase-from">
-            </div>
-            <div class="form-group">
-              <input type="date" class="form-input" id="purchase-to">
-            </div>
+        <div class="filter-controls" id="filter-compras-controls">
+          <div class="filter-group">
+            <label class="filter-label">Buscar producto</label>
+            <input type="text" class="filter-input" id="filter-compras-search" placeholder="Nombre o código">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Proveedor</label>
+            <input type="text" class="filter-input" id="filter-compras-provider" placeholder="Nombre proveedor">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Fecha desde</label>
+            <input type="date" class="filter-input" id="filter-compras-from">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Fecha hasta</label>
+            <input type="date" class="filter-input" id="filter-compras-to">
+          </div>
+          
+          <div class="filter-actions">
+            <button class="btn-filter btn-filter-primary" onclick="applyComprasFilters()">
+              <i class="fas fa-check"></i> Aplicar
+            </button>
+            <button class="btn-filter btn-filter-reset" onclick="resetComprasFilters()">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
           </div>
         </div>
       </div>
       
       <div id="compras-list" class="list"></div>
-      
-      <div id="purchase-empty" class="empty-state" style="display: none;">
-        <i class="fas fa-shopping-cart"></i>
-        <h3>No se encontraron compras</h3>
-        <p>Intenta cambiar los filtros o registrar una nueva compra</p>
-      </div>
     </section>
 
     <!-- VENTAS -->
@@ -1080,20 +810,17 @@
             </div>
           </div>
           
-          <div id="items-container" class="mb-15"></div>
+<div id="items-container" class="mb-15"></div>
+          <div class="div3">
+            
+
+          <button class="btn btn-outline" onclick="agregarItemVenta()">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
           
-          <div class="form-row">
-            <div class="card-value" style="flex: 2; text-align: right; font-weight: 700; font-size: 1.2rem;">
-              Total: $<span id="sale-total">0.00</span>
-            </div>
-            <button class="btn btn-outline" style="flex: 1;" onclick="agregarItemVenta()">
-              <i class="fas fa-plus"></i> Agregar producto
-            </button>
-          </div>
-          
-          <div class="form-row">
+
             <button class="btn btn-primary" onclick="guardarVenta()">
-              <i class="fas fa-save"></i> Guardar Venta
+              <i class="fas fa-save"></i> Guardar
             </button>
             <button class="btn btn-outline" onclick="resetForm()">
               <i class="fas fa-times"></i> Cancelar
@@ -1102,52 +829,64 @@
         </div>
       </div>
       
-      <h3 class="section-title"><i class="fas fa-receipt"></i> Historial de Ventas</h3>
+      <h3 class="section-title"><i class="fas fa-receipt"></i> Tickets</h3>
       
-      <div class="filters">
-        <div class="filter-item">
-          <label class="form-label">Buscar</label>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" id="sale-search" placeholder="Buscar venta...">
+      <!-- Filtros Ventas -->
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter('ventas')">
+          <div class="filter-title">
+            <i class="fas fa-filter"></i> Filtros 
+            <span id="filter-ventas-indicator" class="filter-indicator">0</span>
           </div>
+          <i class="fas fa-chevron-down" id="filter-ventas-icon"></i>
         </div>
         
-        <div class="filter-item">
-          <label class="form-label">Método de Pago</label>
-          <select class="form-select" id="sale-payment">
-            <option value="">Todos</option>
-            <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia">Transferencia</option>
-            <option value="Tarjeta">Tarjeta</option>
-          </select>
-        </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Rango de Fechas</label>
-          <div class="form-row">
-            <div class="form-group">
-              <input type="date" class="form-input" id="sale-from">
-            </div>
-            <div class="form-group">
-              <input type="date" class="form-input" id="sale-to">
-            </div>
+        <div class="filter-controls" id="filter-ventas-controls">
+          <div class="filter-group">
+            <label class="filter-label">Buscar receta</label>
+            <input type="text" class="filter-input" id="filter-ventas-search" placeholder="Nombre o código">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Método de pago</label>
+            <select class="filter-select" id="filter-ventas-payment">
+              <option value="">Todos</option>
+              <option value="Efectivo">Efectivo</option>
+              <option value="Transferencia">Transferencia</option>
+              <option value="Tarjeta">Tarjeta</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Fecha desde</label>
+            <input type="date" class="filter-input" id="filter-ventas-from">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Fecha hasta</label>
+            <input type="date" class="filter-input" id="filter-ventas-to">
+          </div>
+          
+          <div class="filter-actions">
+            <button class="btn-filter btn-filter-primary" onclick="applyVentasFilters()">
+              <i class="fas fa-check"></i> Aplicar
+            </button>
+            <button class="btn-filter btn-filter-reset" onclick="resetVentasFilters()">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
           </div>
         </div>
       </div>
       
       <div id="tickets-list" class="list"></div>
-      
-      <div id="sale-empty" class="empty-state" style="display: none;">
-        <i class="fas fa-receipt"></i>
-        <h3>No se encontraron ventas</h3>
-        <p>Intenta cambiar los filtros o registrar una nueva venta</p>
-      </div>
     </section>
 
     <!-- RECETAS -->
     <section id="recetas" class="section">
-      <h2 class="section-title"><i class="fas fa-utensils"></i> Gestión de Recetas</h2>
+      <div class="">
+        <h2 class="section-title"><i class="fas fa-utensils"></i> Gestión de Recetas</h2>
+
+      </div>
       
       <div class="card mb-15">
         <div class="card-header">Nueva Receta</div>
@@ -1168,7 +907,7 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Categoría</label>
-              <input class="form-input" id="receta-categoria" type="text" placeholder="Nueva categoría">
+              <select class="form-select" id="receta-categoria"></select>
             </div>
             <div class="form-group">
               <label class="form-label">Imagen (URL)</label>
@@ -1178,73 +917,83 @@
           
           <h3 class="section-title"><i class="fas fa-carrot"></i> Ingredientes</h3>
           <div id="ingredientes-container" class="mb-15"></div>
+          <div class="div3">
+            
+
           
-          <button class="btn btn-outline mb-15" onclick="agregarFila()">
-            <i class="fas fa-plus"></i> Agregar ingrediente
+          <button class="btn btn-outline" onclick="agregarFila()">
+            <i class="fas fa-plus"></i> Agregar
           </button>
           
-          <div class="form-row">
+
             <button class="btn btn-primary" onclick="guardarReceta()">
               <i class="fas fa-save"></i> Guardar
             </button>
             <button class="btn btn-outline" onclick="limpiarForm()">
               <i class="fas fa-broom"></i> Limpiar
             </button>
+            
           </div>
+
         </div>
       </div>
       
       <h3 class="section-title"><i class="fas fa-book"></i> Recetas</h3>
       
-      <div class="filters">
-        <div class="filter-item">
-          <label class="form-label">Buscar Receta</label>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" id="recipe-search" placeholder="Buscar receta...">
+      <!-- Filtros Recetas -->
+      <div class="filter-section">
+        <div class="filter-header" onclick="toggleFilter('recetas')">
+          <div class="filter-title">
+            <i class="fas fa-filter"></i> Filtros 
+            <span id="filter-recetas-indicator" class="filter-indicator">0</span>
+          </div>
+          <i class="fas fa-chevron-down" id="filter-recetas-icon"></i>
+        </div>
+        
+        <div class="filter-controls" id="filter-recetas-controls">
+          <div class="filter-group">
+            <label class="filter-label">Buscar receta</label>
+            <input type="text" class="filter-input" id="filter-recetas-search" placeholder="Nombre o código">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Categoría</label>
+            <select class="filter-select" id="filter-recetas-category">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Estado ingredientes</label>
+            <select class="filter-select" id="filter-recetas-status">
+              <option value="">Todos</option>
+              <option value="active">Solo activos</option>
+              <option value="inactive">Con inactivos</option>
+            </select>
+          </div>
+          
+          <div class="filter-actions">
+            <button class="btn-filter btn-filter-primary" onclick="applyRecetasFilters()">
+              <i class="fas fa-check"></i> Aplicar
+            </button>
+            <button class="btn-filter btn-filter-reset" onclick="resetRecetasFilters()">
+              <i class="fas fa-times"></i> Limpiar
+            </button>
           </div>
         </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Categoría</label>
-          <input class="form-input" id="recipe-category" type="text" placeholder="Filtrar por categoría">
-        </div>
-        
-        <div class="filter-item">
-          <label class="form-label">Ordenar por</label>
-          <select class="form-select" id="recipe-sort">
-            <option value="name">Nombre</option>
-            <option value="popularity">Popularidad</option>
-            <option value="cost">Costo</option>
-            <option value="price">Precio</option>
-          </select>
-        </div>
       </div>
       
-      <div id="recetas-list" class="product-grid"></div>
-      
-      <div id="recipe-empty" class="empty-state" style="display: none;">
-        <i class="fas fa-utensils"></i>
-        <h3>No se encontraron recetas</h3>
-        <p>Intenta cambiar los filtros o crear una nueva receta</p>
-        <button class="btn btn-primary" onclick="limpiarForm()">
-          <i class="fas fa-plus"></i> Crear Receta
-        </button>
-      </div>
+      <div id="recetas-list" class="list"></div>
     </section>
   </main>
 
   <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-sec="dashboard" onclick="cambiarSeccion('dashboard')">
-      <i class="fas fa-chart-line"></i> Dashboard
-    </button>
-    <button class="nav-btn" data-sec="stock" onclick="cambiarSeccion('stock')">
+    <button class="nav-btn active" data-sec="stock" onclick="cambiarSeccion('stock')">
       <i class="fas fa-boxes"></i> Stock
     </button>
     <button class="nav-btn" data-sec="compras" onclick="cambiarSeccion('compras')">
       <i class="fas fa-shopping-cart"></i> Compras
-      <span class="nav-badge" id="purchase-badge" style="display: none;">0</span>
     </button>
     <button class="nav-btn" data-sec="ventas" onclick="cambiarSeccion('ventas')">
       <i class="fas fa-cash-register"></i> Ventas
@@ -1255,7 +1004,7 @@
   </nav>
 
   <!-- MODAL REUTILIZABLE -->
-  <div id="modal-backdrop" class="modal-backdrop">
+  <div id="modal-backdrop" class="modal-backdrop" style="display:none;">
     <div class="modal-content">
       <div id="modal-header" class="modal-header"></div>
       <div id="modal-body" class="modal-body"></div>
@@ -1263,9 +1012,6 @@
     </div>
   </div>
 
-  <!-- CHARTS LIBRARY -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
 <script>
   // CONSTANTES
   const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
@@ -1275,41 +1021,11 @@
 
   // ESTADO GLOBAL
   let almacenData = [], comprasData = [], ventData = [], cocData = [];
-  let recetas = [], recetasData = [], productInfo = {}, editMode = false;
-  let salesChart, paymentChart;
-
-  // NOTIFICACIONES
-  function showNotification(title, content, type = 'success') {
-    const notification = document.getElementById('notification');
-    const notificationTitle = document.getElementById('notification-title');
-    const notificationContent = document.getElementById('notification-content');
-    
-    notificationTitle.textContent = title;
-    notificationContent.textContent = content;
-    
-    // Reset classes
-    notification.className = 'notification';
-    
-    // Add type class
-    if (type === 'success') {
-      notification.style.borderLeftColor = 'var(--success)';
-    } else if (type === 'error') {
-      notification.style.borderLeftColor = 'var(--danger)';
-    } else if (type === 'warning') {
-      notification.style.borderLeftColor = 'var(--warning)';
-    }
-    
-    notification.classList.add('show');
-    
-    // Auto hide after 3 seconds
-    setTimeout(() => {
-      notification.classList.remove('show');
-    }, 3000);
-  }
+  let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
   
-  function hideNotification() {
-    document.getElementById('notification').classList.remove('show');
-  }
+  // FILTROS
+  let stockFilters = {}, comprasFilters = {}, ventasFilters = {}, recetasFilters = {};
+  let filteredStock = [], filteredCompras = [], filteredVentas = [], filteredRecetas = [];
 
   // MODAL REUTILIZABLE
   const modal = {
@@ -1324,19 +1040,18 @@
       const btnOk = document.createElement('button');
       btnOk.className = 'btn btn-primary';
       btnOk.textContent = 'OK';
-      btnOk.onclick = () => (modal.backdrop.classList.remove('show'), res(true));
+      btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
       modal.footer.append(btnOk);
       if (confirm) {
         const btnCancel = document.createElement('button');
         btnCancel.className = 'btn btn-outline';
         btnCancel.textContent = 'Cancelar';
-        btnCancel.onclick = () => (modal.backdrop.classList.remove('show'), res(false));
+        btnCancel.onclick = () => (modal.backdrop.style.display = 'none', res(false));
         modal.footer.append(btnCancel);
       }
-      modal.backdrop.classList.add('show');
+      modal.backdrop.style.display = 'flex';
     })
   };
-  
   const showAlert   = msg => modal.show({ title: '¡Atención!', message: msg });
   const showConfirm = msg => modal.show({ title: 'Confirma', message: msg, confirm: true });
 
@@ -1346,7 +1061,6 @@
     Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
     return fetch(url).then(r => r.json());
   };
-  
   async function postOpNotify(op, params = {}, successTitle = 'Éxito') {
     try {
       const data = await postOp(op, params);
@@ -1359,7 +1073,6 @@
       throw err;
     }
   }
-  
   const postOp = async (op, params = {}) => {
     const fd = new FormData(); fd.append('op', op);
     Object.entries(params).forEach(([k,v]) => fd.append(k,v));
@@ -1376,12 +1089,11 @@
   :                             'conteo';
 
   const humanizeComposite = (b, c) =>
-    c === 'peso'
-      ? ((kg => (kg ? kg+'kg ' : '') + ((b%1000)? (b%1000)+'g' : '') || '0g')(Math.trunc(b/1000)))
-    : c === 'volumen'
-      ? ((l => (l ? l+'l ' : '') + ((b%1000)? (b%1000)+'ml' : '') || '0ml')(Math.trunc(b/1000)))
-    : `${b.toFixed(0)}pz`;
-
+    c === 'peso' ?
+    ((kg => (kg ? kg + 'kg ' : '') + ((b % 1000) ? (b % 1000) + 'g' : '') || '0g')(Math.trunc(b / 1000))) :
+    c === 'volumen' ?
+    ((l => (l ? l + 'l ' : '') + ((b % 1000) ? (b % 1000) + 'ml' : '') || '0ml')(Math.trunc(b / 1000))) :
+    `${b.toFixed(0)}pz`;
   // PRODUCT INFO
   function buildProductInfo() {
     productInfo = {};
@@ -1394,22 +1106,274 @@
         categoria:  cat,
         opcionesUnidad: CATEGORIAS[cat],
         name: it.name,
-        active: it.active !== false,
-        proveedor: it.proveedor || 'Sin proveedor'
+        active: it.active !== false // Por defecto activo
       };
     });
   }
 
+  // Buscar recetas que usan un producto
+  function buscarRecetasConProducto(codigoProducto) {
+    return cocData.filter(receta => 
+      receta.ingredientes.some(ing => ing.codigo == codigoProducto && parseFloat(ing.cantidad) > 0)
+    ).map(receta => receta.nombre);
+  }
+  
+  // FILTROS STOCK
+  function applyStockFilters() {
+    const search = document.getElementById('filter-stock-search').value.toLowerCase();
+    const status = document.getElementById('filter-stock-status').value;
+    const active = document.getElementById('filter-stock-active').value;
+    const category = document.getElementById('filter-stock-category').value;
+    
+    stockFilters = { search, status, active, category };
+    
+    filteredStock = almacenData.filter(product => {
+      // Filtro de búsqueda
+      if (search && !product.name.toLowerCase().includes(search) && 
+          !String(product.codigo).toLowerCase().includes(search)) {
+        return false;
+      }
+      
+      // Filtro por estado
+      if (status) {
+        const info = productInfo[product.codigo];
+        const compMap = {}, usedMap = {};
+        
+        comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
+        ventData.forEach(v => v.venta.forEach(it => {
+          const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
+          rec && rec.ingredientes.forEach(ing =>
+            usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad
+          );
+        }));
+        
+        const bought = compMap[product.codigo] || 0;
+        const used = usedMap[product.codigo] || 0;
+        const remain = bought - used;
+        const recBase = (parseFloat(product.stockRecomendado)||0)*FACTORES[product.unidadDeMedida];
+        const pct = recBase ? remain/recBase*100 : 0;
+        
+        let productStatus = '';
+        if (pct <= 30) productStatus = 'low';
+        else if (pct <= 50) productStatus = 'medium';
+        else if (pct <=90) productStatus = 'good';
+        else productStatus = 'excess';
+        
+        if (status !== productStatus) return false;
+      }
+      
+      // Filtro por actividad
+      if (active) {
+        const isActive = product.active !== false;
+        if (active === 'active' && !isActive) return false;
+        if (active === 'inactive' && isActive) return false;
+      }
+      
+      // Filtro por categoría
+      if (category && productInfo[product.codigo]?.categoria !== category) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    // Actualizar contador de filtros
+    const filterCount = Object.values(stockFilters).filter(f => f).length;
+    document.getElementById('filter-stock-indicator').textContent = filterCount;
+    
+    renderStockTable();
+  }
+  
+  function resetStockFilters() {
+    document.getElementById('filter-stock-search').value = '';
+    document.getElementById('filter-stock-status').value = '';
+    document.getElementById('filter-stock-active').value = '';
+    document.getElementById('filter-stock-category').value = '';
+    stockFilters = {};
+    filteredStock = [];
+    document.getElementById('filter-stock-indicator').textContent = '0';
+    renderStockTable();
+  }
+  
+  // FILTROS COMPRAS
+  function applyComprasFilters() {
+    const search = document.getElementById('filter-compras-search').value.toLowerCase();
+    const provider = document.getElementById('filter-compras-provider').value.toLowerCase();
+    const fromDate = document.getElementById('filter-compras-from').value;
+    const toDate = document.getElementById('filter-compras-to').value;
+    
+    comprasFilters = { search, provider, fromDate, toDate };
+    
+    filteredCompras = comprasData.filter(compra => {
+      // Obtener información del producto
+      const product = almacenData.find(p => p.codigo == compra.idProducto);
+      if (!product) return false;
+      
+      // Filtro de búsqueda
+      if (search && !product.name.toLowerCase().includes(search) && 
+          !String(compra.idProducto).toLowerCase().includes(search)) {
+        return false;
+      }
+      
+      // Filtro por proveedor
+      if (provider && product.proveedor && !product.proveedor.toLowerCase().includes(provider)) {
+        return false;
+      }
+      
+      // Filtro por fecha
+      if (fromDate && compra.fecha < fromDate) return false;
+      if (toDate && compra.fecha > toDate) return false;
+      
+      return true;
+    });
+    
+    // Actualizar contador de filtros
+    const filterCount = Object.values(comprasFilters).filter(f => f).length;
+    document.getElementById('filter-compras-indicator').textContent = filterCount;
+    
+    renderComprasTable();
+  }
+  
+  function resetComprasFilters() {
+    document.getElementById('filter-compras-search').value = '';
+    document.getElementById('filter-compras-provider').value = '';
+    document.getElementById('filter-compras-from').value = '';
+    document.getElementById('filter-compras-to').value = '';
+    comprasFilters = {};
+    filteredCompras = [];
+    document.getElementById('filter-compras-indicator').textContent = '0';
+    renderComprasTable();
+  }
+  
+  // FILTROS VENTAS
+  function applyVentasFilters() {
+    const search = document.getElementById('filter-ventas-search').value.toLowerCase();
+    const payment = document.getElementById('filter-ventas-payment').value;
+    const fromDate = document.getElementById('filter-ventas-from').value;
+    const toDate = document.getElementById('filter-ventas-to').value;
+    
+    ventasFilters = { search, payment, fromDate, toDate };
+    
+    filteredVentas = ventData.filter(venta => {
+      // Filtro por método de pago
+      if (payment && venta.metodoPago !== payment) return false;
+      
+      // Filtro por fecha
+      if (fromDate && venta.fecha < fromDate) return false;
+      if (toDate && venta.fecha > toDate) return false;
+      
+      // Filtro de búsqueda
+      if (search) {
+        let found = false;
+        for (const item of venta.venta) {
+          const receta = recetas.find(r => r.codigo === item.codigo);
+          if (receta && receta.nombre.toLowerCase().includes(search)) {
+            found = true;
+            break;
+          }
+          if (String(item.codigo).includes(search)) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) return false;
+      }
+      
+      return true;
+    });
+    
+    // Actualizar contador de filtros
+    const filterCount = Object.values(ventasFilters).filter(f => f).length;
+    document.getElementById('filter-ventas-indicator').textContent = filterCount;
+    
+    cargarVentas();
+  }
+  
+  function resetVentasFilters() {
+    document.getElementById('filter-ventas-search').value = '';
+    document.getElementById('filter-ventas-payment').value = '';
+    document.getElementById('filter-ventas-from').value = '';
+    document.getElementById('filter-ventas-to').value = '';
+    ventasFilters = {};
+    filteredVentas = [];
+    document.getElementById('filter-ventas-indicator').textContent = '0';
+    cargarVentas();
+  }
+  
+  // FILTROS RECETAS
+  function applyRecetasFilters() {
+    const search = document.getElementById('filter-recetas-search').value.toLowerCase();
+    const category = document.getElementById('filter-recetas-category').value;
+    const status = document.getElementById('filter-recetas-status').value;
+    
+    recetasFilters = { search, category, status };
+    
+    filteredRecetas = recetasData.filter(receta => {
+      // Filtro de búsqueda
+      if (search && !receta.nombre.toLowerCase().includes(search) && 
+          !String(receta.codigo).toLowerCase().includes(search)) {
+        return false;
+      }
+      
+      // Filtro por categoría
+      if (category && receta.categoria !== category) {
+        return false;
+      }
+      
+      // Filtro por estado de ingredientes
+      if (status) {
+        let hasInactive = false;
+        
+        for (const ing of receta.ingredientes) {
+          const product = almacenData.find(p => p.codigo == ing.codigo);
+          if (product && product.active === false) {
+            hasInactive = true;
+            break;
+          }
+        }
+        
+        if (status === 'active' && hasInactive) return false;
+        if (status === 'inactive' && !hasInactive) return false;
+      }
+      
+      return true;
+    });
+    
+    // Actualizar contador de filtros
+    const filterCount = Object.values(recetasFilters).filter(f => f).length;
+    document.getElementById('filter-recetas-indicator').textContent = filterCount;
+    
+    mostrarRecetas();
+  }
+  
+  function resetRecetasFilters() {
+    document.getElementById('filter-recetas-search').value = '';
+    document.getElementById('filter-recetas-category').value = '';
+    document.getElementById('filter-recetas-status').value = '';
+    recetasFilters = {};
+    filteredRecetas = [];
+    document.getElementById('filter-recetas-indicator').textContent = '0';
+    mostrarRecetas();
+  }
+  
+  // TOGGLE FILTROS
+  function toggleFilter(section) {
+    const controls = document.getElementById(`filter-${section}-controls`);
+    const icon = document.getElementById(`filter-${section}-icon`);
+    
+    if (controls.style.display === 'none' || controls.style.display === '') {
+      controls.style.display = 'grid';
+      icon.className = 'fas fa-chevron-up';
+    } else {
+      controls.style.display = 'none';
+      icon.className = 'fas fa-chevron-down';
+    }
+  }
+  
   // RENDER STOCK
   function renderStockTable() {
-    const grid = document.getElementById('stock-grid'); 
-    const emptyState = document.getElementById('stock-empty');
-    grid.innerHTML = '';
-    
-    const searchTerm = document.getElementById('stock-search').value.toLowerCase();
-    const categoryFilter = document.getElementById('stock-category').value;
-    const statusFilter = document.getElementById('stock-status').value;
-    
+    const list = document.getElementById('stock-list'); 
+    list.innerHTML = '';
     const compMap = {}, usedMap = {};
     
     comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
@@ -1420,10 +1384,21 @@
       );
     }));
     
-    let hasItems = false;
+    const dataToRender = filteredStock.length ? filteredStock : almacenData;
     
-    almacenData.forEach(it => {
-      const info    = productInfo[it.codigo] || {};
+    if (dataToRender.length === 0) {
+      list.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-box-open"></i>
+          <h3>No se encontraron productos</h3>
+          <p>Intenta ajustar los filtros o agregar nuevos productos</p>
+        </div>
+      `;
+      return;
+    }
+    
+    dataToRender.forEach(it => {
+      const info    = productInfo[it.codigo];
       const recBase = (parseFloat(it.stockRecomendado)||0)*FACTORES[it.unidadDeMedida];
       const bought  = compMap[it.codigo]||0;
       const used    = usedMap[it.codigo]||0;
@@ -1435,7 +1410,7 @@
                     :             'status-excess';
       const estadoText = pct <= 30 ? '🔴 Bajo'
                     : pct <= 50 ? '🟠 Medio'
-                    : pct <=90 ? '🟢 Bueno'
+                    : pct <=100 ? '🟢 Bueno'
                     :             '🔵 Excedente';
       const delta   = recBase - remain;
       const accion  = delta>0
@@ -1448,37 +1423,20 @@
       // Verificar si el producto está en uso
       const enUso = buscarRecetasConProducto(it.codigo).length > 0;
       
-      // Filtrar por búsqueda
-      const matchesSearch = it.name.toLowerCase().includes(searchTerm) || 
-                           String(it.codigo).includes(searchTerm);
-      
-      // Filtrar por categoría
-      const matchesCategory = categoryFilter ? info.categoria === categoryFilter : true;
-      
-      // Filtrar por estado
-      let matchesStatus = true;
-      if (statusFilter === 'low' && pct > 30) matchesStatus = false;
-      if (statusFilter === 'medium' && (pct <= 30 || pct > 50)) matchesStatus = false;
-      if (statusFilter === 'good' && (pct <= 50 || pct > 90)) matchesStatus = false;
-      if (statusFilter === 'excess' && pct <= 90) matchesStatus = false;
-      if (statusFilter === 'inactive' && info.active) matchesStatus = false;
-      
-      if (!matchesSearch || !matchesCategory || !matchesStatus) return;
-      
-      hasItems = true;
-      
       const item = document.createElement('div');
-      item.className = 'product-card';
+      item.className = 'list-item';
       item.innerHTML = `
-        <div class="product-image">
-          <i class="fas fa-box"></i>
+        <div>
+          <div class="list-title">${it.name} ${!info.active ? '<span class="status-badge status-inactive">Inactivo</span>' : ''}</div>
+          <div class="list-subtitle">#${it.codigo} | ${it.unidadDeMedida}</div>
+          <div class="list-subtitle">Restante: ${humanizeComposite(remain,info.categoria)}</div>
+          <div class="list-subtitle">Estado: <span class="status-badge ${estado}">${estadoText}</span></div>
+          <div class="list-subtitle">Accion: <span class="status-badge">${accion}</span></div>    
         </div>
-        <div class="product-body">
-          <div class="product-title">${it.name} ${!info.active ? '<span class="status-badge status-low">Inactivo</span>' : ''}</div>
-          <div class="product-subtitle">#${it.codigo} | ${it.unidadDeMedida}</div>
-          <div class="product-subtitle">${humanizeComposite(remain,info.categoria)} disponibles</div>
-          <div class="product-subtitle"><span class="status-badge ${estado}">${estadoText}</span></div>
-          <div class="product-price">$${parseFloat(it.precio).toFixed(2)}</div>
+        <div>
+          <span class="list-title">$${parseFloat(it.precio).toFixed(2)}</span>
+          <div class="list-subtitle">${it.proveedor || 'Sin proveedor'}</div>
+          <div class="list-subtitle status-badge status-reposicion">Rep: $${valorReposicion}</div>
         </div>
       `;
       
@@ -1547,6 +1505,7 @@
               <div class="card-label">Estado</div>
               <div class="card-value"><span class="status-badge ${estado}">${estadoText}</span></div>
             </div>
+            
             <div class="card-row">
               <div class="card-label">Valor inventario</div>
               <div class="card-value">$${(remain * info.priceBase).toFixed(2)}</div>
@@ -1591,19 +1550,10 @@
         });
       });
       
-      grid.appendChild(item);
+      list.appendChild(item);
     });
-    
-    emptyState.style.display = hasItems ? 'none' : 'block';
   }
 
-  // Buscar recetas que usan un producto
-  function buscarRecetasConProducto(codigoProducto) {
-    return cocData.filter(receta => 
-      receta.ingredientes.some(ing => ing.codigo == codigoProducto && parseFloat(ing.cantidad) > 0)
-    ).map(receta => receta.nombre);
-  }
-  
   // ACCIONES STOCK/COMPRAS
   async function addNewProducto() {
     almacenData.push({ 
@@ -1618,7 +1568,6 @@
     });
     buildProductInfo(); 
     renderStockTable();
-    showNotification('Producto creado', 'Puedes editar los detalles del nuevo producto', 'success');
   }
   
   async function saveAlmacen(codigo) {
@@ -1634,7 +1583,6 @@
       proveedor: document.getElementById(`prov-${codigo}`).value
     }, 'Almacén actualizado');
     await loadData();
-    showNotification('Producto actualizado', 'Los cambios se han guardado correctamente', 'success');
   }
   
   async function deleteAlmacen(codigo) {
@@ -1700,7 +1648,6 @@
     }
     
     await loadData();
-    showNotification('Producto eliminado', 'El producto ha sido eliminado del inventario', 'success');
   }
   
   async function buyProduct(id) {
@@ -1721,43 +1668,31 @@
       unidad: uni
     },'Compra registrada');
     await loadData();
-    showNotification('Compra registrada', 'El producto ha sido añadido al inventario', 'success');
   }
 
   // RENDER COMPRAS
   function renderComprasTable() {
     const list = document.getElementById('compras-list'); 
-    const emptyState = document.getElementById('purchase-empty');
     list.innerHTML = '';
     
-    const searchTerm = document.getElementById('purchase-search').value.toLowerCase();
-    const supplierFilter = document.getElementById('purchase-supplier').value;
-    const fromDate = document.getElementById('purchase-from').value;
-    const toDate = document.getElementById('purchase-to').value;
+    const dataToRender = filteredCompras.length ? filteredCompras : comprasData;
     
-    let hasItems = false;
+    if (dataToRender.length === 0) {
+      list.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-shopping-cart"></i>
+          <h3>No se encontraron compras</h3>
+          <p>Intenta ajustar los filtros o registrar nuevas compras</p>
+        </div>
+      `;
+      return;
+    }
     
-    comprasData.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c => {
+    dataToRender.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(c => {
       const prod = almacenData.find(x=>x.codigo==c.idProducto);
       if (!prod) return;
-      const info  = productInfo[c.idProducto] || {};
+      const info  = productInfo[c.idProducto];
       const total = (info.priceBase * c.cantidad * FACTORES[c.unidad]).toFixed(2);
-      
-      // Filtrar por búsqueda
-      const matchesSearch = prod.name.toLowerCase().includes(searchTerm) || 
-                           String(c.idCompra).includes(searchTerm);
-      
-      // Filtrar por proveedor
-      const matchesSupplier = supplierFilter ? prod.proveedor === supplierFilter : true;
-      
-      // Filtrar por fecha
-      const compDate = new Date(c.fecha);
-      const matchesDate = (!fromDate || compDate >= new Date(fromDate)) && 
-                         (!toDate || compDate <= new Date(toDate));
-      
-      if (!matchesSearch || !matchesSupplier || !matchesDate) return;
-      
-      hasItems = true;
       
       const item = document.createElement('div');
       item.className = 'list-item';
@@ -1826,8 +1761,6 @@
       
       list.appendChild(item);
     });
-    
-    emptyState.style.display = hasItems ? 'none' : 'block';
   }
   
   async function saveCompra(idC,idP) {
@@ -1843,7 +1776,6 @@
       precio:(productInfo[idP].priceBase*qty*FACTORES[uni]).toFixed(0)
     }, 'Compra guardada');
     await loadData();
-    showNotification('Compra actualizada', 'Los cambios se han guardado correctamente', 'success');
   }
   
   async function deleteCompra(idC,idP) {
@@ -1851,7 +1783,6 @@
     if (!ok) return;
     await postOpNotify('eliminarCompras',{idCompra:idC,idProducto:idP},'Compra eliminada');
     await loadData();
-    showNotification('Compra eliminada', 'La compra ha sido eliminada del historial', 'success');
   }
 
   // NAVEGACIÓN
@@ -1861,11 +1792,6 @@
     document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
     document.getElementById(sec).classList.add('active');
     window.scrollTo(0, 0);
-    
-    // Actualizar datos específicos de la sección
-    if (sec === 'dashboard') {
-      updateDashboard();
-    }
   }
 
   // VENTAS
@@ -1873,12 +1799,12 @@
     const row = document.createElement('div'); 
     row.className = 'form-row';
     row.innerHTML = `
-      <select class="form-select" onchange="recalcRow(this)" style="flex: 2;">
+      <select class="form-select" onchange="recalcRow(this)" onclick="recalcRow(this)" style="flex: 2;">
         ${recetas.map(r => `<option value="${r.codigo}" ${r.codigo===cod?'selected':''}>${r.nombre}</option>`).join('')}
       </select>
-      <input class="form-input" type="number" min="1" value="${cant}" placeholder="Cant" oninput="recalcRow(this)">
+      <input class="form-input" type="number" min="1" value="${cant}" placeholder="Cant" onclick="recalcRow(this)" oninput="recalcRow(this)">
       <input class="form-input" type="number" value="${tot}" placeholder="Total" readonly>
-      <button class="btn btn-icon btn-danger" type="button" onclick="this.parentNode.remove(); updateSaleTotal()">
+      <button class="btn btn-icon btn-danger" type="button" onclick="this.parentNode.remove()">
         <i class="fas fa-times"></i>
       </button>
     `;
@@ -1892,21 +1818,10 @@
     const inpTot = row.children[2];
     const rec = recetas.find(x => x.codigo === sel.value) || { precio: 0 };
     inpTot.value = (Number(rec.precio) * Number(inpCant.value || 0)).toFixed(2);
-    updateSaleTotal();
   }
   
   function agregarItemVenta() {
     document.getElementById('items-container').append(crearItemRow());
-    updateSaleTotal();
-  }
-  
-  function updateSaleTotal() {
-    let total = 0;
-    document.querySelectorAll('#items-container .form-row').forEach(row => {
-      const totalInput = row.querySelector('input[type="number"]:last-child');
-      total += parseFloat(totalInput.value) || 0;
-    });
-    document.getElementById('sale-total').textContent = total.toFixed(2);
   }
   
   function renderTicketCard(v) {
@@ -1970,40 +1885,24 @@
   
   async function cargarVentas() {
     await fetchRecetas();
-    const res = await callApi({op:'obtenerVentas'});
-    ventData = res.status==='success'?res.data:ventData;
     const list = document.getElementById('tickets-list'); 
-    const emptyState = document.getElementById('sale-empty');
     list.innerHTML='';
     
-    const searchTerm = document.getElementById('sale-search').value.toLowerCase();
-    const paymentFilter = document.getElementById('sale-payment').value;
-    const fromDate = document.getElementById('sale-from').value;
-    const toDate = document.getElementById('sale-to').value;
+    const dataToRender = filteredVentas.length ? filteredVentas : ventData;
     
-    let hasItems = false;
+    if (dataToRender.length === 0) {
+      list.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-receipt"></i>
+          <h3>No se encontraron ventas</h3>
+          <p>Intenta ajustar los filtros o registrar nuevas ventas</p>
+        </div>
+      `;
+      return;
+    }
     
-    ventData.forEach(v => {
-      // Filtrar por búsqueda
-      const matchesSearch = v.id.toString().includes(searchTerm) || 
-                           v.venta.some(item => item.producto.toLowerCase().includes(searchTerm));
-      
-      // Filtrar por método de pago
-      const matchesPayment = paymentFilter ? v.metodoPago === paymentFilter : true;
-      
-      // Filtrar por fecha
-      const saleDate = new Date(v.fecha);
-      const matchesDate = (!fromDate || saleDate >= new Date(fromDate)) && 
-                         (!toDate || saleDate <= new Date(toDate));
-      
-      if (!matchesSearch || !matchesPayment || !matchesDate) return;
-      
-      hasItems = true;
-      list.append(renderTicketCard(v));
-    });
-    
-    actualizarResumen(ventData);
-    emptyState.style.display = hasItems ? 'none' : 'block';
+    dataToRender.forEach(v=>list.append(renderTicketCard(v)));
+    actualizarResumen(dataToRender);
   }
   
   function startEdit(v) {
@@ -2012,9 +1911,8 @@
     document.getElementById('form-pago').value    = v.metodoPago;
     const cont = document.getElementById('items-container'); cont.innerHTML = '';
     v.venta.forEach(itm => cont.append(crearItemRow(itm.codigo, itm.cantidad, itm.total)));
-    modal.backdrop.classList.remove('show');
+    modal.backdrop.style.display = 'none';
     cambiarSeccion('ventas');
-    updateSaleTotal();
   }
   
   function resetForm() {
@@ -2022,7 +1920,6 @@
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     document.getElementById('form-pago').value = 'Efectivo';
     document.getElementById('items-container').innerHTML = '';
-    updateSaleTotal();
   }
   
   // ACTUALIZAR RESUMEN DE VENTAS
@@ -2051,12 +1948,10 @@
       return await showAlert('Agrega al menos un producto');
     }
     
-    const ventaItems = Array.from(rows).map(row => {
-      const sel = row.querySelector('select');
-      const inpCant = row.querySelector('input[type="number"]:first-child');
-      const inpTot = row.querySelector('input[type="number"]:last-child');
+    const ventaItems = Array.from(rows).map(r => {
+      const [sel, ic, it] = r.children;
       const rec = recetas.find(x => x.codigo === sel.value) || { nombre: '', precio: 0 };
-      return { codigo: sel.value, producto: rec.nombre, cantidad: Number(inpCant.value) || 0, total: Number(inpTot.value) || 0 };
+      return { codigo: sel.value, producto: rec.nombre, cantidad: Number(ic.value) || 0, total: Number(it.value) || 0 };
     });
     
     const payload = {
@@ -2070,7 +1965,6 @@
     await postOpNotify('guardarVentas', { venta: JSON.stringify(payload) }, 'Venta guardada');
     resetForm();
     await loadData();
-    showNotification('Venta registrada', 'La venta ha sido guardada correctamente', 'success');
   }
   
   async function eliminarVenta(id) {
@@ -2078,7 +1972,6 @@
     if (!ok) return;
     await postOpNotify('eliminarVentas',{id},'Venta eliminada');
     await loadData();
-    showNotification('Venta eliminada', 'La venta ha sido eliminada del historial', 'success');
   }
 
   // RECETAS
@@ -2100,9 +1993,7 @@
       return {
         codigo: r.codigo,
         nombre: r.nombre,
-        precio: (costo * MARGEN).toFixed(2),
-        categoria: r.categoria,
-        costo: costo
+        precio: (costo * MARGEN).toFixed(2)
       };
     });
   }
@@ -2110,61 +2001,71 @@
   async function cargarRecetas() {
     await fetchRecetas();
     recetasData = cocData;
+    categorias = [...new Set(recetasData.map(r => r.categoria))];
+
+    // Actualizar select de categorías en formulario
+    const sel = document.getElementById('receta-categoria');
+    sel.innerHTML = [
+      '<option value="">-- Selecciona --</option>',
+      ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
+    ].join('');
+
+    // Actualizar select de categorías en filtros
+    const filterCatSel = document.getElementById('filter-recetas-category');
+    filterCatSel.innerHTML = [
+      '<option value="">Todas</option>',
+      ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
+    ].join('');
+
     mostrarRecetas();
   }
 
   function mostrarRecetas() {
-    const grid = document.getElementById('recetas-list'); 
-    const emptyState = document.getElementById('recipe-empty');
-    grid.innerHTML = '';
+    const list = document.getElementById('recetas-list'); 
+    list.innerHTML = '';
     
-    const searchTerm = document.getElementById('recipe-search').value.toLowerCase();
-    const categoryFilter = document.getElementById('recipe-category').value.toLowerCase();
-    const sortBy = document.getElementById('recipe-sort').value;
+    const dataToRender = filteredRecetas.length ? filteredRecetas : recetasData;
     
-    // Filtrar recetas
-    let filteredRecipes = recetasData.filter(r => {
-      const matchesSearch = r.nombre.toLowerCase().includes(searchTerm) || 
-                           r.codigo.toLowerCase().includes(searchTerm);
-      const matchesCategory = categoryFilter ? r.categoria.toLowerCase().includes(categoryFilter) : true;
-      return matchesSearch && matchesCategory;
-    });
+    if (dataToRender.length === 0) {
+      list.innerHTML = `
+        <div class="no-results">
+          <i class="fas fa-book"></i>
+          <h3>No se encontraron recetas</h3>
+          <p>Intenta ajustar los filtros o crear nuevas recetas</p>
+        </div>
+      `;
+      return;
+    }
     
-    // Ordenar recetas
-    filteredRecipes.sort((a, b) => {
-      if (sortBy === 'name') return a.nombre.localeCompare(b.nombre);
-      if (sortBy === 'popularity') {
-        const aSales = ventData.reduce((sum, v) => sum + v.venta.filter(i => i.codigo === a.codigo).length, 0);
-        const bSales = ventData.reduce((sum, v) => sum + v.venta.filter(i => i.codigo === b.codigo).length, 0);
-        return bSales - aSales;
+    dataToRender.forEach(r => {
+      const costo = r.ingredientes.reduce((sum, ing) => {
+        const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
+        if (!p) return sum;
+        const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
+        return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
+      }, 0).toFixed(2);
+      
+      // Verificar si hay ingredientes inactivos
+      let hasInactive = false;
+      for (const ing of r.ingredientes) {
+        const product = almacenData.find(p => p.codigo == ing.codigo);
+        if (product && product.active === false) {
+          hasInactive = true;
+          break;
+        }
       }
-      if (sortBy === 'cost') {
-        const aCost = recetas.find(r => r.codigo === a.codigo)?.costo || 0;
-        const bCost = recetas.find(r => r.codigo === b.codigo)?.costo || 0;
-        return bCost - aCost;
-      }
-      if (sortBy === 'price') {
-        const aPrice = recetas.find(r => r.codigo === a.codigo)?.precio || 0;
-        const bPrice = recetas.find(r => r.codigo === b.codigo)?.precio || 0;
-        return bPrice - aPrice;
-      }
-      return 0;
-    });
-    
-    filteredRecipes.forEach(r => {
-      const recetaInfo = recetas.find(x => x.codigo === r.codigo) || {};
       
       const item = document.createElement('div');
-      item.className = 'product-card';
+      item.className = 'list-item';
       item.innerHTML = `
-        <div class="product-image" style="${r.imagen ? `background-image: url('${r.imagen}'); background-size: cover;` : ''}">
-          ${!r.imagen ? `<i class="fas fa-utensils"></i>` : ''}
+        <div>
+          <div class="list-title">${r.nombre} ${hasInactive ? '<span class="status-badge status-inactive">Inactivo</span>' : ''}</div>
+          <div class="list-subtitle">#${r.codigo} | ${r.categoria}</div>
+          <div class="list-subtitle">${r.ingredientes.length} ingredientes</div>
         </div>
-        <div class="product-body">
-          <div class="product-title">${r.nombre}</div>
-          <div class="product-subtitle">#${r.codigo} | ${r.categoria}</div>
-          <div class="product-subtitle">${r.ingredientes.length} ingredientes</div>
-          <div class="product-price">$${recetaInfo.precio || '0.00'}</div>
+        <div>
+          <div class="list-title">$${(costo * MARGEN).toFixed(2)}</div>
+          <div class="list-subtitle">Costo: $${costo}</div>
         </div>
       `;
       
@@ -2218,11 +2119,11 @@
             ${ingredientesHtml}
             <div class="card-row">
               <div class="card-label">Costo total</div>
-              <div class="card-value">$${recetaInfo.costo?.toFixed(2) || '0.00'}</div>
+              <div class="card-value">$${costo}</div>
             </div>
             <div class="card-row">
               <div class="card-label">Precio de venta</div>
-              <div class="card-value">$${recetaInfo.precio || '0.00'}</div>
+              <div class="card-value">$${(costo * MARGEN).toFixed(2)}</div>
             </div>
             <div class="card-actions">
               <button class="btn btn-primary" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
@@ -2239,10 +2140,8 @@
         });
       });
       
-      grid.appendChild(item);
+      list.appendChild(item);
     });
-    
-    emptyState.style.display = filteredRecipes.length ? 'none' : 'block';
   }
 
   function cargarEnForm(r) {
@@ -2256,7 +2155,7 @@
     cont.innerHTML = '';
     r.ingredientes.forEach(i => agregarFila(i));
     
-    modal.backdrop.classList.remove('show');
+    modal.backdrop.style.display = 'none';
     cambiarSeccion('recetas');
   }
 
@@ -2264,10 +2163,6 @@
     const cod = document.getElementById('receta-codigo').value.trim();
     const nom = document.getElementById('receta-nombre').value.trim();
     const cat = document.getElementById('receta-categoria').value;
-    
-    if (!cod || !nom || !cat) {
-      return showAlert('Completa todos los campos obligatorios');
-    }
     
     const ingredientes = Array.from(
       document.getElementById('ingredientes-container').querySelectorAll('.form-row')
@@ -2279,10 +2174,6 @@
         unidad: selU.value
       };
     });
-    
-    if (ingredientes.length === 0) {
-      return showAlert('Agrega al menos un ingrediente');
-    }
     
     const receta = {
       codigo: cod,
@@ -2306,7 +2197,6 @@
 
     await cargarRecetas();
     limpiarForm();
-    showNotification('Receta guardada', 'Los cambios se han guardado correctamente', 'success');
   }
 
   async function eliminarReceta(codigo) {
@@ -2314,7 +2204,6 @@
     if (!ok) return;
     await postOpNotify('eliminarCocina', { codigo }, 'Receta eliminada');
     await cargarRecetas();
-    showNotification('Receta eliminada', 'La receta ha sido eliminada del sistema', 'success');
   }
 
   function agregarFila(item = {}) {
@@ -2324,7 +2213,7 @@
 
     // 1) Construimos el <select> de productos
     const opcionesProductos = almacenData
-      .map(p => `<option value="${p.codigo}">${p.name}</option>`)
+      .map(p => `<option value="${p.codigo}">${p.name} ${p.active === false ? '(Inactivo)' : ''}</option>`)
       .join('');
 
     row.innerHTML = `
@@ -2383,194 +2272,9 @@
     editMode = false;
     document.getElementById('receta-codigo').value = '';
     document.getElementById('receta-nombre').value = '';
-    document.getElementById('receta-categoria').value = '';
+    document.getElementById('receta-categoria').selectedIndex = 0;
     document.getElementById('receta-imagen').value = '';
     document.getElementById('ingredientes-container').innerHTML = '';
-  }
-
-  // DASHBOARD
-  function updateDashboard() {
-    // Actualizar valores principales
-    let totalInv = 0, totalCompras = 0, totalRestock = 0;
-    const compMap = {}, usedMap = {};
-
-    // Calcular compras
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
-      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
-      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
-    });
-
-    // Calcular uso en ventas
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
-      if (!rec) return;
-      rec.ingredientes.forEach(ing => {
-        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
-      });
-    }));
-
-    // Calcular inventario y reposición
-    let lowStockCount = 0;
-    almacenData.forEach(it => {
-      const infoI = productInfo[it.codigo] || { priceBase: 0 };
-      const bought = compMap[it.codigo] || 0;
-      const used   = usedMap[it.codigo] || 0;
-      const remain = bought - used;
-
-      totalInv += remain * infoI.priceBase;
-
-      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-      const pct = recBase ? remain/recBase*100 : 0;
-      if (pct <= 30) lowStockCount++;
-      
-      const delta   = recBase - remain;
-      if (delta > 0) {
-        totalRestock += delta * infoI.priceBase;
-      }
-    });
-
-    // Actualizar UI
-    document.getElementById('dashboard-inventory').textContent = totalInv.toFixed(2);
-    document.getElementById('dashboard-sales').textContent = ventData.reduce((sum, v) => 
-      sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0).toFixed(2);
-    document.getElementById('dashboard-low-stock').textContent = lowStockCount;
-    
-    // Receta más popular
-    let topRecipe = '-';
-    let maxSales = 0;
-    recetas.forEach(r => {
-      const sales = ventData.reduce((sum, v) => 
-        sum + v.venta.filter(i => i.codigo === r.codigo).length, 0);
-      if (sales > maxSales) {
-        maxSales = sales;
-        topRecipe = r.nombre;
-      }
-    });
-    document.getElementById('dashboard-top-recipe').textContent = topRecipe;
-    
-    // Actualizar gráficos
-    updateCharts();
-  }
-  
-  function updateCharts() {
-    // Datos para gráfico de ventas por día (últimos 7 días)
-    const today = new Date();
-    const dates = [];
-    const salesData = [];
-    
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(today.getDate() - i);
-      const dateStr = date.toISOString().slice(0,10);
-      dates.push(date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }));
-      
-      const daySales = ventData.filter(v => v.fecha.slice(0,10) === dateStr)
-        .reduce((sum, v) => sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
-      salesData.push(daySales);
-    }
-    
-    // Gráfico de ventas
-    const salesCtx = document.getElementById('sales-chart').getContext('2d');
-    if (salesChart) salesChart.destroy();
-    
-    salesChart = new Chart(salesCtx, {
-      type: 'bar',
-      data: {
-        labels: dates,
-        datasets: [{
-          label: 'Ventas ($)',
-          data: salesData,
-          backgroundColor: 'rgba(108, 92, 231, 0.7)',
-          borderColor: 'rgba(108, 92, 231, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: false
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: {
-              color: 'rgba(0,0,0,0.05)'
-            }
-          },
-          x: {
-            grid: {
-              display: false
-            }
-          }
-        }
-      }
-    });
-    
-    // Datos para gráfico de métodos de pago
-    const paymentMethods = ['Efectivo', 'Transferencia', 'Tarjeta'];
-    const paymentData = paymentMethods.map(method => 
-      ventData.filter(v => v.metodoPago === method)
-        .reduce((sum, v) => sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0)
-    );
-    
-    // Gráfico de métodos de pago
-    const paymentCtx = document.getElementById('payment-chart').getContext('2d');
-    if (paymentChart) paymentChart.destroy();
-    
-    paymentChart = new Chart(paymentCtx, {
-      type: 'doughnut',
-      data: {
-        labels: paymentMethods,
-        datasets: [{
-          data: paymentData,
-          backgroundColor: [
-            'rgba(0, 184, 148, 0.7)',
-            'rgba(108, 92, 231, 0.7)',
-            'rgba(255, 118, 117, 0.7)'
-          ],
-          borderColor: [
-            'rgba(0, 184, 148, 1)',
-            'rgba(108, 92, 231, 1)',
-            'rgba(255, 118, 117, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'bottom'
-          }
-        }
-      }
-    });
-  }
-
-  // EXPORTAR DATOS
-  function exportStock() {
-    let csv = 'Código,Nombre,Precio,Cantidad,Unidad,Stock Recomendado,Proveedor,Estado\n';
-    
-    almacenData.forEach(p => {
-      const info = productInfo[p.codigo] || {};
-      const estado = info.active ? 'Activo' : 'Inactivo';
-      csv += `"${p.codigo}","${p.name}",${p.precio},${p.cantidad},"${p.unidadDeMedida}",${p.stockRecomendado},"${p.proveedor || ''}","${estado}"\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'stock_export.csv');
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    showNotification('Exportación completada', 'El inventario se ha exportado como CSV', 'success');
   }
 
   // ACTUALIZAR ESTADÍSTICAS SUPERIORES
@@ -2581,6 +2285,7 @@
     // Calcular compras
     comprasData.forEach(c => {
       compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
+      // Usa un precio base por defecto 0 si no existe productInfo
       const infoC = productInfo[c.idProducto] || { priceBase: 0 };
       totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
     });
@@ -2596,6 +2301,7 @@
 
     // Calcular inventario y reposición
     almacenData.forEach(it => {
+      // Protege también aquí
       const infoI = productInfo[it.codigo] || { priceBase: 0 };
       const bought = compMap[it.codigo] || 0;
       const used   = usedMap[it.codigo] || 0;
@@ -2613,25 +2319,6 @@
     document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
     document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
     document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
-    
-    // Actualizar badge de compras (productos con stock bajo)
-    let lowStockCount = 0;
-    almacenData.forEach(it => {
-      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-      const bought  = compMap[it.codigo]||0;
-      const used    = usedMap[it.codigo]||0;
-      const remain  = bought - used;
-      const pct     = recBase ? remain/recBase*100 : 0;
-      if (pct <= 30) lowStockCount++;
-    });
-    
-    const purchaseBadge = document.getElementById('purchase-badge');
-    if (lowStockCount > 0) {
-      purchaseBadge.textContent = lowStockCount;
-      purchaseBadge.style.display = 'flex';
-    } else {
-      purchaseBadge.style.display = 'none';
-    }
   }
 
   // CARGA GENERAL
@@ -2656,17 +2343,7 @@
     renderComprasTable();
     await cargarVentas();
     await cargarRecetas();
-    updateTopStats();
-    
-    // Actualizar proveedores en filtro
-    const supplierSelect = document.getElementById('purchase-supplier');
-    const suppliers = [...new Set(almacenData.map(p => p.proveedor).filter(p => p))];
-    supplierSelect.innerHTML = '<option value="">Todos los proveedores</option>' + 
-      suppliers.map(s => `<option value="${s}">${s}</option>`).join('');
-    
-    if (document.getElementById('dashboard').classList.contains('active')) {
-      updateDashboard();
-    }
+    updateTopStats(); // Actualizar estadísticas superiores
   }
 
   // Inicialización
@@ -2674,28 +2351,9 @@
     resetForm();
     document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
     
-    // Configurar eventos de filtros
-    document.getElementById('stock-search').addEventListener('input', renderStockTable);
-    document.getElementById('stock-category').addEventListener('change', renderStockTable);
-    document.getElementById('stock-status').addEventListener('change', renderStockTable);
-    
-    document.getElementById('purchase-search').addEventListener('input', renderComprasTable);
-    document.getElementById('purchase-supplier').addEventListener('change', renderComprasTable);
-    document.getElementById('purchase-from').addEventListener('change', renderComprasTable);
-    document.getElementById('purchase-to').addEventListener('change', renderComprasTable);
-    
-    document.getElementById('sale-search').addEventListener('input', cargarVentas);
-    document.getElementById('sale-payment').addEventListener('change', cargarVentas);
-    document.getElementById('sale-from').addEventListener('change', cargarVentas);
-    document.getElementById('sale-to').addEventListener('change', cargarVentas);
-    
-    document.getElementById('recipe-search').addEventListener('input', mostrarRecetas);
-    document.getElementById('recipe-category').addEventListener('input', mostrarRecetas);
-    document.getElementById('recipe-sort').addEventListener('change', mostrarRecetas);
-    
-    document.getElementById('dashboard-range').addEventListener('change', function() {
-      document.getElementById('custom-dates').style.display = 
-        this.value === 'custom' ? 'block' : 'none';
+    // Ocultar todos los paneles de filtros al inicio
+    document.querySelectorAll('.filter-controls').forEach(el => {
+      el.style.display = 'none';
     });
     
     await loadData();
