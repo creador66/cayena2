@@ -396,25 +396,134 @@
       border: 1px solid var(--primary);
       color: var(--primary);
     }
+   .div2{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+    }
     .div3{
-      
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       
     }
-.div2{
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  
-}
+    .div4{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      
+    }
     
     .btn-icon {
       padding: 10px;
       width: auto;
     }
     
+
+
+
+
+
+
+
+
+    /* ESTILOS MEJORADOS PARA BALANCES */
+    
+    .total-card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 5px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      position: relative;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .total-card.ingresos { border-top: 4px solid var(--success); }
+    .total-card.gastos { border-top: 4px solid var(--danger); }
+    .total-card.neto { border-top: 4px solid var(--primary); }
+    .total-card.ventas { border-top: 4px solid var(--secondary); }
+    
+    .total-card h3 {
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: #666;
+    }
+    
+    .total-card .value {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .total-card .sub-value {
+      font-size: 0.9rem;
+      color: #777;
+    }
+    
+    .balance-type {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      margin-left: 8px;
+    }
+    
+    .balance-type.ingreso { background: rgba(0, 184, 148, 0.15); color: var(--success); }
+    .balance-type.gasto { background: rgba(255, 118, 117, 0.15); color: var(--danger); }
+    
+    .balance-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+    
+    .balance-status.activo { background: rgba(0, 184, 148, 0.15); color: var(--success); }
+    .balance-status.inactivo { background: rgba(189, 195, 199, 0.15); color: #7f8c8d; }
+    
+    .payment-filter {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .payment-filter-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      background: #f1f2f6;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .payment-filter-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .payment-filter-btn.efectivo.active { background: #00b894; }
+    .payment-filter-btn.transferencia.active { background: #0984e3; }
+    .payment-filter-btn.tarjeta.active { background: #6c5ce7; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* MODAL */
     .modal-backdrop {
       position: fixed;
@@ -787,6 +896,109 @@
       
       <div id="stock-list" class="list"></div>
     </section>
+    <!-- SECCIÓN BALANCES ACTUALIZADA -->
+    <section id="balances" class="section">
+        <div class="justify-between">
+          <h2 class="section-title"><i class="fas fa-scale-balanced"></i> Gestión de Balances</h2>
+          <div class="div2">
+            <button class="btn btn-primary" onclick="addNewBalance()">
+              <i class="fas fa-plus"></i> Nuevo Gasto
+            </button>
+            <button class="btn btn-secondary" onclick="exportarBalances()">
+              <i class="fas fa-file-export"></i> Exportar
+            </button>
+          </div>
+        </div>
+        
+        <!-- Resumen de Totales -->
+        <div class="div4">
+          <div class="total-card ventas">
+            <h3>Total Ventas</h3>
+            <div class="value" id="total-ventas">$0.00</div>
+            <div class="sub-value" id="ventas-filtro">Todos los métodos</div>
+          </div>
+          <div class="total-card ingresos">
+            <h3>Otros Ingresos</h3>
+            <div class="value" id="total-otros-ingresos">$0.00</div>
+            <div class="sub-value">Registros activos</div>
+          </div>
+          <div class="total-card gastos">
+            <h3>Total Gastos</h3>
+            <div class="value" id="total-gastos">$0.00</div>
+            <div class="sub-value">Registros activos</div>
+          </div>
+          <div class="total-card neto">
+            <h3>Total Neto</h3>
+            <div class="value" id="total-neto">$0.00</div>
+            <div class="sub-value">Ventas + Ingresos - Gastos</div>
+          </div>
+        </div>
+        
+        <!-- Filtros por método de pago -->
+        <div class="payment-filter">
+          <button class="payment-filter-btn" data-pago="todos" onclick="filterByPayment('todos')">
+            Todos
+          </button>
+          <button class="payment-filter-btn efectivo" data-pago="Efectivo" onclick="filterByPayment('Efectivo')">
+            Efectivo
+          </button>
+          <button class="payment-filter-btn transferencia" data-pago="Transferencia" onclick="filterByPayment('Transferencia')">
+            Transferencia
+          </button>
+          <button class="payment-filter-btn tarjeta" data-pago="Tarjeta" onclick="filterByPayment('Tarjeta')">
+            Tarjeta
+          </button>
+        </div>
+        
+        <!-- Filtros Balances -->
+        <div class="filter-section">
+          <div class="filter-header" onclick="toggleFilter('balances')">
+            <div class="filter-title">
+              <i class="fas fa-filter"></i> Filtros de Gastos 
+              <span id="filter-balances-indicator" class="filter-indicator">0</span>
+            </div>
+            <i class="fas fa-chevron-down" id="filter-balances-icon"></i>
+          </div>
+          
+          <div class="filter-controls" id="filter-balances-controls">
+            <div class="filter-group">
+              <label class="filter-label">Buscar gasto</label>
+              <input type="text" class="filter-input" id="filter-balances-search" placeholder="Especificación o código">
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">Categoría</label>
+              <input type="text" class="filter-input" id="filter-balances-categoria" placeholder="Categoría">
+            </div>
+            
+            <div class="filter-group">
+              <label class="filter-label">Estado</label>
+              <select class="filter-select" id="filter-balances-estado">
+                <option value="">Todos</option>
+                <option value="activo">Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+            
+            <div class="filter-actions">
+              <button class="btn-filter btn-filter-primary" onclick="applyBalancesFilters()">
+                <i class="fas fa-check"></i> Aplicar
+              </button>
+              <button class="btn-filter btn-filter-reset" onclick="resetBalancesFilters()">
+                <i class="fas fa-times"></i> Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="balances-list" class="list"></div>
+      </section>
+
+
+
+
+
+
 
     <!-- COMPRAS -->
     <section id="compras" class="section">
@@ -1028,7 +1240,7 @@
 
   <!-- NAVEGACIÓN INFERIOR -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-sec="stock" onclick="cambiarSeccion('stock')">
+    <button class="nav-btn" data-sec="stock" onclick="cambiarSeccion('stock')">
       <i class="fas fa-boxes"></i> Stock
     </button>
     <button class="nav-btn" data-sec="compras" onclick="cambiarSeccion('compras')">
@@ -1039,6 +1251,10 @@
     </button>
     <button class="nav-btn" data-sec="recetas" onclick="cambiarSeccion('recetas')">
       <i class="fas fa-utensils"></i> Recetas
+    </button>
+    <!-- Botón para la nueva sección Balances -->
+    <button class="nav-btn" data-sec="balances" onclick="cambiarSeccion('balances')">
+      <i class="fas fa-scale-balanced"></i> Balances
     </button>
   </nav>
 
@@ -1057,15 +1273,16 @@
   const FACTORES   = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
   const MARGEN     = 2;
   const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
-
-  // ESTADO GLOBAL
+    // ESTADO GLOBAL
+  let balancesData = [];
   let almacenData = [], comprasData = [], ventData = [], cocData = [];
   let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
   
   // FILTROS
   let stockFilters = {}, comprasFilters = {}, ventasFilters = {}, recetasFilters = {};
   let filteredStock = [], filteredCompras = [], filteredVentas = [], filteredRecetas = [];
-
+  let balancesFilters = {}, filteredBalances = [];
+  let currentPaymentFilter = 'todos';
   // MODAL REUTILIZABLE
   const modal = {
     backdrop: document.getElementById('modal-backdrop'),
@@ -2480,36 +2697,376 @@ function exportarCSV() {
     }
   }
 
-  // CARGA GENERAL
-  async function loadData() {
-    const [alm, comp, vent, coc] = await Promise.all([
-      callApi({op:'obtenerAlmacen'}),
-      callApi({op:'obtenerCompras'}),
-      callApi({op:'obtenerVentas'}),
-      callApi({op:'obtenerCocina'})
-    ]);
-    almacenData = alm.data; 
-    comprasData = comp.data; 
-    ventData = vent.data;
-    if (coc.status === 'success') {
-      cocData = coc.data.map(r => ({
-        ...r,
-        ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
-      }));
-    }
-    buildProductInfo();
-    renderStockTable();
-    renderComprasTable();
-    await cargarVentas();
-    await cargarRecetas();
-    updateTopStats();
-    
-    
-    
-    
-    // Actualizar estadísticas superiores
-  }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // FUNCIONES PARA BALANCES
+    async function loadBalances() {
+      const res = await callApi({ op: 'obtenerBalances' });
+      if (res.status === 'success') {
+        balancesData = res.data;
+        filteredBalances = [];
+        renderBalancesTable();
+        updateBalancesSummary();
+      }
+    }
+
+    // Calcular total de ventas con filtros
+    function calculateSalesTotal(paymentFilter = 'todos') {
+      let total = 0;
+      
+      if (paymentFilter === 'todos') {
+        total = ventData.reduce((sum, v) => 
+          sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
+      } else {
+        total = ventData
+          .filter(v => v.metodoPago === paymentFilter)
+          .reduce((sum, v) => 
+            sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
+      }
+      
+      return total;
+    }
+
+    // Filtrar por método de pago
+    function filterByPayment(payment) {
+      currentPaymentFilter = payment;
+      
+      // Actualizar botones activos
+      document.querySelectorAll('.payment-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.pago === payment) {
+          btn.classList.add('active');
+        }
+      });
+      
+      updateBalancesSummary();
+    }
+
+    function updateBalancesSummary() {
+      const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+      
+      // Calcular total de ventas
+      const totalVentas = calculateSalesTotal(currentPaymentFilter);
+      
+      // Calcular otros ingresos (solo registros activos de tipo ingreso)
+      const totalOtrosIngresos = dataToRender
+        .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
+        .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+      
+      // Calcular gastos (solo registros activos de tipo deducible)
+      const totalGastos = dataToRender
+        .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
+        .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+      
+      // Calcular neto
+      const totalNeto = totalVentas + totalOtrosIngresos - totalGastos;
+      
+      // Actualizar DOM
+      document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
+      document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
+      document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
+      document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
+      
+      // Actualizar texto del filtro
+      const filtroText = currentPaymentFilter === 'todos' 
+        ? 'Todos los métodos' 
+        : `Solo ${currentPaymentFilter}`;
+      document.getElementById('ventas-filtro').textContent = filtroText;
+    }
+
+    function renderBalancesTable() {
+      const list = document.getElementById('balances-list');
+      list.innerHTML = '';
+      
+      const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+      
+      if (dataToRender.length === 0) {
+        list.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-scale-balanced"></i>
+            <h3>No se encontraron registros</h3>
+            <p>Intenta ajustar los filtros o agregar nuevos registros</p>
+          </div>
+        `;
+        return;
+      }
+      
+      dataToRender.forEach(b => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div>
+            <div class="list-title">${b.especificacion || 'Sin especificación'}</div>
+            <div class="list-subtitle">#${b.codigo} | ${b.categoria} 
+              <span class="balance-type ${b.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
+                ${b.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'}
+              </span>
+            </div>
+            <div class="list-subtitle">
+              <span class="balance-status ${b.estado === 'activo' ? 'activo' : 'inactivo'}">
+                ${b.estado === 'activo' ? 'Activo' : 'Inactivo'}
+              </span>
+            </div>
+          </div>
+          <div>
+            <div class="list-title ${b.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
+              ${b.tipo === 'ingreso' ? '+' : '-'} $${parseFloat(b.monto).toFixed(2)}
+            </div>
+          </div>
+        `;
+        
+        item.addEventListener('click', () => {
+          const modalContent = document.createElement('div');
+          modalContent.innerHTML = `
+            <div class="card">
+              <div class="card-header">Editar Balance #${b.codigo}</div>
+              <div class="card-body">
+                <input type="hidden" id="balance-codigo" value="${b.codigo}">
+                <div class="form-group">
+                  <label class="form-label">Monto</label>
+                  <input type="number" class="form-input" id="balance-monto" value="${b.monto}" step="0.01">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Categoría</label>
+                  <input type="text" class="form-input" id="balance-categoria" value="${b.categoria || ''}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tipo</label>
+                  <select class="form-select" id="balance-tipo">
+                    <option value="ingreso" ${b.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
+                    <option value="deducible" ${b.tipo === 'deducible' ? 'selected' : ''}>Gasto</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Estado</label>
+                  <select class="form-select" id="balance-estado">
+                    <option value="activo" ${b.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                    <option value="inactivo" ${b.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Especificación</label>
+                  <input type="text" class="form-input" id="balance-especificacion" value="${b.especificacion || ''}">
+                </div>
+                <div class="div2">
+                  <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+                  <button class="btn btn-danger" onclick="deleteBalance('${b.codigo}')">Eliminar</button>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          modal.show({
+            title: 'Editar Balance',
+            message: modalContent.innerHTML
+          });
+        });
+        
+        list.appendChild(item);
+      });
+    }
+
+    function applyBalancesFilters() {
+      const search = document.getElementById('filter-balances-search').value.toLowerCase();
+      const categoria = document.getElementById('filter-balances-categoria').value.toLowerCase();
+      const estado = document.getElementById('filter-balances-estado').value;
+      
+      balancesFilters = { search, categoria, estado };
+      
+      filteredBalances = balancesData.filter(b => {
+        if (search && !b.especificacion.toLowerCase().includes(search) && !String(b.codigo).includes(search)) {
+          return false;
+        }
+        if (categoria && b.categoria.toLowerCase().includes(categoria) === false) {
+          return false;
+        }
+        if (estado && b.estado !== estado) {
+          return false;
+        }
+        return true;
+      });
+      
+      const filterCount = Object.values(balancesFilters).filter(f => f).length;
+      document.getElementById('filter-balances-indicator').textContent = filterCount;
+      
+      renderBalancesTable();
+      updateBalancesSummary();
+    }
+    
+    function resetBalancesFilters() {
+      document.getElementById('filter-balances-search').value = '';
+      document.getElementById('filter-balances-categoria').value = '';
+      document.getElementById('filter-balances-estado').value = '';
+      balancesFilters = {};
+      filteredBalances = [];
+      document.getElementById('filter-balances-indicator').textContent = '0';
+      renderBalancesTable();
+      updateBalancesSummary();
+    }
+    
+    function addNewBalance() {
+      const newBalance = {
+        codigo: Date.now(),
+        monto: 0,
+        categoria: '',
+        tipo: 'deducible',
+        estado: 'activo',
+        especificacion: 'Nuevo registro'
+      };
+      balancesData.push(newBalance);
+      renderBalancesTable();
+      
+      const modalContent = document.createElement('div');
+      modalContent.innerHTML = `
+        <div class="card">
+          <div class="card-header">Nuevo Balance</div>
+          <div class="card-body">
+            <input type="hidden" id="balance-codigo" value="${newBalance.codigo}">
+            <div class="form-group">
+              <label class="form-label">Monto</label>
+              <input type="number" class="form-input" id="balance-monto" value="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Categoría</label>
+              <input type="text" class="form-input" id="balance-categoria" placeholder="Categoría">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" id="balance-tipo">
+                <option value="ingreso">Ingreso</option>
+                <option value="deducible" selected>Gasto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="balance-estado">
+                <option value="activo" selected>Activo</option>
+                <option value="inactivo">Inactivo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Especificación</label>
+              <input type="text" class="form-input" id="balance-especificacion" placeholder="Descripción">
+            </div>
+            <div class="div2">
+              <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+              <button class="btn btn-outline" onclick="modal.backdrop.style.display='none'">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.show({
+        title: 'Nuevo Balance',
+        message: modalContent.innerHTML
+      });
+    }
+    
+    async function saveBalance() {
+      const codigo = document.getElementById('balance-codigo').value;
+      const monto = parseFloat(document.getElementById('balance-monto').value);
+      const categoria = document.getElementById('balance-categoria').value;
+      const tipo = document.getElementById('balance-tipo').value;
+      const estado = document.getElementById('balance-estado').value;
+      const especificacion = document.getElementById('balance-especificacion').value;
+      
+      if (isNaN(monto) || monto <= 0) {
+        return showAlert('El monto debe ser un número positivo');
+      }
+      
+      const params = {
+        codigo,
+        monto,
+        categoria,
+        tipo,
+        estado,
+        especificacion
+      };
+      
+      await postOpNotify('guardarBalances', params, 'Balance guardado');
+      await loadBalances();
+    }
+    
+    async function deleteBalance(codigo) {
+      const ok = await showConfirm('¿Eliminar este registro?');
+      if (!ok) return;
+      await postOpNotify('eliminarBalances', { codigo }, 'Registro eliminado');
+      await loadBalances();
+    }
+    
+    function exportarBalances() {
+      showAlert('Funcionalidad de exportación para balances está en desarrollo');
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // CARGA GENERAL
+    async function loadData() {
+      const [alm, comp, vent, coc, bal] = await Promise.all([
+        callApi({op:'obtenerAlmacen'}),
+        callApi({op:'obtenerCompras'}),
+        callApi({op:'obtenerVentas'}),
+        callApi({op:'obtenerCocina'}),
+        callApi({op:'obtenerBalances'})   // Nueva llamada
+      ]);
+      almacenData = alm.data; 
+      comprasData = comp.data; 
+      ventData = vent.data;
+      if (coc.status === 'success') {
+        cocData = coc.data.map(r => ({
+          ...r,
+          ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
+        }));
+      }
+      if (bal.status === 'success') {   // Cargar balances
+        balancesData = bal.data;
+      }
+      buildProductInfo();
+      renderStockTable();
+      renderComprasTable();
+      await cargarVentas();
+      await cargarRecetas();
+      renderBalancesTable();   // Renderizar balances
+      updateBalancesSummary(); // Actualizar resumen de balances
+      updateTopStats();
+    }
 
   // Inicialización
   window.onload = async () => {
@@ -2523,15 +3080,6 @@ function exportarCSV() {
     
     await loadData();
   };
-
-
-
-
-
-
-
-
-
 
 </script>
 </body>
