@@ -225,26 +225,15 @@
     
     .main {
       flex: 1;
-      padding: 32px;
+      padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      align-items: center;
       background: white;
       border-radius: var(--border-radius);
       margin: 16px;
       box-shadow: var(--shadow);
       position: relative;
-    }
-    
-    .main img {
-      max-width: 70%;
-      max-height: 300px;
-      object-fit: contain;
-      border-radius: var(--border-radius);
-      margin-bottom: 24px;
-      background: #f9f9f9;
-      padding: 20px;
     }
     
     .details {
@@ -253,23 +242,13 @@
     }
     
     .details h2 {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-    
-    .details .price {
       font-size: 1.8rem;
-      color: var(--primary);
-      margin-bottom: 24px;
-      font-weight: 700;
-    }
-    
-    .details .desc {
-      font-size: 1.1rem;
-      color: #555;
-      line-height: 1.6;
-      max-width: 600px;
-      margin: 0 auto 20px;
+      margin-bottom: 12px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
     
     #categoryMenu {
@@ -307,82 +286,6 @@
       background: var(--primary);
       color: white;
       border-color: var(--primary);
-    }
-    
-    #checkoutPanel {
-      position: fixed;
-      bottom: 86px;
-      right: 24px;
-      background: white;
-      padding: 24px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow-hover);
-      min-width: 320px;
-      max-height: 70vh;
-      overflow-y: auto;
-      display: none;
-      z-index: 101;
-      border: 1px solid #e0e0e0;
-    }
-    
-    #checkoutHeader {
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--dark);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .panel-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .btn-add {
-      background: var(--primary);
-      color: white;
-      padding: 12px 18px;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-    }
-    
-    .btn-add:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-    
-    .btn-secondary {
-      background: white;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      padding: 12px 18px;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-    }
-    
-    .btn-secondary:hover {
-      background: #f0f5ff;
     }
     
     .subcuenta {
@@ -650,19 +553,82 @@
       animation: highlight 1s ease;
     }
     
-    /* Debug console */
-    .debug-console {
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.7);
+    /* Mesa view styles */
+    .mesa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary);
+    }
+    
+    .cuenta-card {
+      background: #f9f9ff;
+      border-radius: var(--border-radius);
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: var(--shadow);
+    }
+    
+    .cuenta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .cuenta-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+    
+    .product-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .product-name {
+      flex: 2;
+    }
+    
+    .product-qty {
+      flex: 1;
+      text-align: center;
+    }
+    
+    .product-price {
+      flex: 1;
+      text-align: right;
+    }
+    
+    .cuenta-total {
+      font-weight: 700;
+      text-align: right;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #ddd;
+    }
+    
+    .cuenta-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .mesa-total {
+      background: var(--primary);
       color: white;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      max-width: 300px;
-      z-index: 1000;
-      display: none;
+      padding: 15px;
+      border-radius: var(--border-radius);
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -673,7 +639,6 @@
       <button onclick="crearMesa()" class="header-btn"><i class="fas fa-plus"></i> Nueva Mesa</button>
       <button onclick="verHistorial()" class="header-btn"><i class="fas fa-history"></i> Historial</button>
       <button onclick="refrescarProductos()" class="header-btn"><i class="fas fa-sync"></i> Actualizar</button>
-      <button onclick="toggleDebug()" class="header-btn"><i class="fas fa-bug"></i> Debug</button>
     </div>
   </header>
 
@@ -684,65 +649,29 @@
       <div class="category-title"><i class="fas fa-utensils"></i> Productos Disponibles</div>
       <ul class="thumb-list" id="thumbList"></ul>
     </aside>
-    <section class="main">
-      <img id="mainImage" src="https://via.placeholder.com/400x300?text=Selecciona+un+producto" alt="Producto" />
-      <div class="details">
-        <h2 id="productName">Selecciona un producto</h2>
-        <div class="price" id="productPrice"></div>
-        <p class="desc" id="productDesc">Selecciona un producto de la lista para ver sus detalles.</p>
-        <div class="product-counter">
-          <button onclick="cambiarCantidad(-1)" class="counter-btn">-</button>
-          <div class="counter-value" id="quantityDisplay">1</div>
-          <button onclick="cambiarCantidad(1)" class="counter-btn">+</button>
-        </div>
-        <button onclick="añadirAlPedido()" class="btn-add">
-          <i class="fas fa-cart-plus"></i> Añadir al Pedido
-        </button>
+    
+    <section class="main" id="mesaView">
+      <div class="mesa-header">
+        <h2><i class="fas fa-table"></i> <span id="currentMesaName">Seleccione una mesa</span></h2>
+        <button onclick="cerrarMesaView()" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
+      </div>
+      
+      <div id="cuentasContainer" class="empty-state">
+        <i class="fas fa-receipt"></i>
+        <h3>No hay cuentas abiertas</h3>
+        <p>Seleccione una mesa para ver sus cuentas</p>
       </div>
     </section>
   </div>
 
   <div id="categoryMenu"></div>
 
-  <div id="checkoutPanel">
-    <div id="checkoutHeader">
-      <div class="panel-title"><i class="fas fa-receipt"></i> <span id="mesaNumber"></span></div>
-      <button class="boton-icono info" onclick="cerrarPanel()"><i class="fas fa-times"></i></button>
-    </div>
-    <div id="accountsList"></div>
-    <div class="totals-section">
-      <div class="totals-row">
-        <span class="total-label">Total Mesa:</span>
-        <span class="total-value" id="mesaTotal">$0.00</span>
-      </div>
-      <div class="totals-row grand-total">
-        <span class="total-label">Total General:</span>
-        <span class="total-value" id="grandTotal">$0.00</span>
-      </div>
-    </div>
-    <div class="actions">
-      <button onclick="nuevaCuenta()" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
-      <button onclick="cobrarTodo()" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
-      <button onclick="cerrarPanel()" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
-    </div>
-  </div>
-
-  <!-- Modales -->
-  <div class="modal" id="modal-edit">
-    <div class="panel">
-      <h3><i class="fas fa-edit"></i> Editar Pedidos</h3>
-      <ul id="edit-list"></ul>
-      <div class="actions">
-        <button onclick="cancelarEdicion()" class="btn-secondary">Cancelar</button>
-        <button onclick="guardarEdicion()" class="btn-add">Guardar</button>
-      </div>
-    </div>
-  </div>
-
+  <!-- Modal de cobro -->
   <div class="modal" id="modal-cobrar">
     <div class="panel" id="payPanel"></div>
   </div>
 
+  <!-- Modal de historial -->
   <div class="modal" id="modal-history">
     <div class="panel">
       <h3><i class="fas fa-history"></i> Historial Ventas</h3>
@@ -756,57 +685,44 @@
   <div class="notification" id="notification">
     <i class="fas fa-info-circle"></i><span id="notification-text"></span>
   </div>
-  
-  <div id="debugConsole" class="debug-console">Debug Console</div>
 
   <script>
-    // Configuración mejorada con mensajes de depuración
     const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
     const CONFIG = {
       STORAGE_KEYS: { 
         ALMACEN: 'almacen6525', 
-        COSTEADAS: 'recetasCosteadas',
         MESAS: 'mesas',
         PRODUCTS: 'products',
         SALES: 'salesHistory'
       },
       FACTORES: { mg: 0.001, g:1, kg:1000, ml:1, l:1000, pz:1 },
-      CATEGORIAS: { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] },
       MARGEN: 2
     };
     
-    // Estado global con mejor manejo de errores
+    // Estado global
     const state = {
       products: [],
       mesas: [],
       salesHistory: [],
-      currentMesa: null,
+      currentMesaId: null,
       currentProd: -1,
       currentQty: 1,
       currentCategory: 'Todas',
-      editList: [],
-      inspectAcc: null,
-      inspectSub: null,
       debugMode: false
     };
 
-    // --- Utilidades mejoradas ---
+    // --- Utilidades ---
     function logDebug(message) {
       if (state.debugMode) {
         console.log(`[DEBUG] ${message}`);
-        const consoleElement = document.getElementById('debugConsole');
-        consoleElement.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
-        consoleElement.scrollTop = consoleElement.scrollHeight;
       }
     }
     
     function loadJSON(key) {
       try { 
         const d = localStorage.getItem(key); 
-        logDebug(`Cargando ${key}: ${d ? 'Éxito' : 'Vacío'}`);
         return d ? JSON.parse(d) : []; 
       } catch(e) {
-        logDebug(`Error al cargar ${key}: ${e.message}`);
         return []; 
       }
     }
@@ -814,16 +730,13 @@
     function saveJSON(key,val) {
       try { 
         localStorage.setItem(key, JSON.stringify(val)); 
-        logDebug(`Guardado en ${key}`);
         return true; 
       } catch(e) {
-        logDebug(`Error al guardar en ${key}: ${e.message}`);
         return false; 
       }
     }
     
     function showNot(msg,err=false) {
-      logDebug(`Notificación: ${msg} ${err ? '(error)' : ''}`);
       const n = document.getElementById('notification');
       const t = document.getElementById('notification-text');
       t.textContent = msg;
@@ -831,21 +744,9 @@
       setTimeout(()=> n.className = 'notification',3000);
     }
     
-    function toggleDebug() {
-      state.debugMode = !state.debugMode;
-      const consoleElement = document.getElementById('debugConsole');
-      consoleElement.style.display = state.debugMode ? 'block' : 'none';
-      showNot(`Modo debug ${state.debugMode ? 'activado' : 'desactivado'}`);
-    }
-    
-    // Función clave para resolver el problema: encontrar índice por ID de mesa
+    // Función clave: encontrar índice por ID de mesa
     function findMesaIndexById(id) {
-      const index = state.mesas.findIndex(m => m.id === id);
-      if (index === -1) {
-        logDebug(`Mesa con ID ${id} no encontrada`);
-        showNot(`Error: Mesa ${id} no encontrada`, true);
-      }
-      return index;
+      return state.mesas.findIndex(m => m.id === id);
     }
 
     // --- Costos ---
@@ -870,25 +771,7 @@
       return +(c*CONFIG.MARGEN).toFixed(2); 
     }
 
-    // --- Fetch remoto con manejo de errores ---
-    async function fetchAlm() {
-      try {
-        const fd = new FormData(); 
-        fd.append('op','obtenerAlmacen');
-        const r = await fetch(API_URL,{method:'POST',body:fd});
-        const j = await r.json();
-        if(j.status === 'success') {
-          logDebug('Almacén obtenido con éxito');
-          return j.data;
-        }
-        throw new Error(j.message || 'Error desconocido');
-      } catch(e) {
-        logDebug(`Error al obtener almacén: ${e.message}`);
-        showNot('Error al obtener almacén', true);
-        return []; 
-      }
-    }
-    
+    // --- Fetch remoto ---
     async function fetchRec() {
       try {
         const fd = new FormData(); 
@@ -896,12 +779,10 @@
         const r = await fetch(API_URL,{method:'POST',body:fd});
         const j = await r.json();
         if(j.status === 'success') {
-          logDebug('Recetas obtenidas con éxito');
           return j.data;
         }
         throw new Error(j.message || 'Error desconocido');
       } catch(e) {
-        logDebug(`Error al obtener recetas: ${e.message}`);
         showNot('Error al obtener recetas', true);
         return []; 
       }
@@ -916,18 +797,16 @@
         const r = await fetch(API_URL,{method:'POST',body:fd});
         const j = await r.json();
         if(j.status === 'success') {
-          logDebug('Venta guardada con éxito');
           return true;
         }
         throw new Error(j.message || 'Error al guardar venta');
       } catch(e) {
-        logDebug(`Error al guardar venta: ${e.message}`);
         showNot('Error al guardar venta', true);
         return false; 
       }
     }
 
-    // --- Render dinámico mejorado ---
+    // --- Render dinámico ---
     function setupCats() {
       const cats = ['Todas'];
       state.products.forEach(p=>{
@@ -972,167 +851,142 @@
       state.mesas.forEach(m=>{
         const cnt = m.cuentas.flatMap(c=>c.pedidos.map(x=>x.cantidad)).reduce((a,b)=>a+b,0);
         bar.innerHTML += `
-          <button onclick="abrirMesa(${m.id})" class="mesa-btn${m.id===state.currentMesa?' selected':''}${cnt>0?' ocupada':''}">
+          <button onclick="abrirMesa(${m.id})" class="mesa-btn${m.id===state.currentMesaId?' selected':''}${cnt>0?' ocupada':''}">
             ${m.name} (${cnt} pz)
           </button>`;
       });
     }
     
-    function updateTotals() {
-      if (state.inspectAcc === null) return;
+    // Función clave: renderizar vista de mesa en el panel principal
+    function renderMesaView(mesaId) {
+      const index = findMesaIndexById(mesaId);
+      if (index === -1) return;
       
-      const mesa = state.mesas[state.inspectAcc];
-      if (!mesa) return;
+      const mesa = state.mesas[index];
+      document.getElementById('currentMesaName').textContent = mesa.name;
       
-      // Calcular total para toda la mesa
-      const mesaTotal = mesa.cuentas.reduce((acc, cuenta) => {
-        return acc + cuenta.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-      }, 0);
+      const container = document.getElementById('cuentasContainer');
+      container.innerHTML = '';
       
-      document.getElementById('mesaTotal').textContent = `$${mesaTotal.toFixed(2)}`;
-      document.getElementById('grandTotal').textContent = `$${mesaTotal.toFixed(2)}`;
+      if(!mesa.cuentas.length){
+        container.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><h3>No hay cuentas</h3></div>`;
+        return;
+      }
       
-      // Aplicar animación de actualización
-      document.getElementById('mesaTotal').classList.add('price-update');
-      document.getElementById('grandTotal').classList.add('price-update');
-      setTimeout(() => {
-        document.getElementById('mesaTotal').classList.remove('price-update');
-        document.getElementById('grandTotal').classList.remove('price-update');
-      }, 1000);
+      let mesaTotal = 0;
+      
+      mesa.cuentas.forEach((cuenta, ci)=>{
+        const cuentaTotal = cuenta.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        mesaTotal += cuentaTotal;
+        
+        const cuentaHTML = `
+          <div class="cuenta-card">
+            <div class="cuenta-header">
+              <div class="cuenta-title">${cuenta.nombre}</div>
+              <div class="cuenta-total">Total: $${cuentaTotal.toFixed(2)}</div>
+            </div>
+            
+            <div class="cuenta-content">
+              ${cuenta.pedidos.length ? '' : '<div class="empty-state small">No hay productos en esta cuenta</div>'}
+              ${cuenta.pedidos.map((p, pi) => `
+                <div class="product-item">
+                  <div class="product-name">${p.nombre}</div>
+                  <div class="product-qty">${p.cantidad} x $${p.precio.toFixed(2)}</div>
+                  <div class="product-price">$${(p.precio * p.cantidad).toFixed(2)}</div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="cuenta-actions">
+              <button onclick="addToCuenta(${index}, ${ci})" class="boton-icono info"><i class="fas fa-plus"></i></button>
+              <button onclick="openPay(${index}, ${ci})" class="boton-icono success"><i class="fas fa-cash-register"></i></button>
+              <button onclick="eliminarCuenta(${index}, ${ci})" class="boton-icono danger"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML += cuentaHTML;
+      });
+      
+      // Añadir total de mesa
+      container.innerHTML += `
+        <div class="mesa-total">
+          Total Mesa: $${mesaTotal.toFixed(2)}
+        </div>
+        <div class="actions" style="margin-top:15px">
+          <button onclick="nuevaCuenta()" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
+          <button onclick="cobrarTodo(${index})" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
+        </div>
+      `;
+    }
+    
+    // Función para cerrar la vista de mesa
+    function cerrarMesaView() {
+      state.currentMesaId = null;
+      document.getElementById('currentMesaName').textContent = 'Seleccione una mesa';
+      document.getElementById('cuentasContainer').innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-receipt"></i>
+          <h3>No hay cuentas abiertas</h3>
+          <p>Seleccione una mesa para ver sus cuentas</p>
+        </div>
+      `;
+      renderMesas();
     }
 
-    // --- Funciones UI mejoradas ---
+    // --- Funciones UI ---
     function filtrarCat(cat) {
       state.currentCategory = cat; 
       renderCats(); 
       renderThumbnails();
-      logDebug(`Categoría filtrada: ${cat}`);
     }
     
     function selectProd(i) {
       state.currentProd = i; 
       const p = state.products[i];
-      document.getElementById('mainImage').src = p.imagen;
-      document.getElementById('productName').textContent = p.nombre;
-      document.getElementById('productPrice').textContent = `$${p.precio.toFixed(2)}`;
-      document.getElementById('productDesc').textContent = p.descripcion || '';
       state.currentQty = 1; 
-      document.getElementById('quantityDisplay').textContent = 1;
-      logDebug(`Producto seleccionado: ${p.nombre}`);
+      showNot(`Producto seleccionado: ${p.nombre}`);
     }
     
     function cambiarCantidad(d) {
       state.currentQty = Math.max(1, state.currentQty + d);
-      document.getElementById('quantityDisplay').textContent = state.currentQty;
-      logDebug(`Cantidad cambiada a: ${state.currentQty}`);
     }
     
-    function añadirAlPedido() {
-      if(state.inspectAcc === null || state.inspectSub === null) {
-        showNot('Abre una cuenta primero', true);
-        logDebug('Intento de añadir sin cuenta abierta');
-        return;
-      }
-      addToSub(state.inspectAcc, state.inspectSub);
-    }
-    
-    // Función clave: ahora usa índices de array en lugar de IDs
+    // Función clave: abrir mesa en la vista principal
     function abrirMesa(id) {
-      const index = findMesaIndexById(id);
-      if (index === -1) return;
-      
-      state.currentMesa = id;
-      state.inspectAcc = index;
+      state.currentMesaId = id;
       renderMesas();
-      openAccounts(index);
-      logDebug(`Mesa abierta: ${id} (índice: ${index})`);
+      renderMesaView(id);
     }
     
-    function addToSub(mi, ci) {
+    function addToCuenta(mi, ci) {
       if(state.currentProd < 0) {
         showNot('Selecciona un producto', true);
-        logDebug('Intento de añadir sin producto seleccionado');
         return;
       }
       
-      // Verificar que tenemos índices válidos
-      if (mi === null || mi === undefined || ci === null || ci === undefined) {
-        showNot('Error: Mesa no seleccionada', true);
-        logDebug(`Índices inválidos: mi=${mi}, ci=${ci}`);
-        return;
-      }
-      
-      if (!state.mesas[mi]) {
-        showNot(`Error: Mesa en índice ${mi} no encontrada`, true);
-        logDebug(`Mesa en índice ${mi} no encontrada`);
-        return;
-      }
-      
-      const sub = state.mesas[mi].cuentas[ci];
       const p = state.products[state.currentProd];
+      const cuenta = state.mesas[mi].cuentas[ci];
       
-      const ex = sub.pedidos.find(x=>x.codigo===p.codigo);
+      const ex = cuenta.pedidos.find(x=>x.codigo===p.codigo);
       
       if(ex) {
         ex.cantidad += state.currentQty;
-        logDebug(`Producto existente actualizado: ${p.nombre} +${state.currentQty}`);
       } else {
-        sub.pedidos.push({
+        cuenta.pedidos.push({
           codigo: p.codigo,
           nombre: p.nombre,
           precio: p.precio,
           cantidad: state.currentQty
         });
-        logDebug(`Nuevo producto añadido: ${p.nombre} x${state.currentQty}`);
       }
       
       saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      showNot(`${state.currentQty}× ${p.nombre} añadido`);
-      openAccounts(mi);
-      state.currentQty = 1; 
-      document.getElementById('quantityDisplay').textContent = 1;
-      updateTotals();
+      showNot(`${state.currentQty}× ${p.nombre} añadido a ${cuenta.nombre}`);
+      renderMesaView(state.mesas[mi].id);
+      state.currentQty = 1;
     }
     
-    function openAccounts(mi) {
-      state.inspectAcc = mi; 
-      state.inspectSub = null;
-      
-      const m = state.mesas[mi];
-      if(!m) {
-        showNot(`Error: Mesa en índice ${mi} no encontrada`, true);
-        logDebug(`Mesa en índice ${mi} no encontrada en openAccounts`);
-        return;
-      }
-      
-      const totalCount = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad)).reduce((a,b) => a+b, 0);
-      document.getElementById('mesaNumber').textContent = `${m.name} (${totalCount} pz)`;
-      
-      const list = document.getElementById('accountsList'); 
-      list.innerHTML = '';
-      
-      if(!m.cuentas.length){
-        list.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><h3>No hay cuentas</h3></div>`;
-      } else {
-        m.cuentas.forEach((c,i)=>{
-          const cnt = c.pedidos.reduce((a,x) => a + x.cantidad, 0);
-          const val = c.pedidos.reduce((a,x) => a + (x.precio * x.cantidad), 0);
-          list.innerHTML += `
-            <div class="subcuenta">
-              <div>${c.nombre} - ${cnt} pz ($${val.toFixed(2)})</div>
-              <div class="btnCobro">
-                <button class="boton-icono info" onclick="addToSub(${mi},${i})"><i class="fas fa-plus"></i></button>
-                <button class="boton-icono warning" onclick="abrirEdicion(${mi},${i})"><i class="fas fa-pen-to-square"></i></button>
-                <button class="boton-icono success" onclick="openPay(${mi},${i})"><i class="fas fa-cash-register"></i></button>
-              </div>
-            </div>`;
-        });
-      }
-      
-      document.getElementById('checkoutPanel').style.display = 'block';
-      updateTotals();
-    }
-
     function crearMesa() {
       const next = state.mesas.length ? Math.max(...state.mesas.map(m=>m.id)) + 1 : 1;
       state.mesas.push({
@@ -1143,12 +997,8 @@
       
       saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
       renderMesas(); 
-      
-      // Abrir la nueva mesa por su ID
       abrirMesa(next);
-      
       showNot(`Mesa ${next} creada`);
-      logDebug(`Nueva mesa creada: ${next}`);
     }
     
     function verHistorial() {
@@ -1168,12 +1018,10 @@
       }
       
       document.getElementById('modal-history').classList.add('active');
-      logDebug('Historial de ventas abierto');
     }
     
     function cerrarHistorial() { 
       document.getElementById('modal-history').classList.remove('active');
-      logDebug('Historial de ventas cerrado');
     }
     
     async function refrescarProductos() {
@@ -1198,45 +1046,53 @@
       
       if(state.products.length) selectProd(0);
       showNot('Productos actualizados');
-      logDebug('Productos actualizados');
     }
     
     function nuevaCuenta() {
-      if (state.inspectAcc === null) {
+      if (state.currentMesaId === null) {
         showNot('Selecciona una mesa primero', true);
         return;
       }
       
-      const m = state.mesas[state.inspectAcc];
+      const index = findMesaIndexById(state.currentMesaId);
+      if (index === -1) return;
+      
+      const m = state.mesas[index];
       const num = m.cuentas.length + 1;
       m.cuentas.push({nombre: `Cuenta ${num}`, pedidos: []});
       
       saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      openAccounts(state.inspectAcc);
+      renderMesaView(state.currentMesaId);
       showNot(`Cuenta ${num} creada`);
-      logDebug(`Nueva cuenta creada: ${num}`);
     }
     
-    function cobrarTodo() { 
-      if (state.inspectAcc === null) {
-        showNot('Selecciona una mesa primero', true);
+    function eliminarCuenta(mi, ci) {
+      state.mesas[mi].cuentas.splice(ci, 1);
+      
+      // Si no quedan cuentas, eliminar la mesa
+      if (state.mesas[mi].cuentas.length === 0) {
+        eliminarMesa(mi);
         return;
       }
-      openPay(state.inspectAcc, 'all'); 
-      logDebug('Iniciando cobro de toda la mesa');
-    }
-    
-    function cerrarPanel() { 
-      document.getElementById('checkoutPanel').style.display = 'none';
-      state.inspectAcc = null;
-      state.inspectSub = null;
-      logDebug('Panel de cobro cerrado');
-    }
-    
-    function openPay(mi,ci) {
-      state.inspectAcc = mi; 
-      state.inspectSub = ci;
       
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      renderMesaView(state.mesas[mi].id);
+      showNot('Cuenta eliminada');
+    }
+    
+    function eliminarMesa(index) {
+      state.mesas.splice(index, 1);
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      cerrarMesaView();
+      renderMesas();
+      showNot('Mesa eliminada');
+    }
+    
+    function cobrarTodo(mi) { 
+      openPay(mi, 'all'); 
+    }
+    
+    function openPay(mi, ci) {
       let items = [], total = 0, title = '';
       
       if(ci === 'all'){
@@ -1285,13 +1141,12 @@
           <div id="payChange">Cambio: $0.00</div>
         </div>
         <div class="actions">
-          <button onclick="confirmPay()" class="btn-add">Confirmar Pago</button>
+          <button onclick="confirmPay(${mi}, '${ci}')" class="btn-add">Confirmar Pago</button>
           <button onclick="closePay()" class="btn-secondary">Cancelar</button>
         </div>`;
       
       document.getElementById('payPanel').innerHTML = html;
       document.getElementById('modal-cobrar').classList.add('active');
-      logDebug(`Panel de pago abierto para: ${title}`);
     }
     
     function actualizarCambio(recibido, total) {
@@ -1301,22 +1156,21 @@
       
       document.getElementById('payChange').textContent = `Cambio: ${cambioTexto}`;
       document.getElementById('payChange').style.color = cambio >= 0 ? 'var(--success)' : 'var(--danger)';
-      logDebug(`Cambio calculado: ${cambioTexto}`);
     }
     
     function closePay() { 
       document.getElementById('modal-cobrar').classList.remove('active');
-      logDebug('Panel de pago cerrado');
     }
     
-    async function confirmPay() {
+    async function confirmPay(mi, ci) {
       const metodo = document.getElementById('payMethod').value;
       const recibido = parseFloat(document.getElementById('receivedAmount').value) || 0;
       
       let items = [], total = 0, mesaName = '', cuentaName = '';
+      const mesaId = state.mesas[mi].id;
       
-      if(state.inspectSub === 'all'){
-        const m = state.mesas[state.inspectAcc]; 
+      if(ci === 'all'){
+        const m = state.mesas[mi]; 
         mesaName = m.name; 
         cuentaName = 'Mesa Completa';
         
@@ -1331,8 +1185,8 @@
           total += c.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         });
       } else {
-        const m = state.mesas[state.inspectAcc];
-        const c = m.cuentas[state.inspectSub];
+        const m = state.mesas[mi];
+        const c = m.cuentas[ci];
         mesaName = m.name; 
         cuentaName = c.nombre;
         
@@ -1348,7 +1202,6 @@
       
       if(recibido < total) {
         showNot('Monto insuficiente', true);
-        logDebug('Monto recibido insuficiente para completar el pago');
         return;
       }
       
@@ -1363,84 +1216,34 @@
       
       if(await saveSale(sale)){
         // Limpiar pedidos después de cobrar
-        if(state.inspectSub === 'all') {
-          state.mesas[state.inspectAcc].cuentas.forEach(c => c.pedidos = []);
+        if(ci === 'all') {
+          // Eliminar toda la mesa después de cobrar
+          eliminarMesa(mi);
         } else {
-          state.mesas[state.inspectAcc].cuentas[state.inspectSub].pedidos = [];
+          // Eliminar solo la cuenta cobrada
+          state.mesas[mi].cuentas.splice(ci, 1);
+          
+          // Si no quedan cuentas, eliminar la mesa
+          if (state.mesas[mi].cuentas.length === 0) {
+            eliminarMesa(mi);
+          } else {
+            saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+            renderMesaView(mesaId);
+          }
         }
         
-        // Eliminar cuentas vacías
-        state.mesas[state.inspectAcc].cuentas = state.mesas[state.inspectAcc].cuentas.filter(c => c.pedidos.length > 0);
-        
-        // Si no hay cuentas, crear una nueva vacía
-        if(state.mesas[state.inspectAcc].cuentas.length === 0) {
-          state.mesas[state.inspectAcc].cuentas.push({nombre:'Cuenta 1', pedidos:[]});
-        }
-        
-        // Actualizar historial y guardar
+        // Actualizar historial
         state.salesHistory.push(sale);
         saveJSON(CONFIG.STORAGE_KEYS.SALES, state.salesHistory);
-        saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
         
         showNot(`Pago de $${sale.total.toFixed(2)} registrado`);
-        logDebug(`Pago registrado: $${sale.total.toFixed(2)}`);
-        
-        // Actualizar UI
-        renderMesas(); 
-        closePay(); 
-        openAccounts(state.inspectAcc);
+        closePay();
       } else {
         showNot('Error al registrar pago', true);
       }
     }
-    
-    function abrirEdicion(mi,ci) {
-      state.inspectAcc = mi; 
-      state.inspectSub = ci;
-      state.editList = JSON.parse(JSON.stringify(state.mesas[mi].cuentas[ci].pedidos));
-      renderEdit();
-      document.getElementById('modal-edit').classList.add('active');
-      logDebug(`Editando cuenta: Mesa ${mi}, Cuenta ${ci}`);
-    }
-    
-    function renderEdit() {
-      const ul = document.getElementById('edit-list'); 
-      ul.innerHTML = '';
-      
-      if(!state.editList.length){
-        ul.innerHTML = `<li class="empty-state">No hay productos</li>`;
-      } else {
-        state.editList.forEach((x,i) => {
-          ul.innerHTML += `
-            <li class="subcuenta">
-              <div>${x.nombre} × ${x.cantidad} = $${(x.precio * x.cantidad).toFixed(2)}</div>
-              <button class="boton-icono danger" onclick="removerItem(${i})"><i class="fas fa-trash"></i></button>
-            </li>`;
-        });
-      }
-    }
-    
-    function removerItem(i) { 
-      state.editList.splice(i, 1); 
-      renderEdit();
-      logDebug('Ítem eliminado de la edición');
-    }
-    
-    function cancelarEdicion() { 
-      document.getElementById('modal-edit').classList.remove('active');
-      logDebug('Edición cancelada');
-    }
-    
-    function guardarEdicion() {
-      state.mesas[state.inspectAcc].cuentas[state.inspectSub].pedidos = state.editList;
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      document.getElementById('modal-edit').classList.remove('active');
-      openAccounts(state.inspectAcc);
-      showNot('Pedido actualizado');
-      logDebug('Cambios guardados en el pedido');
-    }
 
-    // --- Inicio mejorado ---
+    // --- Inicio ---
     (async() => {
       // Cargar datos iniciales
       state.mesas = loadJSON(CONFIG.STORAGE_KEYS.MESAS);
@@ -1465,8 +1268,6 @@
       
       // Seleccionar primer producto si existe
       if(state.products.length) selectProd(0);
-      
-      logDebug('Sistema inicializado correctamente');
     })();
   </script>
 </body>
