@@ -2,1273 +2,1475 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>IAEgo - Sistema POS Moderno</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POS Premium | Sistema de Ventas</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #4a6cfa;
-      --primary-dark: #3a5ae0;
-      --secondary: #ff7043;
-      --success: #4caf50;
-      --warning: #ff9800;
-      --danger: #f44336;
-      --dark: #2c3e50;
-      --light: #f8f9fa;
-      --gray: #e0e0e0;
-      --border-radius: 12px;
-      --shadow: 0 4px 12px rgba(0,0,0,0.08);
-      --shadow-hover: 0 6px 16px rgba(0,0,0,0.12);
-      --transition: all 0.3s ease;
-    }
-    
+    /* --- RESET Y VARIABLES --- */
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    body, html {
-      height: 100%;
-      background: linear-gradient(135deg, #f5f7fb, #eef2ff);
-      color: #333;
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --primary-light: #eef2ff;
+      --secondary: #7209b7;
+      --accent: #f72585;
+      --success: #4cc9f0;
+      --danger: #ef233c;
+      --warning: #fca311;
+      --dark: #2b2d42;
+      --light: #f8f9fa;
+      --gray: #8d99ae;
+      --gray-light: #e2e8f0;
+      --bg: #f5f7fa;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --text-light: #ffffff;
+      --border: #e2e8f0;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
     
-    header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 64px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    /* --- HEADER --- */
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--text-light);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow-md);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      box-shadow: var(--shadow);
-      z-index: 100;
-      color: white;
+      align-items: center;
+      position: relative;
+      z-index: 10;
     }
     
-    .logo {
+    .app-title {
+      font-weight: 600;
+      font-size: 1.5rem;
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 1.4rem;
-      font-weight: 600;
+      gap: 0.75rem;
     }
     
     .header-controls {
       display: flex;
-      gap: 12px;
+      gap: 1rem;
     }
     
-    .header-btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.15);
-      border: none;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: var(--transition);
-      font-weight: 500;
-    }
-    
-    .header-btn:hover {
-      background: rgba(255,255,255,0.25);
-      transform: translateY(-2px);
-    }
-    
-    #mesaBar {
-      position: fixed;
-      top: 64px;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: white;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      overflow-x: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      z-index: 99;
-    }
-    
-    .mesa-btn {
-      flex: none;
-      margin-right: 12px;
-      padding: 0 18px;
-      height: 40px;
-      line-height: 40px;
-      border-radius: 8px;
-      border: 1px solid var(--gray);
-      background: white;
-      color: var(--dark);
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-    }
-    
-    .mesa-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-hover);
-    }
-    
-    .mesa-btn.selected {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-    
-    .mesa-btn.ocupada {
-      background: #fff3e0;
-      border-color: #ffb74d;
-      color: #e65100;
-    }
-    
-    .mesa-btn.ocupada.selected {
-      background: var(--secondary);
-      color: white;
-      border-color: var(--secondary);
-    }
-    
-    .mesa-count {
-      background: rgba(255,255,255,0.2);
-      border-radius: 12px;
-      padding: 0 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    
-    .container {
-      display: flex;
-      position: absolute;
-      top: 124px;
-      bottom: 76px;
-      left: 0;
-      right: 0;
-    }
-    
-    .sidebar {
-      width: 65%;
-      background: white;
-      overflow-y: auto;
-      border-right: 1px solid var(--gray);
-      padding: 16px;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.03);
-    }
-    
-    .category-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: var(--primary-dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .thumb-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-    
-    .thumb-list li {
-      background: white;
-      border-radius: var(--border-radius);
-      overflow: hidden;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      border: 1px solid #f0f0f0;
-    }
-    
-    .thumb-list li:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-hover);
-    }
-    
-    .thumb-list img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-      background: #f0f0f0;
-    }
-    
-    .product-info {
-      padding: 12px;
-    }
-    
-    .product-name {
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    
-    .product-price {
-      font-weight: 600;
+    .btn {
+      background: var(--card-bg);
       color: var(--primary);
-      margin-top: 4px;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
     
-    .main {
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: var(--text-light);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+    
+    .btn-sm {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+    
+    .btn-icon {
+      padding: 0.5rem;
+      min-width: 36px;
+      height: 36px;
+    }
+    
+    .btn-back {
+      background: rgba(255,255,255,0.2);
+      color: var(--text-light);
+    }
+    
+    .btn-back:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    /* --- MAIN CONTENT - PANTALLA DIVIDIDA --- */
+    .split-layout {
+      display: flex;
       flex: 1;
-      padding: 16px;
-      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    /* --- PANEL IZQUIERDO - MESAS --- */
+    .tables-panel {
+      width: 35%;
+      background: var(--card-bg);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      background: white;
-      border-radius: var(--border-radius);
-      margin: 16px;
-      box-shadow: var(--shadow);
+      overflow: hidden;
       position: relative;
     }
     
-    .details {
-      text-align: center;
-      width: 100%;
+    .panel-header {
+      padding: 1.2rem 1.5rem;
+      background: #f8f9fc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     
-    .details h2 {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-      color: var(--primary-dark);
+    .section-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--dark);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      gap: 0.5rem;
     }
-    
-    #categoryMenu {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 76px;
-      background: white;
+    .tables-bar {
       display: flex;
-      align-items: center;
-      padding: 0 20px;
+      padding: 0.75rem 1rem;
+      gap: 0.75rem;
       overflow-x: auto;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
-      z-index: 98;
+      border-bottom: 1px solid var(--border);
+      background: #f8f9fc;
     }
     
-    .category-btn {
-      flex: none;
-      margin-right: 12px;
-      padding: 0 20px;
-      height: 44px;
-      line-height: 44px;
-      border: 1px solid var(--gray);
-      border-radius: var(--border-radius);
-      background: white;
-      color: #555;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: var(--transition);
+    .table-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
       font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
     }
     
-    .category-btn.active {
+    .table-btn:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+    }
+    
+    .table-btn.active {
       background: var(--primary);
-      color: white;
+      color: var(--text-light);
+      border-color: var(--primary);
+      box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+    }
+    
+    .tables-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .table-item {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    
+    .table-item.selected {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .table-header {
+      padding: 1rem;
+      background: var(--primary-light);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--dark);
+    }
+    
+    .table-total {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+    
+    .table-body {
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .table-footer {
+      padding: 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .add-sub-btn {
+      background: var(--primary);
+      color: var(--text-light);
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+    }
+    
+    /* Subcuentas - Diseño moderno */
+    .sub-accounts {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .sub-account {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      gap: 0.5rem;
+    }
+    
+    .sub-account.selected {
+      background: rgba(67, 97, 238, 0.1);
       border-color: var(--primary);
     }
     
-    .subcuenta {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #f0f0f0;
+    .sub-account:hover {
+      background: rgba(67, 97, 238, 0.05);
     }
     
-    .btnCobro {
+    .sub-name {
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    
+    .sub-total {
+      font-weight: 600;
+      color: var(--primary);
+      flex-shrink: 0;
+      margin: 0 0.3rem;
+      font-size: 0.9rem;
+    }
+    
+    .sub-controls {
       display: flex;
-      gap: 8px;
+      gap: 0.3rem;
     }
     
-    .boton-icono {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
+    .sub-controls .btn {
+      padding: 0.3rem;
+      min-width: 28px;
+      height: 28px;
+    }
+    
+    /* --- PANEL DERECHO - PRODUCTOS --- */
+    .products-panel {
+      position: relative;
+      width: 65%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .categories-container {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      overflow-x: auto;
+    }
+    
+    nav.categories {
+      display: flex;
+      gap: .6rem;
+      flex-wrap: nowrap;
+      padding-bottom: 0.2rem;
+    }
+    
+    nav.categories button {
+      background: var(--card-bg);
+      border: none;
+      padding: .6rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    
+    nav.categories button:hover {
+      background: #f0f2f5;
+    }
+    
+    nav.categories button.active {
+      color: var(--text-light);
+      background: var(--primary);
+      box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+      border-color: var(--primary);
+    }
+    
+    .products-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.5rem;
+      align-content: start;
+    }
+    
+    .product-card {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .product-image {
+      width: 100%;
+      height: 120px;
+      position: relative;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    
+    .product-image i {
+      font-size: 2.5rem;
+      opacity: 0.3;
+    }
+    
+    .product-info {
+      padding: 5px;
+      bottom: 0;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: absolute;
+      width: 100%;
+      background-color: #0c101991;
+      box-shadow: var(--shadow-md);
+      border-radius: 0px 0px 10px 10px;
+    }
+    
+    .product-price {
+      margin-right: 0.5rem;
+      color: #ffffff;
+      font-weight: 600;
+    }
+    
+    .product-name {
+      margin-left: 0.5rem;
+      color: #b8e3f5;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .product-actions {
+      margin-top: 10px;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 0.8rem;
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .product-actions:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .qty-input {
+      width: 60px;
+      padding: .6rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    .add-btn {
+      flex: 1;
+      background: var(--primary);
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: .6rem;
+      font-size: .85rem;
+      cursor: pointer;
+      transition: var(--transition);
       display: flex;
       align-items: center;
       justify-content: center;
-      border: none;
-      cursor: pointer;
-      transition: var(--transition);
+      gap: 0.3rem;
     }
     
-    .boton-icono:hover {
-      transform: scale(1.1);
+    .add-btn:hover {
+      background: var(--primary-dark);
     }
     
-    .boton-icono.success {
-      background: var(--success);
-      color: white;
+    .add-btn:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
     }
     
-    .boton-icono.warning {
-      background: var(--warning);
-      color: white;
-    }
-    
-    .boton-icono.danger {
-      background: var(--danger);
-      color: white;
-    }
-    
-    .boton-icono.info {
-      background: var(--primary);
-      color: white;
+    /* --- MODAL --- */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      place-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
     }
     
     .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
       width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      visibility: hidden;
-      opacity: 0;
-      transition: 0.3s;
-      z-index: 1000;
-    }
-    
-    .modal.active {
-      visibility: visible;
-      opacity: 1;
-    }
-    
-    .modal .panel {
-      background: white;
-      border-radius: var(--border-radius);
-      padding: 28px;
       max-width: 500px;
-      width: 90%;
-      max-height: 80%;
-      overflow-y: auto;
-      animation: fadeIn 0.3s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: var(--shadow-lg);
+      animation: modalAppear 0.3s ease-out;
     }
     
-    @keyframes fadeIn {
+    @keyframes modalAppear {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--success);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transform: translateX(120%);
-      transition: transform 0.3s;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.error {
-      background: var(--danger);
-    }
-    
-    /* Responsive design */
-    @media (max-width: 768px) {
-      .thumb-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .container {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        height: 40%;
-      }
-      .main {
-        width: 100%;
-        height: 60%;
-      }
-    }
-    
-    /* Empty state styles */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #777;
-    }
-    
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 20px;
-      color: #e0e0e0;
-    }
-    
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
-      border-radius: 10px;
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-      background: #a1a1a1;
-    }
-    
-    /* Payment form styling */
-    .payment-form {
-      display: grid;
-      gap: 15px;
-    }
-    
-    .payment-form label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    
-    .payment-form input,
-    .payment-form select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-    
-    .payment-total {
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-align: center;
-      margin: 15px 0;
-      color: var(--primary);
-    }
-    
-    /* Product counter */
-    .product-counter {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
-    }
-    
-    .counter-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #ddd;
-      background: #f9f9f9;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: var(--transition);
-    }
-    
-    .counter-btn:hover {
-      background: #e9e9e9;
-    }
-    
-    .counter-value {
-      font-size: 1.2rem;
-      font-weight: 500;
-      min-width: 30px;
-      text-align: center;
-    }
-    
-    /* Totals section */
-    .totals-section {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 2px dashed #e0e0e0;
-    }
-    
-    .totals-row {
+    .modal-header {
+      margin-bottom: 1.5rem;
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
+      align-items: center;
     }
     
-    .total-label {
+    .modal-title {
       font-weight: 600;
-    }
-    
-    .total-value {
-      font-weight: 700;
-      color: var(--primary);
-    }
-    
-    .grand-total {
       font-size: 1.4rem;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 2px solid var(--primary);
+      color: var(--dark);
     }
     
-    /* Animation for price updates */
-    @keyframes highlight {
-      0% { background-color: #fff9c4; }
-      100% { background-color: transparent; }
+    .modal-body {
+      margin-bottom: 1.8rem;
     }
     
-    .price-update {
-      animation: highlight 1s ease;
+    .modal-list {
+      list-style: none;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
     }
     
-    /* Mesa view styles */
-    .mesa-header {
+    .modal-list li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--primary);
+      font-size: 0.9rem;
     }
     
-    .cuenta-card {
-      background: #f9f9ff;
-      border-radius: var(--border-radius);
-      padding: 15px;
-      margin-bottom: 15px;
-      box-shadow: var(--shadow);
+    .modal-list li:last-child {
+      border-bottom: none;
     }
     
-    .cuenta-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
+    .modal-input {
+      width: 100%;
+      padding: .9rem 1.2rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background: var(--bg);
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
     }
     
-    .cuenta-title {
-      font-size: 1.2rem;
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .modal-total {
+      text-align: right;
+      font-size: 1.3rem;
       font-weight: 600;
-      color: var(--primary-dark);
+      margin: 1.5rem 0;
+      padding-top: 1rem;
+      border-top: 2px solid var(--border);
     }
     
-    .product-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+    .modal-total span {
+      color: var(--primary);
     }
     
-    .product-name {
-      flex: 2;
+    .modal-select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
     }
     
-    .product-qty {
-      flex: 1;
-      text-align: center;
-    }
-    
-    .product-price {
-      flex: 1;
-      text-align: right;
-    }
-    
-    .cuenta-total {
-      font-weight: 700;
-      text-align: right;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid #ddd;
-    }
-    
-    .cuenta-actions {
+    .btn-group {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
+      gap: .8rem;
     }
     
-    .mesa-total {
-      background: var(--primary);
-      color: white;
-      padding: 15px;
-      border-radius: var(--border-radius);
-      font-size: 1.3rem;
-      font-weight: 700;
+    .btn-cancel {
+      background: var(--gray);
+      color: var(--text-light);
+    }
+    
+    .btn-cancel:hover {
+      background: #7b8799;
+    }
+    
+    .btn-confirm {
+      background: var(--success);
+      color: var(--text-light);
+    }
+    
+    .btn-confirm:hover {
+      background: #3db3d9;
+    }
+    
+    /* --- STATUS BAR --- */
+    .status-bar {
+      padding: 0.8rem 1.5rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-value {
+      font-weight: 600;
+      color: var(--dark);
+      margin-left: 0.2rem;
+    }
+    
+    /* --- NO TABLES MESSAGE --- */
+    .no-tables {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
       text-align: center;
-      margin-top: 20px;
+      padding: 2rem;
+      color: var(--gray);
+    }
+    
+    .no-tables i {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+    
+    /* Table header controls */
+    .table-header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Charge all button */
+    .btn-charge-all {
+      background: var(--accent);
+      color: var(--text-light);
+    }
+    
+    .btn-charge-all:hover {
+      background: #e61677;
+    }
+
+    /* Edit button */
+    .btn-edit {
+      background: var(--warning);
+      color: var(--text-light);
+    }
+    
+    .btn-edit:hover {
+      background: #e0940f;
+    }
+
+    .btn-delete {
+      background: var(--danger);
+      color: var(--text-light);
+    }
+    
+    .btn-delete:hover {
+      background: #d21b2f;
+    }
+
+    #keyboard {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 5px;
+    }
+    #keyboard button {
+      padding: 10px; 
+      font-size: 16px; 
+      border: 1px solid #ccc;
+      border-radius: 4px; 
+      background: #f0f0f0; 
+      cursor: pointer;
+    }
+    #keyboard button:active { 
+      background: #d0d0d0; 
+    }
+    .wide { 
+      grid-column: span 2; 
+    }
+    
+    /* --- RESPONSIVE --- */
+    @media (max-width: 1200px) {
+      .tables-panel {
+        width: 40%;
+      }
+      
+      .products-panel {
+        width: 60%;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .split-layout {
+        flex-direction: column;
+      }
+      
+      .tables-panel, .products-panel {
+        width: 100%;
+        height: 50%;
+      }
+      
+      .tables-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 1rem;
+      }
+      
+      .products-container {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+
+      .tables-container, .products-container {
+        padding: 1rem;
+      }
+      
+      .header-controls .btn {
+        padding: 0.5rem;
+      }
+      
+      .table-header-controls {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      
+      .modal {
+        max-width: 95%;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo"><i class="fas fa-cash-register"></i><span> IAEgo POS</span></div>
+  <header class="app-header">
+    <div class="app-title">
+      <i class="fas fa-cash-register"></i> POS IAEgo
+    </div>
     <div class="header-controls">
-      <button onclick="crearMesa()" class="header-btn"><i class="fas fa-plus"></i> Nueva Mesa</button>
-      <button onclick="verHistorial()" class="header-btn"><i class="fas fa-history"></i> Historial</button>
-      <button onclick="refrescarProductos()" class="header-btn"><i class="fas fa-sync"></i> Actualizar</button>
+      <button class="btn btn-sm btn-back" onclick="goBack()" id="back-button">
+        <i class="fas fa-arrow-left"></i> Regresar
+      </button>
+      <button class="btn btn-sm" onclick="fetchYRefresh()">
+        <i class="fas fa-sync"></i> Actualizar
+      </button>
     </div>
   </header>
 
-  <div id="mesaBar"></div>
-
-  <div class="container">
-    <aside class="sidebar">
-      <div class="category-title"><i class="fas fa-utensils"></i> Productos Disponibles</div>
-      <ul class="thumb-list" id="thumbList"></ul>
-    </aside>
-    
-    <section class="main" id="mesaView">
-      <div class="mesa-header">
-        <h2><i class="fas fa-table"></i> <span id="currentMesaName">Seleccione una mesa</span></h2>
-        <button onclick="cerrarMesaView()" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
+  <div class="split-layout">
+    <div class="tables-panel">
+      <div class="panel-header">
+        <h2 class="section-title">
+          <i class="fas fa-table"></i> Mesas Activas
+        </h2>
+        <button id="add-table" class="btn btn-sm btn-primary">
+          <i class="fas fa-plus"></i> Agregar Mesa
+        </button>
       </div>
-      
-      <div id="cuentasContainer" class="empty-state">
-        <i class="fas fa-receipt"></i>
-        <h3>No hay cuentas abiertas</h3>
-        <p>Seleccione una mesa para ver sus cuentas</p>
+
+      <div class="tables-bar" id="tables-bar"></div>
+      <div class="tables-container" id="tables-container">
+        <div class="tables-list" id="tables-list"></div>
       </div>
-    </section>
-  </div>
+      <div class="status-bar">
+        <div id="keyboard"></div>
+      </div>
+    </div>
 
-  <div id="categoryMenu"></div>
+    <div class="products-panel">
+      <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+          <div id="modalBody"></div>
+          <div class="btn-group">
+            <button id="modalCancel" class="btn btn-cancel">Cancelar</button>
+            <button id="modalConfirm" class="btn btn-confirm">Confirmar</button>
+          </div>
+        </div>
+      </div>
 
-  <!-- Modal de cobro -->
-  <div class="modal" id="modal-cobrar">
-    <div class="panel" id="payPanel"></div>
-  </div>
-
-  <!-- Modal de historial -->
-  <div class="modal" id="modal-history">
-    <div class="panel">
-      <h3><i class="fas fa-history"></i> Historial Ventas</h3>
-      <ul id="history-list"></ul>
-      <div class="actions">
-        <button onclick="cerrarHistorial()" class="btn-secondary">Cerrar</button>
+      <div class="categories-container">
+        <nav class="categories" id="categories"></nav>
+      </div>
+      <div class="products-container" id="recetas-cards"></div>
+      <div class="status-bar">
+        <div class="status-item">
+          <i class="fas fa-layer-group"></i>
+          <span>Mesas activas: <span class="status-value" id="active-tables"></span></span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-box"></i>
+          <span>Productos: <span class="status-value" id="product-count"></span></span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-tags"></i>
+          <span>Categorías: <span class="status-value" id="category-count"></span></span>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="notification" id="notification">
-    <i class="fas fa-info-circle"></i><span id="notification-text"></span>
-  </div>
-
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    // CONFIGURACIÓN
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
     const CONFIG = {
-      STORAGE_KEYS: { 
-        ALMACEN: 'almacen6525', 
-        MESAS: 'mesas',
-        PRODUCTS: 'products',
-        SALES: 'salesHistory'
-      },
-      FACTORES: { mg: 0.001, g:1, kg:1000, ml:1, l:1000, pz:1 },
+      STORAGE_KEYS: { ALMACEN: 'almacen6525', COSTEADAS: 'recetasCosteadas' },
+      FACTORES: { mg: 0.001, g: 1, kg: 1000, ml: 1, l: 1000, pz: 1 },
+      CATEGORIAS: { volumen: ['ml','l'], peso: ['mg','g','kg'], conteo: ['pz'] },
       MARGEN: 2
     };
-    
+
+    // Helpers
+    async function apiFetch(op, payload = {}) {
+      const form = new FormData();
+      form.append('op', op);
+      Object.entries(payload).forEach(([key, value]) => form.append(key, value));
+      const response = await fetch(GAS_URL, { method: 'POST', body: form });
+      const json = await response.json();
+      if (json.status === 'success') return json.data;
+      throw new Error(json.message);
+    }
+
+    function calcularCosto(ingredientes) {
+      const almacen = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.ALMACEN) || '[]');
+      const factores = CONFIG.FACTORES;
+      let total = 0;
+
+      ingredientes.forEach(item => {
+        const producto = almacen.find(p => String(p.codigo) === String(item.codigo));
+        if (!producto) return;
+
+        const unidadAlmacen = factores[producto.unidadDeMedida.trim().toLowerCase()];
+        const unidadIngrediente = factores[item.unidad.trim().toLowerCase()];
+        const precioUnitario = producto.precio / (unidadAlmacen * parseFloat(producto.cantidad));
+        total += precioUnitario * (unidadIngrediente * item.cantidad);
+      });
+
+      return parseFloat(total.toFixed(2));
+    }
+
+    function aplicarMargen(costo) {
+      return parseFloat((costo * CONFIG.MARGEN).toFixed(2));
+    }
+
     // Estado global
-    const state = {
-      products: [],
-      mesas: [],
-      salesHistory: [],
-      currentMesaId: null,
-      currentProd: -1,
-      currentQty: 1,
-      currentCategory: 'Todas',
-      debugMode: false
-    };
+    const STORAGE_KEY_TABLES = 'pv_tables';
+    let recetas = [];
+    let categorias = [];
+    let tables = JSON.parse(localStorage.getItem(STORAGE_KEY_TABLES) || '[]');
 
-    // --- Utilidades ---
-    function logDebug(message) {
-      if (state.debugMode) {
-        console.log(`[DEBUG] ${message}`);
-      }
-    }
-    
-    function loadJSON(key) {
-      try { 
-        const d = localStorage.getItem(key); 
-        return d ? JSON.parse(d) : []; 
-      } catch(e) {
-        return []; 
-      }
-    }
-    
-    function saveJSON(key,val) {
-      try { 
-        localStorage.setItem(key, JSON.stringify(val)); 
-        return true; 
-      } catch(e) {
-        return false; 
-      }
-    }
-    
-    function showNot(msg,err=false) {
-      const n = document.getElementById('notification');
-      const t = document.getElementById('notification-text');
-      t.textContent = msg;
-      n.className = err ? 'notification error show' : 'notification show';
-      setTimeout(()=> n.className = 'notification',3000);
-    }
-    
-    // Función clave: encontrar índice por ID de mesa
-    function findMesaIndexById(id) {
-      return state.mesas.findIndex(m => m.id === id);
+    let selectedTableId = null;
+    let selectedSubId = null;
+    let selectedCat = '';
+
+    // Modal DOM
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalBody = document.getElementById('modalBody');
+    const btnCancel = document.getElementById('modalCancel');
+    const btnConfirm = document.getElementById('modalConfirm');
+    btnCancel.addEventListener('click', closeModal);
+
+    function closeModal() {
+      modalOverlay.style.display = 'none';
     }
 
-    // --- Costos ---
-    function calcularCosto(ingredientes,alm) {
-      const f = CONFIG.FACTORES; 
-      let total=0;
-      ingredientes.forEach(item=>{
-        const p = alm.find(x=>String(x.codigo)===String(item.codigo));
-        if(!p) return;
-        const ua = f[p.unidadDeMedida.trim().toLowerCase()];
-        const ui = f[item.unidad.trim().toLowerCase()];
-        if(ua && ui){
-          const base = ua*parseFloat(p.cantidad);
-          const precioU = p.precio/base;
-          total += precioU * (ui*item.cantidad);
-        }
-      });
-      return +total.toFixed(2);
-    }
-    
-    function aplicarMargen(c) { 
-      return +(c*CONFIG.MARGEN).toFixed(2); 
-    }
-
-    // --- Fetch remoto ---
-    async function fetchRec() {
+    // Inicialización y refresco de datos
+    async function fetchYRefresh() {
+      inicialRender();
       try {
-        const fd = new FormData(); 
-        fd.append('op','obtenerCocina');
-        const r = await fetch(API_URL,{method:'POST',body:fd});
-        const j = await r.json();
-        if(j.status === 'success') {
-          return j.data;
-        }
-        throw new Error(j.message || 'Error desconocido');
-      } catch(e) {
-        showNot('Error al obtener recetas', true);
-        return []; 
+        const almacen = await apiFetch('obtenerAlmacen');
+        localStorage.setItem(CONFIG.STORAGE_KEYS.ALMACEN, JSON.stringify(almacen));
+
+        const cocina = await apiFetch('obtenerCocina');
+        localStorage.setItem(CONFIG.STORAGE_KEYS.COSTEADAS, JSON.stringify(cocina));
+      } catch (error) {
+        console.error(error);
       }
-    }
-    
-    async function saveSale(sale) {
-      try {
-        const fd = new FormData();
-        fd.append('op','guardarVentas');
-        fd.append('venta',JSON.stringify(sale));
-        fd.append('metodoPago',sale.metodoPago);
-        const r = await fetch(API_URL,{method:'POST',body:fd});
-        const j = await r.json();
-        if(j.status === 'success') {
-          return true;
-        }
-        throw new Error(j.message || 'Error al guardar venta');
-      } catch(e) {
-        showNot('Error al guardar venta', true);
-        return false; 
-      }
+      inicialRender();
     }
 
-    // --- Render dinámico ---
-    function setupCats() {
-      const cats = ['Todas'];
-      state.products.forEach(p=>{
-        if(p.categoria && !cats.includes(p.categoria)) cats.push(p.categoria);
-      });
-      window.categoriesJson = cats.map(c=>({name:c,filter:c==='Todas'?null:c}));
+    function inicialRender() {
+      const costeadas = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.COSTEADAS) || '[]');
+      recetas = costeadas.map(r => ({
+        ...r,
+        precio: aplicarMargen(calcularCosto(r.ingredientes))
+      }));
+
+      categorias = [...new Set(recetas.map(r => r.categoria).filter(c => c))].sort();
+
+      renderCategorias();
+      renderRecetas();
+      renderTables();
+      updateStatusBar();
     }
-    
-    function renderCats() {
-      const m = document.getElementById('categoryMenu');
-      m.innerHTML = '';
-      window.categoriesJson.forEach(c=>{
-        m.innerHTML += `<button onclick="filtrarCat('${c.name}')" class="category-btn${c.name===state.currentCategory?' active':''}">${c.name}</button>`;
-      });
+
+    function updateStatusBar() {
+      document.getElementById('active-tables').textContent = tables.length;
+      document.getElementById('product-count').textContent = recetas.length;
+      document.getElementById('category-count').textContent = categorias.length;
     }
-    
-    function renderThumbnails() {
-      const l = document.getElementById('thumbList');
-      l.innerHTML = '';
-      const list = state.currentCategory==='Todas'? state.products: state.products.filter(p=>p.categoria===state.currentCategory);
-      
-      if(!list.length){
-        l.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>No hay productos</h3></div>`;
-        return;
-      }
-      
-      list.forEach((p,i)=>{
-        l.innerHTML += `
-          <li onclick="selectProd(${i})">
-            <img src="${p.imagen}" alt="${p.nombre}" >
-            <div class="product-info">
-              <div class="product-name">${p.nombre}</div>
-              <div class="product-price">$${p.precio.toFixed(2)}</div>
-            </div>
-          </li>`;
-      });
+
+    // Renderizado UI
+    function renderCategorias() {
+      const nav = document.getElementById('categories');
+      const btnTodas = `<button class="${selectedCat === '' ? 'active' : ''}" onclick="selectCategory('')">Todas</button>`;
+      const btnCats = categorias.map(c => `
+        <button class="${selectedCat === c ? 'active' : ''}" onclick="selectCategory('${c}')">
+          ${c}
+        </button>
+      `).join('');
+      nav.innerHTML = btnTodas + btnCats;
     }
-    
-    function renderMesas() {
-      const bar = document.getElementById('mesaBar');
-      bar.innerHTML = '';
-      state.mesas.forEach(m=>{
-        const cnt = m.cuentas.flatMap(c=>c.pedidos.map(x=>x.cantidad)).reduce((a,b)=>a+b,0);
-        bar.innerHTML += `
-          <button onclick="abrirMesa(${m.id})" class="mesa-btn${m.id===state.currentMesaId?' selected':''}${cnt>0?' ocupada':''}">
-            ${m.name} (${cnt} pz)
-          </button>`;
-      });
-    }
-    
-    // Función clave: renderizar vista de mesa en el panel principal
-    function renderMesaView(mesaId) {
-      const index = findMesaIndexById(mesaId);
-      if (index === -1) return;
+
+    function renderRecetas() {
+      const container = document.getElementById('recetas-cards');
+      const filtradas = recetas.filter(r => !selectedCat || r.categoria === selectedCat);
       
-      const mesa = state.mesas[index];
-      document.getElementById('currentMesaName').textContent = mesa.name;
-      
-      const container = document.getElementById('cuentasContainer');
-      container.innerHTML = '';
-      
-      if(!mesa.cuentas.length){
-        container.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><h3>No hay cuentas</h3></div>`;
-        return;
-      }
-      
-      let mesaTotal = 0;
-      
-      mesa.cuentas.forEach((cuenta, ci)=>{
-        const cuentaTotal = cuenta.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        mesaTotal += cuentaTotal;
+      const cards = filtradas.map(r => {
+        const precioFormateado = r.precio.toLocaleString('es-MX', {
+          style: 'currency',
+          currency: 'MXN'
+        });
         
-        const cuentaHTML = `
-          <div class="cuenta-card">
-            <div class="cuenta-header">
-              <div class="cuenta-title">${cuenta.nombre}</div>
-              <div class="cuenta-total">Total: $${cuentaTotal.toFixed(2)}</div>
+        return `
+          <div class="product-card">
+            <div class="product-image">
+              ${r.imagen
+                ? `<img src="${r.imagen}" alt="${r.nombre}">`
+                : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f2f5; border-radius: 10px;"><i class="fas fa-utensils"></i></div>`}
+              <div class="product-info">
+                <div class="product-name">${r.nombre}</div>
+                <div class="product-price">${precioFormateado}</div>
+              </div>
             </div>
             
-            <div class="cuenta-content">
-              ${cuenta.pedidos.length ? '' : '<div class="empty-state small">No hay productos en esta cuenta</div>'}
-              ${cuenta.pedidos.map((p, pi) => `
-                <div class="product-item">
-                  <div class="product-name">${p.nombre}</div>
-                  <div class="product-qty">${p.cantidad} x $${p.precio.toFixed(2)}</div>
-                  <div class="product-price">$${(p.precio * p.cantidad).toFixed(2)}</div>
-                </div>
-              `).join('')}
-            </div>
-            
-            <div class="cuenta-actions">
-              <button onclick="addToCuenta(${index}, ${ci})" class="boton-icono info"><i class="fas fa-plus"></i></button>
-              <button onclick="openPay(${index}, ${ci})" class="boton-icono success"><i class="fas fa-cash-register"></i></button>
-              <button onclick="eliminarCuenta(${index}, ${ci})" class="boton-icono danger"><i class="fas fa-trash"></i></button>
+            <div class="product-actions">
+              <input
+                type="number"
+                min="1"
+                value="1"
+                id="qty-${r.codigo}"
+                class="qty-input"
+              >
+              <button
+                class="add-btn"
+                onclick="addItem('${r.codigo}')"
+              >
+                <i class="fas fa-plus"></i> Añadir
+              </button>
             </div>
           </div>
         `;
-        
-        container.innerHTML += cuentaHTML;
-      });
+      }).join('');
       
-      // Añadir total de mesa
-      container.innerHTML += `
-        <div class="mesa-total">
-          Total Mesa: $${mesaTotal.toFixed(2)}
-        </div>
-        <div class="actions" style="margin-top:15px">
-          <button onclick="nuevaCuenta()" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
-          <button onclick="cobrarTodo(${index})" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
-        </div>
-      `;
-    }
-    
-    // Función para cerrar la vista de mesa
-    function cerrarMesaView() {
-      state.currentMesaId = null;
-      document.getElementById('currentMesaName').textContent = 'Seleccione una mesa';
-      document.getElementById('cuentasContainer').innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-receipt"></i>
-          <h3>No hay cuentas abiertas</h3>
-          <p>Seleccione una mesa para ver sus cuentas</p>
-        </div>
-      `;
-      renderMesas();
+      container.innerHTML = cards;
     }
 
-    // --- Funciones UI ---
-    function filtrarCat(cat) {
-      state.currentCategory = cat; 
-      renderCats(); 
-      renderThumbnails();
-    }
-    
-    function selectProd(i) {
-      state.currentProd = i; 
-      const p = state.products[i];
-      state.currentQty = 1; 
-      showNot(`Producto seleccionado: ${p.nombre}`);
-    }
-    
-    function cambiarCantidad(d) {
-      state.currentQty = Math.max(1, state.currentQty + d);
-    }
-    
-    // Función clave: abrir mesa en la vista principal
-    function abrirMesa(id) {
-      state.currentMesaId = id;
-      renderMesas();
-      renderMesaView(id);
-    }
-    
-    function addToCuenta(mi, ci) {
-      if(state.currentProd < 0) {
-        showNot('Selecciona un producto', true);
+    function renderTables() {
+      const barContainer = document.getElementById('tables-bar');
+      const listContainer = document.getElementById('tables-list');
+      
+      // Limpiar contenedores
+      barContainer.innerHTML = '';
+      listContainer.innerHTML = '';
+      
+      if (tables.length === 0) {
+        listContainer.innerHTML = `
+          <div class="no-tables">
+            <i class="fas fa-table"></i>
+            <h3>No hay mesas activas</h3>
+            <p>Agrega una nueva mesa para comenzar</p>
+            <button class="btn btn-primary" onclick="addTable()">
+              <i class="fas fa-plus"></i> Agregar Mesa
+            </button>
+          </div>
+        `;
         return;
       }
       
-      const p = state.products[state.currentProd];
-      const cuenta = state.mesas[mi].cuentas[ci];
-      
-      const ex = cuenta.pedidos.find(x=>x.codigo===p.codigo);
-      
-      if(ex) {
-        ex.cantidad += state.currentQty;
-      } else {
-        cuenta.pedidos.push({
-          codigo: p.codigo,
-          nombre: p.nombre,
-          precio: p.precio,
-          cantidad: state.currentQty
-        });
-      }
-      
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      showNot(`${state.currentQty}× ${p.nombre} añadido a ${cuenta.nombre}`);
-      renderMesaView(state.mesas[mi].id);
-      state.currentQty = 1;
-    }
-    
-    function crearMesa() {
-      const next = state.mesas.length ? Math.max(...state.mesas.map(m=>m.id)) + 1 : 1;
-      state.mesas.push({
-        id: next,
-        name: `Mesa ${next}`,
-        cuentas: [{nombre:'Cuenta 1', pedidos:[]}]
+      // Renderizar botones de mesas
+      tables.forEach(table => {
+        const button = document.createElement('button');
+        button.className = `table-btn ${table.id === selectedTableId ? 'active' : ''}`;
+        button.textContent = table.name;
+        button.onclick = () => selectTable(table.id);
+        barContainer.appendChild(button);
       });
       
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      renderMesas(); 
-      abrirMesa(next);
-      showNot(`Mesa ${next} creada`);
-    }
-    
-    function verHistorial() {
-      const ul = document.getElementById('history-list'); 
-      ul.innerHTML = '';
-      
-      if(!state.salesHistory.length){
-        ul.innerHTML = `<div class="empty-state"><i class="fas fa-history"></i><h3>No hay historial</h3></div>`;
-      } else {
-        state.salesHistory.forEach(s => {
-          ul.innerHTML += `
-            <li class="subcuenta">
-              <div>${s.mesa} - ${s.cuenta} <small>${new Date(s.fecha).toLocaleString()}</small></div>
-              <div>$${s.total.toFixed(2)} - ${s.metodoPago}</div>
-            </li>`;
-        });
-      }
-      
-      document.getElementById('modal-history').classList.add('active');
-    }
-    
-    function cerrarHistorial() { 
-      document.getElementById('modal-history').classList.remove('active');
-    }
-    
-    async function refrescarProductos() {
-      const rec = await fetchRec();
-      if(!rec.length) return;
-      
-      const alm = loadJSON(CONFIG.STORAGE_KEYS.ALMACEN);
-      state.products = rec.map(r => ({
-        codigo: r.codigo,
-        nombre: r.nombre,
-        descripcion: r.descripcion || '',
-        categoria: r.categoria || '',
-        imagen: r.imagen || 'https://via.placeholder.com/300x200?text=No+img',
-        precio: aplicarMargen(calcularCosto(r.ingredientes, alm)),
-        ingredientes: r.ingredientes
-      }));
-      
-      saveJSON(CONFIG.STORAGE_KEYS.PRODUCTS, state.products);
-      setupCats(); 
-      renderCats(); 
-      renderThumbnails();
-      
-      if(state.products.length) selectProd(0);
-      showNot('Productos actualizados');
-    }
-    
-    function nuevaCuenta() {
-      if (state.currentMesaId === null) {
-        showNot('Selecciona una mesa primero', true);
-        return;
-      }
-      
-      const index = findMesaIndexById(state.currentMesaId);
-      if (index === -1) return;
-      
-      const m = state.mesas[index];
-      const num = m.cuentas.length + 1;
-      m.cuentas.push({nombre: `Cuenta ${num}`, pedidos: []});
-      
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      renderMesaView(state.currentMesaId);
-      showNot(`Cuenta ${num} creada`);
-    }
-    
-    function eliminarCuenta(mi, ci) {
-      state.mesas[mi].cuentas.splice(ci, 1);
-      
-      // Si no quedan cuentas, eliminar la mesa
-      if (state.mesas[mi].cuentas.length === 0) {
-        eliminarMesa(mi);
-        return;
-      }
-      
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      renderMesaView(state.mesas[mi].id);
-      showNot('Cuenta eliminada');
-    }
-    
-    function eliminarMesa(index) {
-      state.mesas.splice(index, 1);
-      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-      cerrarMesaView();
-      renderMesas();
-      showNot('Mesa eliminada');
-    }
-    
-    function cobrarTodo(mi) { 
-      openPay(mi, 'all'); 
-    }
-    
-    function openPay(mi, ci) {
-      let items = [], total = 0, title = '';
-      
-      if(ci === 'all'){
-        title = 'Cobrar Mesa Completa';
-        state.mesas[mi].cuentas.forEach(c => {
-          items = items.concat(c.pedidos);
-          total += c.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        });
-      } else {
-        const c = state.mesas[mi].cuentas[ci];
-        title = `Cobrar ${c.nombre}`;
-        items = c.pedidos.slice();
-        total = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-      }
-      
-      total = +total.toFixed(2);
-      
-      let html = `<h3><i class="fas fa-cash-register"></i> ${title}</h3><ul class="payment-list">`;
-      
-      if(!items.length) {
-        html += '<li class="empty-state">No hay productos</li>';
-      } else {
-        items.forEach(i => {
-          html += `
-            <li class="subcuenta">
-              <div>${i.nombre} × ${i.cantidad}</div>
-              <div>$${(i.precio * i.cantidad).toFixed(2)}</div>
-            </li>`;
-        });
-      }
-      
-      html += `</ul>
-        <div class="payment-total">Total: $${total.toFixed(2)}</div>
-        <div class="payment-form">
-          <label>Método de Pago:</label>
-          <select id="payMethod">
-            <option>Efectivo</option>
-            <option>Tarjeta Crédito</option>
-            <option>Tarjeta Débito</option>
-            <option>Transferencia</option>
-          </select>
-          <label>Monto Recibido:</label>
-          <input type="number" min="0" step="0.01" value="${total}" 
-                 oninput="actualizarCambio(this.value, ${total})" 
-                 id="receivedAmount"/>
-          <div id="payChange">Cambio: $0.00</div>
-        </div>
-        <div class="actions">
-          <button onclick="confirmPay(${mi}, '${ci}')" class="btn-add">Confirmar Pago</button>
-          <button onclick="closePay()" class="btn-secondary">Cancelar</button>
-        </div>`;
-      
-      document.getElementById('payPanel').innerHTML = html;
-      document.getElementById('modal-cobrar').classList.add('active');
-    }
-    
-    function actualizarCambio(recibido, total) {
-      const recibidoNum = parseFloat(recibido) || 0;
-      const cambio = recibidoNum - total;
-      const cambioTexto = cambio >= 0 ? `$${cambio.toFixed(2)}` : `-$${Math.abs(cambio).toFixed(2)}`;
-      
-      document.getElementById('payChange').textContent = `Cambio: ${cambioTexto}`;
-      document.getElementById('payChange').style.color = cambio >= 0 ? 'var(--success)' : 'var(--danger)';
-    }
-    
-    function closePay() { 
-      document.getElementById('modal-cobrar').classList.remove('active');
-    }
-    
-    async function confirmPay(mi, ci) {
-      const metodo = document.getElementById('payMethod').value;
-      const recibido = parseFloat(document.getElementById('receivedAmount').value) || 0;
-      
-      let items = [], total = 0, mesaName = '', cuentaName = '';
-      const mesaId = state.mesas[mi].id;
-      
-      if(ci === 'all'){
-        const m = state.mesas[mi]; 
-        mesaName = m.name; 
-        cuentaName = 'Mesa Completa';
-        
-        m.cuentas.forEach(c => {
-          items = items.concat(c.pedidos.map(i => ({
-            codigo: String(i.codigo),
-            producto: i.nombre,
-            cantidad: i.cantidad,
-            total: +(i.precio * i.cantidad).toFixed(2)
-          })));
-          
-          total += c.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-        });
-      } else {
-        const m = state.mesas[mi];
-        const c = m.cuentas[ci];
-        mesaName = m.name; 
-        cuentaName = c.nombre;
-        
-        items = c.pedidos.map(i => ({
-          codigo: String(i.codigo),
-          producto: i.nombre,
-          cantidad: i.cantidad,
-          total: +(i.precio * i.cantidad).toFixed(2)
-        }));
-        
-        total = items.reduce((sum, item) => sum + item.total, 0);
-      }
-      
-      if(recibido < total) {
-        showNot('Monto insuficiente', true);
-        return;
-      }
-      
-      const sale = {
-        fecha: new Date().toISOString(),
-        metodoPago: metodo,
-        items,
-        mesa: mesaName,
-        cuenta: cuentaName,
-        total
-      };
-      
-      if(await saveSale(sale)){
-        // Limpiar pedidos después de cobrar
-        if(ci === 'all') {
-          // Eliminar toda la mesa después de cobrar
-          eliminarMesa(mi);
-        } else {
-          // Eliminar solo la cuenta cobrada
-          state.mesas[mi].cuentas.splice(ci, 1);
-          
-          // Si no quedan cuentas, eliminar la mesa
-          if (state.mesas[mi].cuentas.length === 0) {
-            eliminarMesa(mi);
-          } else {
-            saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
-            renderMesaView(mesaId);
-          }
+      // Si hay una mesa seleccionada, renderizar su detalle
+      if (selectedTableId !== null) {
+        const table = tables.find(t => t.id === selectedTableId);
+        if (table) {
+          renderTableDetail(table, listContainer);
         }
-        
-        // Actualizar historial
-        state.salesHistory.push(sale);
-        saveJSON(CONFIG.STORAGE_KEYS.SALES, state.salesHistory);
-        
-        showNot(`Pago de $${sale.total.toFixed(2)} registrado`);
-        closePay();
-      } else {
-        showNot('Error al registrar pago', true);
       }
     }
 
-    // --- Inicio ---
-    (async() => {
-      // Cargar datos iniciales
-      state.mesas = loadJSON(CONFIG.STORAGE_KEYS.MESAS);
-      state.salesHistory = loadJSON(CONFIG.STORAGE_KEYS.SALES) || [];
-      state.products = loadJSON(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
+    function renderTableDetail(table, container) {
+      const totalMesa = table.subs
+        .flatMap(s => s.cart)
+        .reduce((sum, i) => sum + i.precio * i.qty, 0);
+        
+      const totalFormateado = totalMesa.toLocaleString('es-MX', {
+        style: 'currency',
+        currency: 'MXN'
+      });
       
-      // Si no hay mesas, crear una por defecto
-      if(!state.mesas.length) {
-        crearMesa();
-      } else {
-        // Seleccionar la primera mesa al inicio
-        if (state.mesas.length > 0) {
-          abrirMesa(state.mesas[0].id);
-        }
+      const subs = table.subs.map(sub => {
+        const totalSub = sub.cart
+          .reduce((sum, i) => sum + i.precio * i.qty, 0);
+          
+        const totalSubFormateado = totalSub.toLocaleString('es-MX', {
+          style: 'currency',
+          currency: 'MXN'
+        });
+        
+        const isSubSelected = selectedSubId === sub.id;
+        const subSelectedClass = isSubSelected ? 'selected' : '';
+        
+        return `
+          <div
+            class="sub-account ${subSelectedClass}"
+            onclick="event.stopPropagation(); selectSub(${table.id}, ${sub.id})"
+          >
+            <span class="sub-name">${sub.name}</span>
+            <span class="sub-total">${totalSubFormateado}</span>
+            <div class="sub-controls">
+              <button
+                class="btn btn-sm btn-edit"
+                onclick="event.stopPropagation(); editSub(${table.id}, ${sub.id})"
+                title="Editar subcuenta"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-confirm"
+                onclick="event.stopPropagation(); chargeSub(${table.id}, ${sub.id})"
+                title="Cobrar subcuenta"
+              >
+                <i class="fas fa-cash-register"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      const html = `
+        <div class="table-item">
+          <div class="table-header">
+            <div class="table-title">
+              <i class="fas fa-table"></i> ${table.name}
+            </div>
+            <div class="table-header-controls">
+              <div class="table-total">${totalFormateado}</div>
+              <button
+                class="btn btn-sm btn-edit"
+                onclick="event.stopPropagation(); editTable(${table.id})"
+                title="Editar mesa"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                class="btn btn-sm btn-charge-all"
+                onclick="event.stopPropagation(); chargeTable(${table.id})"
+                title="Cobrar mesa completa"
+              >
+                <i class="fas fa-cash-register"></i> Cobrar Todo
+              </button>
+            </div>
+          </div>
+          <div class="table-body">
+            <div class="sub-accounts">
+              ${subs}
+            </div>
+          </div>
+          <div class="table-footer">
+            <button
+              class="btn btn-sm add-sub-btn"
+              onclick="addSub(${table.id})"
+            >
+              <i class="fas fa-plus"></i> Subcuenta
+            </button>
+          </div>
+        </div>
+      `;
+      
+      container.innerHTML = html;
+    }
+
+    // Interacciones
+    function selectCategory(categoria) {
+      selectedCat = categoria;
+      renderCategorias();
+      renderRecetas();
+    }
+
+    function selectTable(id) {
+      selectedTableId = selectedTableId === id ? null : id;
+      selectedSubId = null;
+      renderTables();
+      renderRecetas();
+    }
+
+    function selectSub(tableId, subId) {
+      selectedTableId = tableId;
+      selectedSubId = subId;
+      renderTables();
+      renderRecetas();
+    }
+
+    function addItem(codigo) {
+      const qty = parseInt(
+        document.getElementById(`qty-${codigo}`).value,
+        10
+      ) || 1;
+
+      if (!selectedTableId || !selectedSubId) {
+        return alert('Selecciona mesa y subcuenta');
       }
-      
-      // Configurar UI
-      setupCats(); 
-      renderCats(); 
-      renderThumbnails(); 
-      renderMesas();
-      
-      // Seleccionar primer producto si existe
-      if(state.products.length) selectProd(0);
-    })();
+
+      const table = tables.find(t => t.id === selectedTableId);
+      const sub = table.subs.find(s => s.id === selectedSubId);
+      const receta = recetas.find(r => String(r.codigo) === String(codigo));
+
+      if (!receta) {
+        return alert('Producto no encontrado');
+      }
+
+      const existing = sub.cart.find(
+        item => String(item.codigo) === String(codigo)
+      );
+
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        sub.cart.push({
+          codigo: receta.codigo,
+          nombre: receta.nombre,
+          precio: receta.precio,
+          qty: qty
+        });
+      }
+
+      saveAndRefresh();
+    }
+
+    // CRUD Mesas / Subcuentas / Cobro
+    function addTable() {
+      openModal('table-add', { title: 'Nueva Mesa' });
+    }
+
+    function editTable(id) {
+      const mesa = tables.find(t => t.id === id);
+      openModal('table-add', {
+        title: 'Editar Mesa',
+        id: id,
+        name: mesa.name
+      });
+    }
+
+    function addSub(tableId) {
+      openModal('sub-add', { title: 'Nueva Subcuenta', tableId: tableId });
+    }
+
+    function editSub(tableId, subId) {
+      const mesa = tables.find(t => t.id === tableId);
+      const sub = mesa.subs.find(s => s.id === subId);
+      openModal('sub-add', {
+        title: 'Editar Subcuenta',
+        tableId: tableId,
+        subId: subId,
+        name: sub.name
+      });
+    }
+
+    function chargeTable(tableId) {
+      const items = tables
+        .find(t => t.id === tableId)
+        .subs.flatMap(s => s.cart);
+
+      openModal('charge', {
+        title: 'Cobrar Mesa',
+        tableId: tableId,
+        items: items,
+        full: true
+      });
+    }
+
+    function chargeSub(tableId, subId) {
+      const sub = tables
+        .find(t => t.id === tableId)
+        .subs.find(s => s.id === subId);
+
+      openModal('charge', {
+        title: 'Cobrar Subcuenta',
+        tableId: tableId,
+        subId: subId,
+        items: sub.cart,
+        full: false
+      });
+    }
+
+    function openModal(type, opts) {
+      modalBody.innerHTML = '';
+      btnConfirm.onclick = null;
+
+      switch (type) {
+        case 'table-add':
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <input
+                id="modalInput"
+                class="modal-input"
+                placeholder="Nombre de mesa"
+                value="${opts.name || ''}"
+              >
+            </div>
+          `;
+          btnConfirm.onclick = () => {
+            const name = document
+              .getElementById('modalInput')
+              .value.trim();
+            if (!name) return alert('Ingrese nombre');
+
+            if (opts.id == null) {
+              const newId = tables.length
+                ? Math.max(...tables.map(t => t.id)) + 1
+                : 1;
+              tables.push({ id: newId, name: name, subs: [] });
+              selectedTableId = newId; // Seleccionar nueva mesa
+            } else {
+              tables.find(t => t.id === opts.id).name = name;
+            }
+
+            saveAndRefresh();
+            closeModal();
+          };
+          break;
+
+        case 'sub-add':
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <input
+                id="modalInput"
+                class="modal-input"
+                placeholder="Nombre de subcuenta"
+                value="${opts.name || ''}"
+              >
+            </div>
+          `;
+          btnConfirm.onclick = () => {
+            const name = document
+              .getElementById('modalInput')
+              .value.trim();
+            if (!name) return alert('Ingrese nombre');
+
+            const mesa = tables.find(t => t.id === opts.tableId);
+            if (opts.subId == null) {
+              const newId = mesa.subs.length
+                ? Math.max(...mesa.subs.map(s => s.id)) + 1
+                : 1;
+              mesa.subs.push({ id: newId, name: name, cart: [] });
+              selectedSubId = newId; // Seleccionar nueva subcuenta
+            } else {
+              mesa.subs.find(s => s.id === opts.subId).name = name;
+            }
+
+            saveAndRefresh();
+            closeModal();
+          };
+          break;
+
+        case 'charge':
+          const total = opts.items
+            .reduce((sum, i) => sum + i.precio * i.qty, 0)
+            .toFixed(2);
+            
+          const totalFormateado = parseFloat(total).toLocaleString('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+          });
+
+          modalBody.innerHTML = `
+            <div class="modal-header">
+              <h3 class="modal-title">${opts.title}</h3>
+            </div>
+            <div class="modal-body">
+              <ul class="modal-list">
+                ${opts.items
+                  .map(
+                    i => {
+                      const precio = (i.precio * i.qty).toFixed(2);
+                      const precioFormateado = parseFloat(precio).toLocaleString('es-MX', {
+                        style: 'currency',
+                        currency: 'MXN'
+                      });
+                      return `<li>${i.nombre} x${i.qty} — ${precioFormateado}</li>`;
+                    }
+                  )
+                  .join('')}
+              </ul>
+              <div class="modal-total">Total: <span>${totalFormateado}</span></div>
+              <p>
+                ${opts.full
+                  ? 'Se cobrará toda la mesa con todas sus subcuentas.'
+                  : 'Solo esta subcuenta será cobrada.'}
+              </p>
+              <select id="modalPay" class="modal-select">
+                <option>Efectivo</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+              </select>
+            </div>
+          `;
+
+          btnConfirm.onclick = () => {
+            const metodo = document.getElementById('modalPay').value;
+            // Construir objeto de venta igual al original
+            const venta = {
+              fecha: new Date().toISOString(),
+              metodoPago: metodo,
+              items: opts.items.map(i => ({
+                codigo: String(i.codigo),
+                producto: i.nombre,
+                cantidad: i.qty,
+                total: +(i.precio * i.qty).toFixed(2)
+              }))
+            };
+
+            apiFetch('guardarVentas', { venta: JSON.stringify(venta), metodoPago: metodo })
+              .then(() => {
+                if (opts.full) {
+                  // CORRECCIÓN: Eliminar solo la mesa cobrada
+                  tables = tables.filter(t => t.id !== opts.tableId);
+                } else {
+                  const mesa = tables.find(t => t.id === opts.tableId);
+                  mesa.subs = mesa.subs.filter(s => s.id !== opts.subId);
+                  if (!mesa.subs.length) {
+                    tables = tables.filter(t => t.id !== opts.tableId);
+                  }
+                }
+                
+                // Deseleccionar mesa actual si fue cobrada
+                if (selectedTableId === opts.tableId) {
+                  selectedTableId = null;
+                  selectedSubId = null;
+                }
+                
+                saveAndRefresh();
+                closeModal();
+                alert('Cobro registrado exitosamente');
+              })
+              .catch(err => {
+                console.error('Error al guardar venta:', err);
+                alert('Error al guardar la venta: ' + err);
+              });
+          };
+          break;
+        }
+
+      modalOverlay.style.display = 'grid';
+    }
+
+    // Funcionalidad de teclado
+    let activeInput = null;
+
+    document.addEventListener('focusin', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        activeInput = e.target;
+      }
+    });
+
+    const keys = [
+      '1','2','3','4','5','6','7','8','9','0',
+      'Q','W','E','R','T','Y','U','I','O','P',
+      'A','S','D','F','G','H','J','K','L','Backspace',
+      'Z','X','C','V','B','N','M',',','.','Space'
+    ];
+
+    const keyboard = document.getElementById('keyboard');
+    keyboard.innerHTML = keys.map(key => {
+      const isWide = key === 'Backspace' || key === 'Space';
+      const label = key === 'Space' ? '␣' : (key === 'Backspace' ? '⌫' : key);
+      const action = key === 'Backspace'
+        ? "(()=> activeInput ? activeInput.value = activeInput.value.slice(0, -1) : null)()"
+        : key === 'Space'
+          ? "(()=> activeInput ? activeInput.value += ' ' : null)()"
+          : `(()=> activeInput ? activeInput.value += '${key}' : null)()`;
+      return `<button class="${isWide ? 'wide' : ''}" onclick="${action}">${label}</button>`;
+    }).join('');
+
+    function saveAndRefresh() {
+      localStorage.setItem(STORAGE_KEY_TABLES, JSON.stringify(tables));
+      renderTables();
+      renderRecetas();
+      updateStatusBar();
+    }
+
+    function goBack() {
+      selectedTableId = null;
+      selectedSubId = null;
+      renderTables();
+      renderRecetas();
+    }
+
+    // Exponer funciones al scope global
+    window.selectCategory = selectCategory;
+    window.selectTable = selectTable;
+    window.selectSub = selectSub;
+    window.addItem = addItem;
+    window.addTable = addTable;
+    window.editTable = editTable;
+    window.addSub = addSub;
+    window.editSub = editSub;
+    window.chargeTable = chargeTable;
+    window.chargeSub = chargeSub;
+    window.goBack = goBack;
+    window.fetchYRefresh = fetchYRefresh;
+
+    window.addEventListener('load', () => {
+      fetchYRefresh();
+      document.getElementById('add-table').addEventListener('click', addTable);
+    });
   </script>
 </body>
 </html>
