@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* ESTILOS PREVIOS (MANTENIDOS) */
     :root {
       --primary: #4a6cfa;
       --primary-dark: #3a5ae0;
@@ -27,12 +26,12 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
     }
     
     body, html {
       height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f5f7fb;
+      background: linear-gradient(135deg, #f5f7fb, #eef2ff);
       color: #333;
       overflow: hidden;
     }
@@ -77,10 +76,12 @@
       align-items: center;
       gap: 6px;
       transition: var(--transition);
+      font-weight: 500;
     }
     
     .header-btn:hover {
       background: rgba(255,255,255,0.25);
+      transform: translateY(-2px);
     }
     
     #mesaBar {
@@ -248,6 +249,7 @@
     
     .details {
       text-align: center;
+      width: 100%;
     }
     
     .details h2 {
@@ -267,6 +269,7 @@
       color: #555;
       line-height: 1.6;
       max-width: 600px;
+      margin: 0 auto 20px;
     }
     
     #categoryMenu {
@@ -361,6 +364,7 @@
     
     .btn-add:hover {
       background: var(--primary-dark);
+      transform: translateY(-2px);
     }
     
     .btn-secondary {
@@ -493,68 +497,21 @@
       background: var(--danger);
     }
     
-    .flying-img {
-      position: fixed;
-      z-index: 10000;
-      pointer-events: none;
-      transition: transform 0.6s ease, opacity 0.6s ease;
-      border-radius: 8px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-    
     /* Responsive design */
-    @media (max-width: 1024px) {
-      .thumb-list {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      
-      .sidebar {
-        width: 60%;
-      }
-    }
-    
     @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      
-      .sidebar {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--gray);
-        max-height: 40%;
-      }
-      
       .thumb-list {
         grid-template-columns: repeat(2, 1fr);
       }
-      
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: 40%;
+      }
       .main {
-        max-height: 60%;
-      }
-      
-      .main img {
-        max-width: 90%;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .thumb-list {
-        grid-template-columns: repeat(1, 1fr);
-      }
-      
-      .header-controls {
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-      
-      .header-btn {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-      }
-      
-      .logo span {
-        display: none;
+        width: 100%;
+        height: 60%;
       }
     }
     
@@ -624,8 +581,9 @@
     .product-counter {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      margin-top: 15px;
+      margin: 20px 0;
     }
     
     .counter-btn {
@@ -652,56 +610,120 @@
       min-width: 30px;
       text-align: center;
     }
+    
+    /* Totals section */
+    .totals-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px dashed #e0e0e0;
+    }
+    
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .total-label {
+      font-weight: 600;
+    }
+    
+    .total-value {
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .grand-total {
+      font-size: 1.4rem;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 2px solid var(--primary);
+    }
+    
+    /* Animation for price updates */
+    @keyframes highlight {
+      0% { background-color: #fff9c4; }
+      100% { background-color: transparent; }
+    }
+    
+    .price-update {
+      animation: highlight 1s ease;
+    }
+    
+    /* Debug console */
+    .debug-console {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      max-width: 300px;
+      z-index: 1000;
+      display: none;
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo"><i class="fas fa-cash-register"></i><span>IAEgo POS</span></div>
+    <div class="logo"><i class="fas fa-cash-register"></i><span> IAEgo POS</span></div>
     <div class="header-controls">
-      <button id="addMesaBtn" class="header-btn"><i class="fas fa-plus"></i> Nueva Mesa</button>
-      <button id="btnHistory" class="header-btn"><i class="fas fa-history"></i> Historial</button>
-      <button id="refreshBtn" class="header-btn"><i class="fas fa-sync"></i> Actualizar</button>
+      <button onclick="crearMesa()" class="header-btn"><i class="fas fa-plus"></i> Nueva Mesa</button>
+      <button onclick="verHistorial()" class="header-btn"><i class="fas fa-history"></i> Historial</button>
+      <button onclick="refrescarProductos()" class="header-btn"><i class="fas fa-sync"></i> Actualizar</button>
+      <button onclick="toggleDebug()" class="header-btn"><i class="fas fa-bug"></i> Debug</button>
     </div>
   </header>
+
   <div id="mesaBar"></div>
+
   <div class="container">
     <aside class="sidebar">
-      <div class="category-title"><i class="fas fa-utensils"></i>Productos Disponibles</div>
+      <div class="category-title"><i class="fas fa-utensils"></i> Productos Disponibles</div>
       <ul class="thumb-list" id="thumbList"></ul>
     </aside>
     <section class="main">
-      <img id="mainImage" src="https://via.placeholder.com/400x300?text=Selecciona+un+producto" alt="Producto">
+      <img id="mainImage" src="https://via.placeholder.com/400x300?text=Selecciona+un+producto" alt="Producto" />
       <div class="details">
         <h2 id="productName">Selecciona un producto</h2>
         <div class="price" id="productPrice"></div>
         <p class="desc" id="productDesc">Selecciona un producto de la lista para ver sus detalles.</p>
         <div class="product-counter">
-          <button class="counter-btn" id="decrementBtn">-</button>
+          <button onclick="cambiarCantidad(-1)" class="counter-btn">-</button>
           <div class="counter-value" id="quantityDisplay">1</div>
-          <button class="counter-btn" id="incrementBtn">+</button>
+          <button onclick="cambiarCantidad(1)" class="counter-btn">+</button>
         </div>
-        <button id="addToCartBtn" class="btn-add" style="margin-top: 20px; padding: 12px 30px;">
+        <button onclick="añadirAlPedido()" class="btn-add">
           <i class="fas fa-cart-plus"></i> Añadir al Pedido
         </button>
       </div>
     </section>
   </div>
+
   <div id="categoryMenu"></div>
+
   <div id="checkoutPanel">
     <div id="checkoutHeader">
-      <div class="panel-title">
-        <i class="fas fa-receipt"></i>
-        <span id="mesaNumber"></span>
-      </div>
-      <button class="boton-icono info" onclick="document.getElementById('checkoutPanel').style.display = 'none'">
-        <i class="fas fa-times"></i>
-      </button>
+      <div class="panel-title"><i class="fas fa-receipt"></i> <span id="mesaNumber"></span></div>
+      <button class="boton-icono info" onclick="cerrarPanel()"><i class="fas fa-times"></i></button>
     </div>
     <div id="accountsList"></div>
+    <div class="totals-section">
+      <div class="totals-row">
+        <span class="total-label">Total Mesa:</span>
+        <span class="total-value" id="mesaTotal">$0.00</span>
+      </div>
+      <div class="totals-row grand-total">
+        <span class="total-label">Total General:</span>
+        <span class="total-value" id="grandTotal">$0.00</span>
+      </div>
+    </div>
     <div class="actions">
-      <button id="newAccountBtn" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
-      <button id="payAllBtn" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
-      <button id="closeCartBtn" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
+      <button onclick="nuevaCuenta()" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
+      <button onclick="cobrarTodo()" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
+      <button onclick="cerrarPanel()" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
     </div>
   </div>
 
@@ -711,497 +733,622 @@
       <h3><i class="fas fa-edit"></i> Editar Pedidos</h3>
       <ul id="edit-list"></ul>
       <div class="actions">
-        <button id="edit-cancel" class="btn-secondary">Cancelar</button>
-        <button id="edit-save" class="btn-add">Guardar</button>
+        <button onclick="cancelarEdicion()" class="btn-secondary">Cancelar</button>
+        <button onclick="guardarEdicion()" class="btn-add">Guardar</button>
       </div>
     </div>
   </div>
+
   <div class="modal" id="modal-cobrar">
     <div class="panel" id="payPanel"></div>
   </div>
+
   <div class="modal" id="modal-history">
     <div class="panel">
       <h3><i class="fas fa-history"></i> Historial Ventas</h3>
       <ul id="history-list"></ul>
       <div class="actions">
-        <button id="hist-cancel" class="btn-secondary">Cerrar</button>
+        <button onclick="cerrarHistorial()" class="btn-secondary">Cerrar</button>
       </div>
     </div>
   </div>
+
   <div class="notification" id="notification">
     <i class="fas fa-info-circle"></i><span id="notification-text"></span>
   </div>
+  
+  <div id="debugConsole" class="debug-console">Debug Console</div>
+
   <script>
+    // Configuración mejorada con mensajes de depuración
     const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
     const CONFIG = {
-      STORAGE_KEYS: { ALMACEN: 'almacen6525', COSTEADAS: 'recetasCosteadas' },
-      FACTORES: { mg: 0.001, g: 1, kg: 1000, ml: 1, l: 1000, pz: 1 },
-      CATEGORIAS: { volumen: ['ml','l'], peso: ['mg','g','kg'], conteo: ['pz'] },
+      STORAGE_KEYS: { 
+        ALMACEN: 'almacen6525', 
+        COSTEADAS: 'recetasCosteadas',
+        MESAS: 'mesas',
+        PRODUCTS: 'products',
+        SALES: 'salesHistory'
+      },
+      FACTORES: { mg: 0.001, g:1, kg:1000, ml:1, l:1000, pz:1 },
+      CATEGORIAS: { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] },
       MARGEN: 2
     };
     
-
-    const sampleProducts = [
-
-    ];
-
-    let products = [];
-    let mesas = [];
-    let salesHistory = [];
-    let currentMesaId = 1;
-    let currentProductIndex = -1;
-    let currentCategory = 'Todas';
-    let inspectAccIdx = null;
-    let inspectSubIdx = null;
-    let editList = [];
-    let currentQuantity = 1;
-
-    // Funciones de utilidad
-    const loadJSON = key => {
-      try {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : [];
-      } catch (e) {
-        console.error(`Error loading ${key}:`, e);
-        return [];
-      }
+    // Estado global con mejor manejo de errores
+    const state = {
+      products: [],
+      mesas: [],
+      salesHistory: [],
+      currentMesa: null,
+      currentProd: -1,
+      currentQty: 1,
+      currentCategory: 'Todas',
+      editList: [],
+      inspectAcc: null,
+      inspectSub: null,
+      debugMode: false
     };
 
-    const saveJSON = (key, val) => {
-      try {
-        localStorage.setItem(key, JSON.stringify(val));
-        return true;
-      } catch (e) {
-        console.error(`Error saving ${key}:`, e);
-        return false;
+    // --- Utilidades mejoradas ---
+    function logDebug(message) {
+      if (state.debugMode) {
+        console.log(`[DEBUG] ${message}`);
+        const consoleElement = document.getElementById('debugConsole');
+        consoleElement.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+        consoleElement.scrollTop = consoleElement.scrollHeight;
       }
-    };
-
-    function showNotification(msg, error = false) {
+    }
+    
+    function loadJSON(key) {
+      try { 
+        const d = localStorage.getItem(key); 
+        logDebug(`Cargando ${key}: ${d ? 'Éxito' : 'Vacío'}`);
+        return d ? JSON.parse(d) : []; 
+      } catch(e) {
+        logDebug(`Error al cargar ${key}: ${e.message}`);
+        return []; 
+      }
+    }
+    
+    function saveJSON(key,val) {
+      try { 
+        localStorage.setItem(key, JSON.stringify(val)); 
+        logDebug(`Guardado en ${key}`);
+        return true; 
+      } catch(e) {
+        logDebug(`Error al guardar en ${key}: ${e.message}`);
+        return false; 
+      }
+    }
+    
+    function showNot(msg,err=false) {
+      logDebug(`Notificación: ${msg} ${err ? '(error)' : ''}`);
       const n = document.getElementById('notification');
       const t = document.getElementById('notification-text');
       t.textContent = msg;
-      n.className = error ? 'notification error' : 'notification';
-      n.classList.add('show');
-      setTimeout(() => n.classList.remove('show'), 3000);
+      n.className = err ? 'notification error show' : 'notification show';
+      setTimeout(()=> n.className = 'notification',3000);
+    }
+    
+    function toggleDebug() {
+      state.debugMode = !state.debugMode;
+      const consoleElement = document.getElementById('debugConsole');
+      consoleElement.style.display = state.debugMode ? 'block' : 'none';
+      showNot(`Modo debug ${state.debugMode ? 'activado' : 'desactivado'}`);
+    }
+    
+    // Función clave para resolver el problema: encontrar índice por ID de mesa
+    function findMesaIndexById(id) {
+      const index = state.mesas.findIndex(m => m.id === id);
+      if (index === -1) {
+        logDebug(`Mesa con ID ${id} no encontrada`);
+        showNot(`Error: Mesa ${id} no encontrada`, true);
+      }
+      return index;
     }
 
-    function calcularCosto(ingredientes, almacen) {
-      const factores = CONFIG.FACTORES;
-      let total = 0;
-      
-      ingredientes.forEach(item => {
-        const producto = almacen.find(p => String(p.codigo) === String(item.codigo));
-        if (!producto) return;
-        
-        const ua = factores[producto.unidadDeMedida.trim().toLowerCase()];
-        const ui = factores[item.unidad.trim().toLowerCase()];
-        
-        if (ua && ui) {
-          const baseUnits = ua * parseFloat(producto.cantidad);
-          const pricePerUnit = producto.precio / baseUnits;
-          const neededUnits = ui * item.cantidad;
-          total += pricePerUnit * neededUnits;
+    // --- Costos ---
+    function calcularCosto(ingredientes,alm) {
+      const f = CONFIG.FACTORES; 
+      let total=0;
+      ingredientes.forEach(item=>{
+        const p = alm.find(x=>String(x.codigo)===String(item.codigo));
+        if(!p) return;
+        const ua = f[p.unidadDeMedida.trim().toLowerCase()];
+        const ui = f[item.unidad.trim().toLowerCase()];
+        if(ua && ui){
+          const base = ua*parseFloat(p.cantidad);
+          const precioU = p.precio/base;
+          total += precioU * (ui*item.cantidad);
         }
       });
-      
-      return parseFloat(total.toFixed(2));
+      return +total.toFixed(2);
+    }
+    
+    function aplicarMargen(c) { 
+      return +(c*CONFIG.MARGEN).toFixed(2); 
     }
 
-    function aplicarMargen(costo) {
-      return parseFloat((costo * CONFIG.MARGEN).toFixed(2));
-    }
-
-    async function fetchAlmacen() {
+    // --- Fetch remoto con manejo de errores ---
+    async function fetchAlm() {
       try {
-        const fd = new FormData();
-        fd.append('op', 'obtenerAlmacen');
-        const r = await fetch(API_URL, { method: 'POST', body: fd });
+        const fd = new FormData(); 
+        fd.append('op','obtenerAlmacen');
+        const r = await fetch(API_URL,{method:'POST',body:fd});
         const j = await r.json();
-        if (j.status === 'success') return j.data;
-      } catch (e) {
-        console.error('Error fetching almacen:', e);
-      }
-      return [];
-    }
-
-    async function fetchRecetas() {
-      try {
-        const fd = new FormData();
-        fd.append('op', 'obtenerCocina');
-        const r = await fetch(API_URL, { method: 'POST', body: fd });
-        const j = await r.json();
-        if (j.status === 'success') return j.data;
-      } catch (e) {
-        console.error('Error fetching recetas:', e);
-      }
-      return [];
-    }
-
-    async function saveSaleToServer(sale) {
-      try {
-        const fd = new FormData();
-        fd.append('op', 'guardarVentas');
-        fd.append('venta', JSON.stringify(sale));
-        fd.append('metodoPago', sale.metodoPago);
-        const r = await fetch(API_URL, { method: 'POST', body: fd });
-        const j = await r.json();
-        return j.status === 'success';
-      } catch (e) {
-        console.error('Error saving sale:', e);
-        return false;
+        if(j.status === 'success') {
+          logDebug('Almacén obtenido con éxito');
+          return j.data;
+        }
+        throw new Error(j.message || 'Error desconocido');
+      } catch(e) {
+        logDebug(`Error al obtener almacén: ${e.message}`);
+        showNot('Error al obtener almacén', true);
+        return []; 
       }
     }
+    
+    async function fetchRec() {
+      try {
+        const fd = new FormData(); 
+        fd.append('op','obtenerCocina');
+        const r = await fetch(API_URL,{method:'POST',body:fd});
+        const j = await r.json();
+        if(j.status === 'success') {
+          logDebug('Recetas obtenidas con éxito');
+          return j.data;
+        }
+        throw new Error(j.message || 'Error desconocido');
+      } catch(e) {
+        logDebug(`Error al obtener recetas: ${e.message}`);
+        showNot('Error al obtener recetas', true);
+        return []; 
+      }
+    }
+    
+    async function saveSale(sale) {
+      try {
+        const fd = new FormData();
+        fd.append('op','guardarVentas');
+        fd.append('venta',JSON.stringify(sale));
+        fd.append('metodoPago',sale.metodoPago);
+        const r = await fetch(API_URL,{method:'POST',body:fd});
+        const j = await r.json();
+        if(j.status === 'success') {
+          logDebug('Venta guardada con éxito');
+          return true;
+        }
+        throw new Error(j.message || 'Error al guardar venta');
+      } catch(e) {
+        logDebug(`Error al guardar venta: ${e.message}`);
+        showNot('Error al guardar venta', true);
+        return false; 
+      }
+    }
 
+    // --- Render dinámico mejorado ---
     function setupCats() {
-      const categories = ['Todas'];
-      products.forEach(p => {
-        if (p.categoria && !categories.includes(p.categoria)) {
-          categories.push(p.categoria);
-        }
+      const cats = ['Todas'];
+      state.products.forEach(p=>{
+        if(p.categoria && !cats.includes(p.categoria)) cats.push(p.categoria);
       });
-      window.categoriesJson = categories.map(c => ({ name: c, filter: c === 'Todas' ? null : c }));
+      window.categoriesJson = cats.map(c=>({name:c,filter:c==='Todas'?null:c}));
     }
-
-    function renderCategories() {
+    
+    function renderCats() {
       const m = document.getElementById('categoryMenu');
       m.innerHTML = '';
-      
-      window.categoriesJson.forEach(c => {
-        const b = document.createElement('button');
-        b.textContent = c.name;
-        b.className = 'category-btn' + (c.name === currentCategory ? ' active' : '');
-        b.onclick = () => {
-          currentCategory = c.name;
-          renderCategories();
-          renderThumbnails();
-        };
-        m.appendChild(b);
+      window.categoriesJson.forEach(c=>{
+        m.innerHTML += `<button onclick="filtrarCat('${c.name}')" class="category-btn${c.name===state.currentCategory?' active':''}">${c.name}</button>`;
       });
     }
-
+    
     function renderThumbnails() {
       const l = document.getElementById('thumbList');
       l.innerHTML = '';
+      const list = state.currentCategory==='Todas'? state.products: state.products.filter(p=>p.categoria===state.currentCategory);
       
-      const list = currentCategory === 'Todas' ? 
-        products : 
-        products.filter(p => p.categoria === currentCategory);
-      
-      if (list.length === 0) {
-        l.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-box-open"></i>
-            <h3>No hay productos disponibles</h3>
-            <p>Selecciona otra categoría o actualiza los datos</p>
-          </div>
-        `;
+      if(!list.length){
+        l.innerHTML = `<div class="empty-state"><i class="fas fa-box-open"></i><h3>No hay productos</h3></div>`;
         return;
       }
       
-      list.forEach((p, i) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+no+disponible'">
-          <div class="product-info">
-            <div class="product-name">${p.nombre}</div>
-            <div class="product-price">$${p.precio.toFixed(2)}</div>
-          </div>
-        `;
-        li.onclick = () => selectProduct(i);
-        l.appendChild(li);
+      list.forEach((p,i)=>{
+        l.innerHTML += `
+          <li onclick="selectProd(${i})">
+            <img src="${p.imagen}" alt="${p.nombre}" >
+            <div class="product-info">
+              <div class="product-name">${p.nombre}</div>
+              <div class="product-price">$${p.precio.toFixed(2)}</div>
+            </div>
+          </li>`;
       });
     }
-
-    function selectProduct(i) {
-      if (i < 0 || i >= products.length) return;
-      
-      currentProductIndex = i;
-      const p = products[i];
-      
-      document.getElementById('mainImage').src = p.imagen;
-      document.getElementById('productName').textContent = p.nombre;
-      document.getElementById('productPrice').textContent = `$${p.precio.toFixed(2)}`;
-      document.getElementById('productDesc').textContent = p.descripcion || 'Sin descripción disponible';
-      
-      // Reset quantity to 1 when selecting a new product
-      currentQuantity = 1;
-      document.getElementById('quantityDisplay').textContent = currentQuantity;
-    }
-
+    
     function renderMesas() {
       const bar = document.getElementById('mesaBar');
       bar.innerHTML = '';
-      
-      mesas.forEach(m => {
-        const count = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad))
-          .reduce((a, b) => a + b, 0);
-        
-        const btn = document.createElement('button');
-        btn.className = `mesa-btn ${m.id === currentMesaId ? 'selected' : ''} ${count > 0 ? 'ocupada' : ''}`;
-        btn.innerHTML = `
-          <span>${m.name}</span>
-          <span class="mesa-count">${count} pz</span>
-        `;
-        btn.onclick = () => {
-          currentMesaId = m.id;
-          renderMesas();
-          openAccountsPanel();
-        };
-        bar.appendChild(btn);
+      state.mesas.forEach(m=>{
+        const cnt = m.cuentas.flatMap(c=>c.pedidos.map(x=>x.cantidad)).reduce((a,b)=>a+b,0);
+        bar.innerHTML += `
+          <button onclick="abrirMesa(${m.id})" class="mesa-btn${m.id===state.currentMesa?' selected':''}${cnt>0?' ocupada':''}">
+            ${m.name} (${cnt} pz)
+          </button>`;
       });
     }
+    
+    function updateTotals() {
+      if (state.inspectAcc === null) return;
+      
+      const mesa = state.mesas[state.inspectAcc];
+      if (!mesa) return;
+      
+      // Calcular total para toda la mesa
+      const mesaTotal = mesa.cuentas.reduce((acc, cuenta) => {
+        return acc + cuenta.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+      }, 0);
+      
+      document.getElementById('mesaTotal').textContent = `$${mesaTotal.toFixed(2)}`;
+      document.getElementById('grandTotal').textContent = `$${mesaTotal.toFixed(2)}`;
+      
+      // Aplicar animación de actualización
+      document.getElementById('mesaTotal').classList.add('price-update');
+      document.getElementById('grandTotal').classList.add('price-update');
+      setTimeout(() => {
+        document.getElementById('mesaTotal').classList.remove('price-update');
+        document.getElementById('grandTotal').classList.remove('price-update');
+      }, 1000);
+    }
 
-    function openAccountsPanel() {
-      const m = mesas.find(x => x.id === currentMesaId);
-      if (!m) return;
-      
-      inspectAccIdx = mesas.indexOf(m);
-      const total = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad))
-        .reduce((a, b) => a + b, 0);
-      
-      document.getElementById('mesaNumber').textContent = `${m.name} (${total} pz)`;
-      
-      const list = document.getElementById('accountsList');
-      list.innerHTML = '';
-      
-      if (m.cuentas.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-receipt"></i>
-            <h3>No hay cuentas</h3>
-            <p>Crea una nueva cuenta para comenzar</p>
-          </div>
-        `;
+    // --- Funciones UI mejoradas ---
+    function filtrarCat(cat) {
+      state.currentCategory = cat; 
+      renderCats(); 
+      renderThumbnails();
+      logDebug(`Categoría filtrada: ${cat}`);
+    }
+    
+    function selectProd(i) {
+      state.currentProd = i; 
+      const p = state.products[i];
+      document.getElementById('mainImage').src = p.imagen;
+      document.getElementById('productName').textContent = p.nombre;
+      document.getElementById('productPrice').textContent = `$${p.precio.toFixed(2)}`;
+      document.getElementById('productDesc').textContent = p.descripcion || '';
+      state.currentQty = 1; 
+      document.getElementById('quantityDisplay').textContent = 1;
+      logDebug(`Producto seleccionado: ${p.nombre}`);
+    }
+    
+    function cambiarCantidad(d) {
+      state.currentQty = Math.max(1, state.currentQty + d);
+      document.getElementById('quantityDisplay').textContent = state.currentQty;
+      logDebug(`Cantidad cambiada a: ${state.currentQty}`);
+    }
+    
+    function añadirAlPedido() {
+      if(state.inspectAcc === null || state.inspectSub === null) {
+        showNot('Abre una cuenta primero', true);
+        logDebug('Intento de añadir sin cuenta abierta');
         return;
       }
-      
-      m.cuentas.forEach((c, i) => {
-        const pz = c.pedidos.reduce((a, x) => a + x.cantidad, 0);
-        const totalValue = c.pedidos.reduce((a, x) => a + (x.precio * x.cantidad), 0);
-        const div = document.createElement('div');
-        div.className = 'subcuenta';
-        div.innerHTML = `
-          <div>
-            <span>${c.nombre}</span>
-            <span>${pz} pz - $${totalValue.toFixed(2)}</span>
-          </div>
-          <div class='btnCobro'>
-            <button class="boton-icono info" onclick="addToSub(${inspectAccIdx},${i})">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button class="boton-icono warning" onclick="openEditModal(${inspectAccIdx},${i})">
-              <i class="fas fa-pen-to-square"></i>
-            </button>
-            <button class="boton-icono success" onclick="openPayModal(${inspectAccIdx},${i})">
-              <i class="fas fa-cash-register"></i>
-            </button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-      
-      document.getElementById('checkoutPanel').style.display = 'block';
+      addToSub(state.inspectAcc, state.inspectSub);
     }
-
+    
+    // Función clave: ahora usa índices de array en lugar de IDs
+    function abrirMesa(id) {
+      const index = findMesaIndexById(id);
+      if (index === -1) return;
+      
+      state.currentMesa = id;
+      state.inspectAcc = index;
+      renderMesas();
+      openAccounts(index);
+      logDebug(`Mesa abierta: ${id} (índice: ${index})`);
+    }
+    
     function addToSub(mi, ci) {
-      if (currentProductIndex < 0 || currentProductIndex >= products.length) {
-        showNotification('Selecciona un producto primero', true);
+      if(state.currentProd < 0) {
+        showNot('Selecciona un producto', true);
+        logDebug('Intento de añadir sin producto seleccionado');
         return;
       }
       
-      const sub = mesas[mi].cuentas[ci];
-      const p = products[currentProductIndex];
-      const ex = sub.pedidos.find(x => x.codigo === p.codigo);
+      // Verificar que tenemos índices válidos
+      if (mi === null || mi === undefined || ci === null || ci === undefined) {
+        showNot('Error: Mesa no seleccionada', true);
+        logDebug(`Índices inválidos: mi=${mi}, ci=${ci}`);
+        return;
+      }
       
-      if (ex) {
-        ex.cantidad += currentQuantity;
+      if (!state.mesas[mi]) {
+        showNot(`Error: Mesa en índice ${mi} no encontrada`, true);
+        logDebug(`Mesa en índice ${mi} no encontrada`);
+        return;
+      }
+      
+      const sub = state.mesas[mi].cuentas[ci];
+      const p = state.products[state.currentProd];
+      
+      const ex = sub.pedidos.find(x=>x.codigo===p.codigo);
+      
+      if(ex) {
+        ex.cantidad += state.currentQty;
+        logDebug(`Producto existente actualizado: ${p.nombre} +${state.currentQty}`);
       } else {
         sub.pedidos.push({
           codigo: p.codigo,
           nombre: p.nombre,
           precio: p.precio,
-          cantidad: currentQuantity
+          cantidad: state.currentQty
         });
+        logDebug(`Nuevo producto añadido: ${p.nombre} x${state.currentQty}`);
       }
       
-      saveJSON('mesas', mesas);
-      showNotification(`${currentQuantity} ${p.nombre} añadido a ${sub.nombre}`);
-      openAccountsPanel();
-      currentQuantity = 1;
-      document.getElementById('quantityDisplay').textContent = currentQuantity;
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      showNot(`${state.currentQty}× ${p.nombre} añadido`);
+      openAccounts(mi);
+      state.currentQty = 1; 
+      document.getElementById('quantityDisplay').textContent = 1;
+      updateTotals();
     }
-
-    function openEditModal(mi, ci) {
-      inspectAccIdx = mi;
-      inspectSubIdx = ci;
-      editList = JSON.parse(JSON.stringify(mesas[mi].cuentas[ci].pedidos));
-      renderEditList();
-      document.getElementById('modal-edit').classList.add('active');
-    }
-
-    function renderEditList() {
-      const ul = document.getElementById('edit-list');
-      ul.innerHTML = '';
+    
+    function openAccounts(mi) {
+      state.inspectAcc = mi; 
+      state.inspectSub = null;
       
-      if (editList.length === 0) {
-        ul.innerHTML = `
-          <li class="empty-state">
-            <i class="fas fa-shopping-basket"></i>
-            <h3>No hay productos</h3>
-            <p>Añade productos a esta cuenta</p>
-          </li>
-        `;
+      const m = state.mesas[mi];
+      if(!m) {
+        showNot(`Error: Mesa en índice ${mi} no encontrada`, true);
+        logDebug(`Mesa en índice ${mi} no encontrada en openAccounts`);
         return;
       }
       
-      editList.forEach((x, i) => {
-        const li = document.createElement('li');
-        li.className = 'subcuenta';
-        li.innerHTML = `
-          <div>
-            <span>${x.nombre}</span>
-            <span>${x.cantidad} x $${x.precio.toFixed(2)} = $${(x.cantidad * x.precio).toFixed(2)}</span>
-          </div>
-          <div>
-            <button class="boton-icono danger" onclick="removeEdit(${i})">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        `;
-        ul.appendChild(li);
-      });
-    }
-
-    function removeEdit(i) {
-      editList.splice(i, 1);
-      renderEditList();
-    }
-
-    function openPayModal(mi, ci) {
-      inspectAccIdx = mi;
-      inspectSubIdx = ci;
+      const totalCount = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad)).reduce((a,b) => a+b, 0);
+      document.getElementById('mesaNumber').textContent = `${m.name} (${totalCount} pz)`;
       
-      let items = [];
-      let total = 0;
-      let title = '';
+      const list = document.getElementById('accountsList'); 
+      list.innerHTML = '';
       
-      if (ci === 'all') {
-        title = 'Cobrar Mesa Completa';
-        mesas[mi].cuentas.forEach(sub => {
-          sub.pedidos.forEach(p => {
-            items.push(p);
-          });
-          total += sub.pedidos.reduce((a, x) => a + x.precio * x.cantidad, 0);
-        });
+      if(!m.cuentas.length){
+        list.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><h3>No hay cuentas</h3></div>`;
       } else {
-        const c = mesas[mi].cuentas[ci];
-        title = `Cobrar ${c.nombre}`;
-        items = c.pedidos;
-        total = items.reduce((a, x) => a + x.precio * x.cantidad, 0);
+        m.cuentas.forEach((c,i)=>{
+          const cnt = c.pedidos.reduce((a,x) => a + x.cantidad, 0);
+          const val = c.pedidos.reduce((a,x) => a + (x.precio * x.cantidad), 0);
+          list.innerHTML += `
+            <div class="subcuenta">
+              <div>${c.nombre} - ${cnt} pz ($${val.toFixed(2)})</div>
+              <div class="btnCobro">
+                <button class="boton-icono info" onclick="addToSub(${mi},${i})"><i class="fas fa-plus"></i></button>
+                <button class="boton-icono warning" onclick="abrirEdicion(${mi},${i})"><i class="fas fa-pen-to-square"></i></button>
+                <button class="boton-icono success" onclick="openPay(${mi},${i})"><i class="fas fa-cash-register"></i></button>
+              </div>
+            </div>`;
+        });
       }
       
-      total = parseFloat(total.toFixed(2));
+      document.getElementById('checkoutPanel').style.display = 'block';
+      updateTotals();
+    }
+
+    function crearMesa() {
+      const next = state.mesas.length ? Math.max(...state.mesas.map(m=>m.id)) + 1 : 1;
+      state.mesas.push({
+        id: next,
+        name: `Mesa ${next}`,
+        cuentas: [{nombre:'Cuenta 1', pedidos:[]}]
+      });
       
-      let itemsHtml = '';
-      if (items.length === 0) {
-        itemsHtml = '<li>No hay productos en esta cuenta</li>';
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      renderMesas(); 
+      
+      // Abrir la nueva mesa por su ID
+      abrirMesa(next);
+      
+      showNot(`Mesa ${next} creada`);
+      logDebug(`Nueva mesa creada: ${next}`);
+    }
+    
+    function verHistorial() {
+      const ul = document.getElementById('history-list'); 
+      ul.innerHTML = '';
+      
+      if(!state.salesHistory.length){
+        ul.innerHTML = `<div class="empty-state"><i class="fas fa-history"></i><h3>No hay historial</h3></div>`;
+      } else {
+        state.salesHistory.forEach(s => {
+          ul.innerHTML += `
+            <li class="subcuenta">
+              <div>${s.mesa} - ${s.cuenta} <small>${new Date(s.fecha).toLocaleString()}</small></div>
+              <div>$${s.total.toFixed(2)} - ${s.metodoPago}</div>
+            </li>`;
+        });
+      }
+      
+      document.getElementById('modal-history').classList.add('active');
+      logDebug('Historial de ventas abierto');
+    }
+    
+    function cerrarHistorial() { 
+      document.getElementById('modal-history').classList.remove('active');
+      logDebug('Historial de ventas cerrado');
+    }
+    
+    async function refrescarProductos() {
+      const rec = await fetchRec();
+      if(!rec.length) return;
+      
+      const alm = loadJSON(CONFIG.STORAGE_KEYS.ALMACEN);
+      state.products = rec.map(r => ({
+        codigo: r.codigo,
+        nombre: r.nombre,
+        descripcion: r.descripcion || '',
+        categoria: r.categoria || '',
+        imagen: r.imagen || 'https://via.placeholder.com/300x200?text=No+img',
+        precio: aplicarMargen(calcularCosto(r.ingredientes, alm)),
+        ingredientes: r.ingredientes
+      }));
+      
+      saveJSON(CONFIG.STORAGE_KEYS.PRODUCTS, state.products);
+      setupCats(); 
+      renderCats(); 
+      renderThumbnails();
+      
+      if(state.products.length) selectProd(0);
+      showNot('Productos actualizados');
+      logDebug('Productos actualizados');
+    }
+    
+    function nuevaCuenta() {
+      if (state.inspectAcc === null) {
+        showNot('Selecciona una mesa primero', true);
+        return;
+      }
+      
+      const m = state.mesas[state.inspectAcc];
+      const num = m.cuentas.length + 1;
+      m.cuentas.push({nombre: `Cuenta ${num}`, pedidos: []});
+      
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      openAccounts(state.inspectAcc);
+      showNot(`Cuenta ${num} creada`);
+      logDebug(`Nueva cuenta creada: ${num}`);
+    }
+    
+    function cobrarTodo() { 
+      if (state.inspectAcc === null) {
+        showNot('Selecciona una mesa primero', true);
+        return;
+      }
+      openPay(state.inspectAcc, 'all'); 
+      logDebug('Iniciando cobro de toda la mesa');
+    }
+    
+    function cerrarPanel() { 
+      document.getElementById('checkoutPanel').style.display = 'none';
+      state.inspectAcc = null;
+      state.inspectSub = null;
+      logDebug('Panel de cobro cerrado');
+    }
+    
+    function openPay(mi,ci) {
+      state.inspectAcc = mi; 
+      state.inspectSub = ci;
+      
+      let items = [], total = 0, title = '';
+      
+      if(ci === 'all'){
+        title = 'Cobrar Mesa Completa';
+        state.mesas[mi].cuentas.forEach(c => {
+          items = items.concat(c.pedidos);
+          total += c.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        });
+      } else {
+        const c = state.mesas[mi].cuentas[ci];
+        title = `Cobrar ${c.nombre}`;
+        items = c.pedidos.slice();
+        total = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+      }
+      
+      total = +total.toFixed(2);
+      
+      let html = `<h3><i class="fas fa-cash-register"></i> ${title}</h3><ul class="payment-list">`;
+      
+      if(!items.length) {
+        html += '<li class="empty-state">No hay productos</li>';
       } else {
         items.forEach(i => {
-          itemsHtml += `
-            <li>
-              ${i.nombre} × ${i.cantidad} = $${(i.precio * i.cantidad).toFixed(2)}
-            </li>
-          `;
+          html += `
+            <li class="subcuenta">
+              <div>${i.nombre} × ${i.cantidad}</div>
+              <div>$${(i.precio * i.cantidad).toFixed(2)}</div>
+            </li>`;
         });
       }
       
-      const payHtml = `
-        <h3>${title}</h3>
-        <ul>${itemsHtml}</ul>
+      html += `</ul>
         <div class="payment-total">Total: $${total.toFixed(2)}</div>
         <div class="payment-form">
-          <label for="payMethod">Método de Pago:</label>
+          <label>Método de Pago:</label>
           <select id="payMethod">
             <option>Efectivo</option>
-            <option>Tarjeta de Crédito</option>
-            <option>Tarjeta de Débito</option>
+            <option>Tarjeta Crédito</option>
+            <option>Tarjeta Débito</option>
             <option>Transferencia</option>
-            <option>Otro</option>
           </select>
-          
-          <label for="payAmount">Monto Recibido:</label>
-          <input type="number" id="payAmount" min="0" value="${total}" step="0.01">
-          
+          <label>Monto Recibido:</label>
+          <input type="number" min="0" step="0.01" value="${total}" 
+                 oninput="actualizarCambio(this.value, ${total})" 
+                 id="receivedAmount"/>
           <div id="payChange">Cambio: $0.00</div>
         </div>
         <div class="actions">
-          <button id="payConfirm" class="btn-add">Confirmar Pago</button>
-          <button class="btn-secondary" onclick="closePayModal()">Cancelar</button>
-        </div>
-      `;
+          <button onclick="confirmPay()" class="btn-add">Confirmar Pago</button>
+          <button onclick="closePay()" class="btn-secondary">Cancelar</button>
+        </div>`;
       
-      const panel = document.getElementById('payPanel');
-      panel.innerHTML = payHtml;
+      document.getElementById('payPanel').innerHTML = html;
       document.getElementById('modal-cobrar').classList.add('active');
-      
-      const payAmountInput = document.getElementById('payAmount');
-      payAmountInput.oninput = e => {
-        const paid = parseFloat(e.target.value) || 0;
-        const change = paid - total;
-        document.getElementById('payChange').textContent = `Cambio: $${change >= 0 ? change.toFixed(2) : '0.00'}`;
-      };
-      
-      document.getElementById('payConfirm').onclick = confirmPay;
+      logDebug(`Panel de pago abierto para: ${title}`);
     }
-
-    function closePayModal() {
+    
+    function actualizarCambio(recibido, total) {
+      const recibidoNum = parseFloat(recibido) || 0;
+      const cambio = recibidoNum - total;
+      const cambioTexto = cambio >= 0 ? `$${cambio.toFixed(2)}` : `-$${Math.abs(cambio).toFixed(2)}`;
+      
+      document.getElementById('payChange').textContent = `Cambio: ${cambioTexto}`;
+      document.getElementById('payChange').style.color = cambio >= 0 ? 'var(--success)' : 'var(--danger)';
+      logDebug(`Cambio calculado: ${cambioTexto}`);
+    }
+    
+    function closePay() { 
       document.getElementById('modal-cobrar').classList.remove('active');
+      logDebug('Panel de pago cerrado');
     }
-
+    
     async function confirmPay() {
       const metodo = document.getElementById('payMethod').value;
-      const paid = parseFloat(document.getElementById('payAmount').value) || 0;
+      const recibido = parseFloat(document.getElementById('receivedAmount').value) || 0;
       
-      let items = [];
-      let total = 0;
-      let mesaName = '';
-      let cuentaName = '';
+      let items = [], total = 0, mesaName = '', cuentaName = '';
       
-      if (inspectSubIdx === 'all') {
-        const mesa = mesas[inspectAccIdx];
-        mesaName = mesa.name;
-        cuentaName = 'Cuenta Completa';
+      if(state.inspectSub === 'all'){
+        const m = state.mesas[state.inspectAcc]; 
+        mesaName = m.name; 
+        cuentaName = 'Mesa Completa';
         
-        mesa.cuentas.forEach(sub => {
-          sub.pedidos.forEach(i => {
-            items.push({
-              codigo: String(i.codigo),
-              producto: i.nombre,
-              cantidad: i.cantidad,
-              total: +(i.precio * i.cantidad).toFixed(2)
-            });
-            total += i.precio * i.cantidad;
-          });
+        m.cuentas.forEach(c => {
+          items = items.concat(c.pedidos.map(i => ({
+            codigo: String(i.codigo),
+            producto: i.nombre,
+            cantidad: i.cantidad,
+            total: +(i.precio * i.cantidad).toFixed(2)
+          })));
+          
+          total += c.pedidos.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
         });
-        total = parseFloat(total.toFixed(2));
       } else {
-        const mesa = mesas[inspectAccIdx];
-        const sub = mesa.cuentas[inspectSubIdx];
-        mesaName = mesa.name;
-        cuentaName = sub.nombre;
+        const m = state.mesas[state.inspectAcc];
+        const c = m.cuentas[state.inspectSub];
+        mesaName = m.name; 
+        cuentaName = c.nombre;
         
-        items = sub.pedidos.map(i => ({
+        items = c.pedidos.map(i => ({
           codigo: String(i.codigo),
           producto: i.nombre,
           cantidad: i.cantidad,
           total: +(i.precio * i.cantidad).toFixed(2)
         }));
-        total = items.reduce((a, x) => a + x.total, 0);
+        
+        total = items.reduce((sum, item) => sum + item.total, 0);
       }
       
-      if (paid < total) {
-        showNotification('El monto recibido es insuficiente', true);
+      if(recibido < total) {
+        showNot('Monto insuficiente', true);
+        logDebug('Monto recibido insuficiente para completar el pago');
         return;
       }
       
@@ -1214,236 +1361,112 @@
         total
       };
       
-      if (await saveSaleToServer(sale)) {
-        if (inspectSubIdx === 'all') {
-          // Vaciar todas las cuentas de la mesa
-          mesas[inspectAccIdx].cuentas.forEach(sub => {
-            sub.pedidos = [];
-          });
+      if(await saveSale(sale)){
+        // Limpiar pedidos después de cobrar
+        if(state.inspectSub === 'all') {
+          state.mesas[state.inspectAcc].cuentas.forEach(c => c.pedidos = []);
         } else {
-          // Vaciar solo la cuenta específica
-          mesas[inspectAccIdx].cuentas[inspectSubIdx].pedidos = [];
+          state.mesas[state.inspectAcc].cuentas[state.inspectSub].pedidos = [];
         }
         
-        // Si la cuenta queda vacía, removerla
-        mesas[inspectAccIdx].cuentas = mesas[inspectAccIdx].cuentas.filter(c => c.pedidos.length > 0);
+        // Eliminar cuentas vacías
+        state.mesas[state.inspectAcc].cuentas = state.mesas[state.inspectAcc].cuentas.filter(c => c.pedidos.length > 0);
         
-        // Si no quedan cuentas, crear una nueva vacía
-        if (mesas[inspectAccIdx].cuentas.length === 0) {
-          mesas[inspectAccIdx].cuentas = [{ nombre: 'Cuenta 1', pedidos: [] }];
+        // Si no hay cuentas, crear una nueva vacía
+        if(state.mesas[state.inspectAcc].cuentas.length === 0) {
+          state.mesas[state.inspectAcc].cuentas.push({nombre:'Cuenta 1', pedidos:[]});
         }
         
-        salesHistory.push(sale);
-        saveJSON('salesHistory', salesHistory);
-        saveJSON('mesas', mesas);
+        // Actualizar historial y guardar
+        state.salesHistory.push(sale);
+        saveJSON(CONFIG.STORAGE_KEYS.SALES, state.salesHistory);
+        saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
         
-        showNotification(`Pago de $${sale.total.toFixed(2)} registrado`);
-        renderMesas();
-        closePayModal();
-        openAccountsPanel();
+        showNot(`Pago de $${sale.total.toFixed(2)} registrado`);
+        logDebug(`Pago registrado: $${sale.total.toFixed(2)}`);
+        
+        // Actualizar UI
+        renderMesas(); 
+        closePay(); 
+        openAccounts(state.inspectAcc);
       } else {
-        showNotification('Error al registrar el pago', true);
+        showNot('Error al registrar pago', true);
       }
     }
-
-    // Event listeners
-    document.getElementById('addToCartBtn').onclick = () => {
-      if (inspectAccIdx === null || inspectSubIdx === null) {
-        showNotification('Abre una cuenta primero', true);
-        return;
-      }
-      addToSub(inspectAccIdx, inspectSubIdx);
-    };
-
-    document.getElementById('incrementBtn').onclick = () => {
-      currentQuantity++;
-      document.getElementById('quantityDisplay').textContent = currentQuantity;
-    };
-
-    document.getElementById('decrementBtn').onclick = () => {
-      if (currentQuantity > 1) {
-        currentQuantity--;
-        document.getElementById('quantityDisplay').textContent = currentQuantity;
-      }
-    };
-
-    document.getElementById('btnHistory').onclick = () => {
-      const ul = document.getElementById('history-list');
+    
+    function abrirEdicion(mi,ci) {
+      state.inspectAcc = mi; 
+      state.inspectSub = ci;
+      state.editList = JSON.parse(JSON.stringify(state.mesas[mi].cuentas[ci].pedidos));
+      renderEdit();
+      document.getElementById('modal-edit').classList.add('active');
+      logDebug(`Editando cuenta: Mesa ${mi}, Cuenta ${ci}`);
+    }
+    
+    function renderEdit() {
+      const ul = document.getElementById('edit-list'); 
       ul.innerHTML = '';
       
-      if (salesHistory.length === 0) {
-        ul.innerHTML = `
-          <li class="empty-state">
-            <i class="fas fa-history"></i>
-            <h3>No hay historial</h3>
-            <p>Aún no se han registrado ventas</p>
-          </li>
-        `;
+      if(!state.editList.length){
+        ul.innerHTML = `<li class="empty-state">No hay productos</li>`;
       } else {
-        salesHistory.forEach((s, i) => {
-          const li = document.createElement('li');
-          li.className = 'subcuenta';
-          li.innerHTML = `
-            <div>
-              <span>${s.mesa} - ${s.cuenta}</span>
-              <span>${new Date(s.fecha).toLocaleString()}</span>
-            </div>
-            <div>
-              <span>$${s.total.toFixed(2)}</span>
-              <span>${s.metodoPago}</span>
-            </div>
-          `;
-          ul.appendChild(li);
+        state.editList.forEach((x,i) => {
+          ul.innerHTML += `
+            <li class="subcuenta">
+              <div>${x.nombre} × ${x.cantidad} = $${(x.precio * x.cantidad).toFixed(2)}</div>
+              <button class="boton-icono danger" onclick="removerItem(${i})"><i class="fas fa-trash"></i></button>
+            </li>`;
         });
       }
-      
-      document.getElementById('modal-history').classList.add('active');
-    };
-
-    document.getElementById('hist-cancel').onclick = () => {
-      document.getElementById('modal-history').classList.remove('active');
-    };
-
-    document.getElementById('addMesaBtn').onclick = () => {
-      const nextId = mesas.length > 0 ? Math.max(...mesas.map(m => m.id)) + 1 : 1;
-      mesas.push({
-        id: nextId,
-        name: `Mesa ${nextId}`,
-        cuentas: [{ nombre: 'Cuenta 1', pedidos: [] }]
-      });
-      
-      saveJSON('mesas', mesas);
-      renderMesas();
-      currentMesaId = nextId;
-      openAccountsPanel();
-      showNotification(`Mesa ${nextId} creada`);
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }
     
+    function removerItem(i) { 
+      state.editList.splice(i, 1); 
+      renderEdit();
+      logDebug('Ítem eliminado de la edición');
+    }
+    
+    function cancelarEdicion() { 
+      document.getElementById('modal-edit').classList.remove('active');
+      logDebug('Edición cancelada');
+    }
+    
+    function guardarEdicion() {
+      state.mesas[state.inspectAcc].cuentas[state.inspectSub].pedidos = state.editList;
+      saveJSON(CONFIG.STORAGE_KEYS.MESAS, state.mesas);
+      document.getElementById('modal-edit').classList.remove('active');
+      openAccounts(state.inspectAcc);
+      showNot('Pedido actualizado');
+      logDebug('Cambios guardados en el pedido');
+    }
 
-
-
-
-    document.getElementById('refreshBtn').onclick = async () => {
-      try {
-        const rec = await fetchRecetas();
-        if (rec.length) {
-          const almacen = loadJSON(CONFIG.STORAGE_KEYS.ALMACEN) || [];
-          products = rec.map(r => ({
-            codigo: r.codigo,
-            nombre: r.nombre,
-            descripcion: r.descripcion || '',
-            categoria: r.categoria || '',
-            imagen: r.imagen || 'https://via.placeholder.com/300x200?text=Imagen+no+disponible',
-            precio: aplicarMargen(calcularCosto(r.ingredientes, almacen)),
-            ingredientes: r.ingredientes
-          }));
-          
-          saveJSON('products', products);
-          setupCats();
-          renderCategories();
-          renderThumbnails();
-          
-          if (products.length) {
-            selectProduct(0);
-          }
-          
-          showNotification('Productos actualizados');
-        } else {
-          showNotification('No se encontraron recetas', true);
+    // --- Inicio mejorado ---
+    (async() => {
+      // Cargar datos iniciales
+      state.mesas = loadJSON(CONFIG.STORAGE_KEYS.MESAS);
+      state.salesHistory = loadJSON(CONFIG.STORAGE_KEYS.SALES) || [];
+      state.products = loadJSON(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
+      
+      // Si no hay mesas, crear una por defecto
+      if(!state.mesas.length) {
+        crearMesa();
+      } else {
+        // Seleccionar la primera mesa al inicio
+        if (state.mesas.length > 0) {
+          abrirMesa(state.mesas[0].id);
         }
-      } catch (e) {
-        console.error('Error refreshing:', e);
-        showNotification('Error al actualizar', true);
-      }
-    };
-
-    document.getElementById('payAllBtn').onclick = () => {
-      openPayModal(inspectAccIdx, 'all');
-    };
-
-    document.getElementById('closeCartBtn').onclick = () => {
-      document.getElementById('checkoutPanel').style.display = 'none';
-    };
-
-    document.getElementById('newAccountBtn').onclick = () => {
-      const m = mesas[inspectAccIdx];
-      const num = m.cuentas.length + 1;
-      m.cuentas.push({ nombre: `Cuenta ${num}`, pedidos: [] });
-      saveJSON('mesas', mesas);
-      openAccountsPanel();
-      showNotification(`Cuenta ${num} creada`);
-    };
-
-    document.getElementById('edit-cancel').onclick = () => {
-      document.getElementById('modal-edit').classList.remove('active');
-    };
-
-    document.getElementById('edit-save').onclick = () => {
-      mesas[inspectAccIdx].cuentas[inspectSubIdx].pedidos = editList;
-      saveJSON('mesas', mesas);
-      document.getElementById('modal-edit').classList.remove('active');
-      openAccountsPanel();
-      showNotification('Pedido actualizado');
-    };
-
-    // Inicialización de la aplicación
-    (async () => {
-      // Cargar datos locales
-      mesas = loadJSON('mesas');
-      if (mesas.length === 0) {
-        // Crear mesa inicial
-        mesas = [{
-          id: 1,
-          name: 'Mesa 1',
-          cuentas: [{ nombre: 'Cuenta 1', pedidos: [] }]
-        }];
-        saveJSON('mesas', mesas);
       }
       
-      salesHistory = loadJSON('salesHistory') || [];
-      products = loadJSON('products') || [];
-      
-      // Si no hay productos, usar los de ejemplo
-      if (products.length === 0) {
-        products = sampleProducts;
-        saveJSON('products', products);
-      }
-      
-      // Configurar e inicializar la interfaz
-      setupCats();
-      renderCategories();
-      renderThumbnails();
-      
-      if (products.length > 0) {
-        selectProduct(0);
-      }
-      
+      // Configurar UI
+      setupCats(); 
+      renderCats(); 
+      renderThumbnails(); 
       renderMesas();
+      
+      // Seleccionar primer producto si existe
+      if(state.products.length) selectProd(0);
+      
+      logDebug('Sistema inicializado correctamente');
     })();
   </script>
 </body>
