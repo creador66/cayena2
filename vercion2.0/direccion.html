@@ -2326,49 +2326,62 @@ list.appendChild(item);
   
   // ACTUALIZAR ESTADÍSTICAS SUPERIORES (basadas en filtros)
   function updateTopStats() {
-    let totalInv = 0, totalCompras = 0, totalRestock = 0;
-    const compMap = {}, usedMap = {};
-    
-    // Calcular compras
-    comprasData.forEach(c => {
-      compMap[c.idProducto] = (compMap[c.idProducto] || 0) + c.cantidad * FACTORES[c.unidad];
-      const infoC = productInfo[c.idProducto] || { priceBase: 0 };
-      totalCompras += infoC.priceBase * c.cantidad * FACTORES[c.unidad];
-    });
-    
-    // Calcular uso en ventas
-    ventData.forEach(v => v.venta.forEach(it => {
+  let totalInv = 0,
+      totalCompras = 0,
+      totalRestock = 0;
+  const compMap = {},
+        usedMap = {};
+
+  // Calcular compras: almacena cantidades y suma los totales guardados
+  comprasData.forEach(c => {
+    // Mapa de cantidades (en la unidad base)
+    compMap[c.idProducto] = (compMap[c.idProducto] || 0)
+      + c.cantidad * FACTORES[c.unidad];
+
+    // Sumamos el total guardado de cada compra (c.precio)
+    totalCompras += Number(c.precio) || 0;
+  });
+
+  // Calcular uso en ventas
+  ventData.forEach(v =>
+    v.venta.forEach(it => {
       const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
       if (!rec) return;
       rec.ingredientes.forEach(ing => {
-        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0) + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
+        usedMap[ing.codigo] = (usedMap[ing.codigo] || 0)
+          + ing.cantidad * FACTORES[ing.unidad] * it.cantidad;
       });
-    }));
-    
-    // Obtener los productos a considerar (filtrados o todos)
-    const productos = filteredStock.length ? filteredStock : almacenData;
-    
-    // Calcular inventario y reposición
-    productos.forEach(it => {
-      const infoI = productInfo[it.codigo] || { priceBase: 0 };
-      const bought = compMap[it.codigo] || 0;
-      const used   = usedMap[it.codigo] || 0;
-      const remain = bought - used;
-      
-      totalInv += remain * infoI.priceBase;
-      
-      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-      const delta   = recBase - remain;
-      if (delta > 0) {
-        totalRestock += delta * infoI.priceBase;
-      }
-    });
-    
-    document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
-    document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
-    document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
-  }
-  
+    })
+  );
+
+  // Productos a considerar (filtrados o todos)
+  const productos = filteredStock.length ? filteredStock : almacenData;
+
+  // Calcular inventario y reposición
+  productos.forEach(it => {
+    const infoI = productInfo[it.codigo] || { priceBase: 0 };
+    const bought = compMap[it.codigo] || 0;
+    const used   = usedMap[it.codigo] || 0;
+    const remain = bought - used;
+
+    // Valor del inventario con precio base actual
+    totalInv += remain * infoI.priceBase;
+
+    // Cálculo de reposición según stock recomendado
+    const recBase = (parseFloat(it.stockRecomendado) || 0)
+      * FACTORES[it.unidadDeMedida];
+    const delta = recBase - remain;
+    if (delta > 0) {
+      totalRestock += delta * infoI.priceBase;
+    }
+  });
+
+  // Mostrar estadísticas
+  document.getElementById('stat-inventory').textContent   = totalInv.toFixed(2);
+  document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
+  document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
+}
+
   // ACCIONES STOCK/COMPRAS
   async function addNewProducto() {
     almacenData.push({ 
