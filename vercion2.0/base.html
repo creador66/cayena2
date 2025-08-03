@@ -2,624 +2,1449 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>POS Mesas con Sub‑cuentas, Filtros, Edición Inline, Animaciones y Historial</title>
+  <title>IAEgo - Sistema POS Moderno</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { height:100%; font-family: Arial, sans-serif; background:#fafafa; }
-
-    /* CABECERA */
+    /* ESTILOS PREVIOS (MANTENIDOS) */
+    :root {
+      --primary: #4a6cfa;
+      --primary-dark: #3a5ae0;
+      --secondary: #ff7043;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --danger: #f44336;
+      --dark: #2c3e50;
+      --light: #f8f9fa;
+      --gray: #e0e0e0;
+      --border-radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-hover: 0 6px 16px rgba(0,0,0,0.12);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fb;
+      color: #333;
+      overflow: hidden;
+    }
+    
     header {
-      position: fixed; top: 0; left: 0; right: 0; height: 56px;
-      background: #fff; display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; border-bottom: 1px solid #ddd; z-index: 10;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      color: white;
     }
-    header .title { font-size: 1.2rem; font-weight: bold; color: #333; }
-    header button { padding: 6px 12px; font-size: .9rem; border: 1px solid #e0e0e0; border-radius: 4px; background:#f5f5f5; cursor:pointer; }
-
-    /* BARRA DE MESAS */
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    
+    .header-controls {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .header-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+    }
+    
+    .header-btn:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    
     #mesaBar {
-      position: fixed; top: 56px; left: 0; right: 0; height: 48px;
-      background: #fff; display: flex; align-items: center;
-      padding: 0 12px; overflow-x: auto; border-bottom: 1px solid #ddd;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05); z-index: 9;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      z-index: 99;
     }
+    
     .mesa-btn {
-      flex: none; margin-right: 8px; padding: 0 14px; height: 32px;
-      line-height: 32px; border-radius: 16px; border: 1px solid #e0e0e0;
-      background: #f5f5f5; color: #555; font-size: .9rem; cursor: pointer;
-      transition: .2s; position: relative;
+      flex: none;
+      margin-right: 12px;
+      padding: 0 18px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 8px;
+      border: 1px solid var(--gray);
+      background: white;
+      color: var(--dark);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
     }
+    
+    .mesa-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+    
     .mesa-btn.selected {
-      background: #e65c00; color: #fff; border-color: #e65c00;
-      box-shadow: 0 2px 6px rgba(230,92,0,0.3);
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
     }
-    .mesa-name { cursor: pointer; }
-    .mesa-text, .sub-text { cursor: pointer; }
-    .mesa-count, .sub-count { color: #888; font-size: .8rem; margin-left: 4px; }
-
-    /* CONTENIDO */
+    
+    .mesa-btn.ocupada {
+      background: #fff3e0;
+      border-color: #ffb74d;
+      color: #e65100;
+    }
+    
+    .mesa-btn.ocupada.selected {
+      background: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+    }
+    
+    .mesa-count {
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 0 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
     .container {
-      display: flex; position: absolute;
-      top: 104px; bottom: 56px; left: 0; right: 0;
+      display: flex;
+      position: absolute;
+      top: 124px;
+      bottom: 76px;
+      left: 0;
+      right: 0;
     }
+    
     .sidebar {
-      width: 22%; background: #f8f8f8; overflow-y: auto;
-      border-right: 1px solid #ddd; padding: 12px;
+      width: 65%;
+      background: white;
+      overflow-y: auto;
+      border-right: 1px solid var(--gray);
+      padding: 16px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.03);
     }
-    .thumb-list { list-style: none; }
+    
+    .category-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .thumb-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    
     .thumb-list li {
-      margin-bottom: 12px; cursor: pointer;
-      border-radius: 8px; overflow: hidden; transition: .2s;
+      background: white;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: 1px solid #f0f0f0;
     }
+    
     .thumb-list li:hover {
-      transform: scale(1.02); box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
     }
-    .thumb-list img { width: 100%; display: block; }
-
+    
+    .thumb-list img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+    
+    .product-info {
+      padding: 12px;
+    }
+    
+    .product-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .product-price {
+      font-weight: 600;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+    
     .main {
-      flex: 1; position: relative; padding: 20px; overflow-y: auto; text-align: center; background: #fff;
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: white;
+      border-radius: var(--border-radius);
+      margin: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
     }
-    .main img { max-width: 80%; border-radius: 16px; margin-bottom: 20px; transition: .3s; }
-    .details h2 { font-size: 1.8rem; margin-bottom: 8px; color: #333; }
-    .details .price { font-size: 1.6rem; color: #e65c00; margin-bottom: 16px; }
-    .details .desc { max-width: 70%; color: #555; line-height: 1.4; margin: 0 auto; }
-
-    /* MENÚ INFERIOR DE CATEGORÍAS */
+    
+    .main img {
+      max-width: 70%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: var(--border-radius);
+      margin-bottom: 24px;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    
+    .details {
+      text-align: center;
+    }
+    
+    .details h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+    
+    .details .price {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    
+    .details .desc {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+    
     #categoryMenu {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
-      background: #fff; display: flex; align-items: center;
-      padding: 0 12px; overflow-x: auto; border-top: 1px solid #ddd;
-      box-shadow: 0 -1px 4px rgba(0,0,0,0.05); z-index: 10;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 76px;
+      background: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      overflow-x: auto;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      z-index: 98;
     }
+    
     .category-btn {
-      flex: none; margin-right: 8px; padding: 0 14px; height: 32px;
-      line-height: 32px; border-radius: 16px; border: 1px solid #e0e0e0;
-      background: #f5f5f5; color: #555; font-size: .9rem; cursor: pointer;
-      transition: .2s;
+      flex: none;
+      margin-right: 12px;
+      padding: 0 20px;
+      height: 44px;
+      line-height: 44px;
+      border: 1px solid var(--gray);
+      border-radius: var(--border-radius);
+      background: white;
+      color: #555;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      font-weight: 500;
     }
+    
     .category-btn.active {
-      background: #e65c00; color: #fff; border-color: #e65c00;
-      box-shadow: 0 2px 6px rgba(230,92,0,0.3);
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
     }
-
-    /* PANEL DE INSPECCIÓN / COBRO */
+    
     #checkoutPanel {
-      position: fixed; bottom: 76px; left: 20px;
-      background: #fff; padding: 16px; border: 1px solid #ddd;
-      border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      min-width: 260px; display: none; z-index: 20;
-      max-height: 60vh;       
-  overflow-y: auto;    
+      position: fixed;
+      bottom: 86px;
+      right: 24px;
+      background: white;
+      padding: 24px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-hover);
+      min-width: 320px;
+      max-height: 70vh;
+      overflow-y: auto;
+      display: none;
+      z-index: 101;
+      border: 1px solid #e0e0e0;
     }
-    .boton-icono {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #ffffff, #e0e0e0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.8);
-  border: 1px solid #ccc;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.boton-icono {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #e65100;
-  color: white;
-  border: none;
-  box-shadow:
-    0 3px 6px rgba(0, 0, 0, 0.25),
-    inset 0 1px 1px rgba(255, 255, 255, 0.3),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.1);
-  font-size: 12px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.boton-icono:hover {
-  background: #ffa726;
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.4);
-  transform: scale(1.08);
-}
-
-
-
-    #checkoutHeader { 
-      
-      margin-bottom: 8px; }
+    
+    #checkoutHeader {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-add {
+      background: var(--primary);
+      color: white;
+      padding: 12px 18px;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    
+    .btn-add:hover {
+      background: var(--primary-dark);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 12px 18px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+    
+    .btn-secondary:hover {
+      background: #f0f5ff;
+    }
+    
     .subcuenta {
-      display: grid; grid-template-columns: 1fr auto; align-items: center; margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .btnCobro { display: flex; gap: 4px; }
-
-    /* MODALES COMUNES */
+    
+    .btnCobro {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .boton-icono {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .boton-icono:hover {
+      transform: scale(1.1);
+    }
+    
+    .boton-icono.success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .boton-icono.warning {
+      background: var(--warning);
+      color: white;
+    }
+    
+    .boton-icono.danger {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .boton-icono.info {
+      background: var(--primary);
+      color: white;
+    }
+    
     .modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); display: flex; align-items: center;
-      justify-content: center; opacity: 0; visibility: hidden; transition: .2s;
-      z-index: 30;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.3s;
+      z-index: 1000;
     }
-    .modal.active { opacity: 1; visibility: visible; }
+    
+    .modal.active {
+      visibility: visible;
+      opacity: 1;
+    }
+    
     .modal .panel {
-      background: #fff; border-radius: 8px; padding: 1.5rem;
-      width: 90%; max-width: 500px; max-height: 80%; overflow-y: auto;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 28px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80%;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    .modal h3 { margin-bottom: 1rem; color: #333; }
-    .modal ul { list-style: none; padding: 0; margin: .5rem 0; }
-    .modal .actions { text-align: right; margin-top: 1.5rem; }
-    .modal .actions button {
-      margin-left: 8px; padding: 6px 12px; font-size: .9rem;
-      border: none; border-radius: 4px; cursor: pointer;
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .modal .actions .btn { background: #ccc; color: #333; }
-    .modal .actions .btn-add { background: #e65c00; color: #fff; }
-
-    /* IMAGEN VOLADORA */
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: var(--danger);
+    }
+    
     .flying-img {
-      position: absolute; z-index: 1000; pointer-events: none; border-radius: 8px;
+      position: fixed;
+      z-index: 10000;
+      pointer-events: none;
+      transition: transform 0.6s ease, opacity 0.6s ease;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
-    input{
-      font-size: 16px;
+    
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      .thumb-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .sidebar {
+        width: 60%;
+      }
     }
-    #cob-pagado{
-      padding: 5px;
+    
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--gray);
+        max-height: 40%;
+      }
+      
+      .thumb-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .main {
+        max-height: 60%;
+      }
+      
+      .main img {
+        max-width: 90%;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .thumb-list {
+        grid-template-columns: repeat(1, 1fr);
+      }
+      
+      .header-controls {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      
+      .header-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+      
+      .logo span {
+        display: none;
+      }
+    }
+    
+    /* Empty state styles */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #777;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: #e0e0e0;
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1;
+    }
+    
+    /* Payment form styling */
+    .payment-form {
+      display: grid;
+      gap: 15px;
+    }
+    
+    .payment-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .payment-form input,
+    .payment-form select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    
+    .payment-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 15px 0;
+      color: var(--primary);
+    }
+    
+    /* Product counter */
+    .product-counter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .counter-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: var(--transition);
+    }
+    
+    .counter-btn:hover {
+      background: #e9e9e9;
+    }
+    
+    .counter-value {
+      font-size: 1.2rem;
+      font-weight: 500;
+      min-width: 30px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="title">IAEgo</div>
-    <button id="btnHistory">Historial</button>
+    <div class="logo"><i class="fas fa-cash-register"></i><span>IAEgo POS</span></div>
+    <div class="header-controls">
+      <button id="addMesaBtn" class="header-btn"><i class="fas fa-plus"></i> Nueva Mesa</button>
+      <button id="btnHistory" class="header-btn"><i class="fas fa-history"></i> Historial</button>
+      <button id="refreshBtn" class="header-btn"><i class="fas fa-sync"></i> Actualizar</button>
+    </div>
   </header>
-
   <div id="mesaBar"></div>
-
   <div class="container">
     <aside class="sidebar">
+      <div class="category-title"><i class="fas fa-utensils"></i>Productos Disponibles</div>
       <ul class="thumb-list" id="thumbList"></ul>
     </aside>
     <section class="main">
-      <img id="mainImage" src="" alt="">
+      <img id="mainImage" src="https://via.placeholder.com/400x300?text=Selecciona+un+producto" alt="Producto">
       <div class="details">
-        <h2 id="productName"></h2>
-        <p class="price" id="productPrice"></p>
-        <p class="desc" id="productDesc"></p>
+        <h2 id="productName">Selecciona un producto</h2>
+        <div class="price" id="productPrice"></div>
+        <p class="desc" id="productDesc">Selecciona un producto de la lista para ver sus detalles.</p>
+        <div class="product-counter">
+          <button class="counter-btn" id="decrementBtn">-</button>
+          <div class="counter-value" id="quantityDisplay">1</div>
+          <button class="counter-btn" id="incrementBtn">+</button>
+        </div>
+        <button id="addToCartBtn" class="btn-add" style="margin-top: 20px; padding: 12px 30px;">
+          <i class="fas fa-cart-plus"></i> Añadir al Pedido
+        </button>
       </div>
     </section>
   </div>
-
   <div id="categoryMenu"></div>
-
   <div id="checkoutPanel">
     <div id="checkoutHeader">
-      <span class="mesa-name" id="mesaNumber"></span>
+      <div class="panel-title">
+        <i class="fas fa-receipt"></i>
+        <span id="mesaNumber"></span>
+      </div>
+      <button class="boton-icono info" onclick="document.getElementById('checkoutPanel').style.display = 'none'">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div id="accountsList"></div>
     <div class="actions">
-      <button id="newAccountBtn" class="btn-add">+ Nueva Cuenta</button>
-      <button id="payAllBtn" class="btn-add">Cobrar Todo</button>
-      <button id="closeCartBtn" class="btn">Cerrar</button>
+      <button id="newAccountBtn" class="btn-add"><i class="fas fa-plus"></i> Nueva Cuenta</button>
+      <button id="payAllBtn" class="btn-add"><i class="fas fa-money-bill-wave"></i> Cobrar Todo</button>
+      <button id="closeCartBtn" class="btn-secondary"><i class="fas fa-times"></i> Cerrar</button>
     </div>
   </div>
 
-  <!-- Modal Editar Pedidos -->
+  <!-- Modales -->
   <div class="modal" id="modal-edit">
     <div class="panel">
-      <h3>Editar Pedidos</h3>
+      <h3><i class="fas fa-edit"></i> Editar Pedidos</h3>
       <ul id="edit-list"></ul>
       <div class="actions">
-        <button class="btn" id="edit-cancel">Cancelar</button>
-        <button class="btn-add" id="edit-save">Guardar</button>
+        <button id="edit-cancel" class="btn-secondary">Cancelar</button>
+        <button id="edit-save" class="btn-add">Guardar</button>
       </div>
     </div>
   </div>
-
-  <!-- Modal Cobrar -->
   <div class="modal" id="modal-cobrar">
-    <div class="panel">
-      <h3 id="cob-encabezado">Cobrar</h3>
-      <p><strong>Mesa/Cuenta:</strong> <span id="cob-mesa"></span></p>
-      <ul id="cob-pedidos"></ul>
-      <p><strong>Total:</strong> $<span id="cob-total"></span></p>
-<input type="number" id="cob-pagado" min="0" placeholder="Pagado" />
-
-      <p><strong>Cambio:</strong> $<span id="cob-cambio">0.00</span></p>
-      <div class="actions">
-        <button class="btn" id="cob-cancelar">Cancelar</button>
-        <button class="btn-add" id="cob-confirmar" disabled>Confirmar</button>
-      </div>
-    </div>
+    <div class="panel" id="payPanel"></div>
   </div>
-
-  <!-- Modal Historial de Ventas -->
   <div class="modal" id="modal-history">
     <div class="panel">
-      <h3>Historial de Ventas</h3>
+      <h3><i class="fas fa-history"></i> Historial Ventas</h3>
       <ul id="history-list"></ul>
       <div class="actions">
-        <button class="btn" id="hist-cancel">Cerrar</button>
+        <button id="hist-cancel" class="btn-secondary">Cerrar</button>
       </div>
     </div>
   </div>
-<script>
-  // —— CONFIG ——  
-  const PRODUCTS_URL = 'https://script.google.com/macros/s/AKfycbwIfQv05pm9zXJPanwbBhbV8w-xKzN3DMeg4BjnEam0WZ-klREnfVrD9e6IGsKx1vdsZw/exec';
+  <div class="notification" id="notification">
+    <i class="fas fa-info-circle"></i><span id="notification-text"></span>
+  </div>
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    const CONFIG = {
+      STORAGE_KEYS: { ALMACEN: 'almacen6525', COSTEADAS: 'recetasCosteadas' },
+      FACTORES: { mg: 0.001, g: 1, kg: 1000, ml: 1, l: 1000, pz: 1 },
+      CATEGORIAS: { volumen: ['ml','l'], peso: ['mg','g','kg'], conteo: ['pz'] },
+      MARGEN: 2
+    };
+    
 
-  // —— ESTADO GLOBAL ——  
-  let products = [];
-  let uniqueCats = [];
-  let categoriesJson = [];
+    const sampleProducts = [
 
-  let mesas = [];
-  let salesHistory = [];
+    ];
 
-  let currentMesaId = 1;
-  let currentProductIndex = 0;
-  let currentCategory = 'Todas';
-  let inspectAccIdx = null;
-  let inspectSubIdx = null;
-  let editSaleIdx = null;
-  let editList = [];
+    let products = [];
+    let mesas = [];
+    let salesHistory = [];
+    let currentMesaId = 1;
+    let currentProductIndex = -1;
+    let currentCategory = 'Todas';
+    let inspectAccIdx = null;
+    let inspectSubIdx = null;
+    let editList = [];
+    let currentQuantity = 1;
 
-  // —— UTIL: storage genérico ——  
-  function loadJSON(key) {
-    try { return JSON.parse(localStorage.getItem(key)) || []; }
-    catch { return []; }
-  }
-  function saveJSON(key, val) {
-    localStorage.setItem(key, JSON.stringify(val));
-  }
+    // Funciones de utilidad
+    const loadJSON = key => {
+      try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        console.error(`Error loading ${key}:`, e);
+        return [];
+      }
+    };
 
-  // —— FETCH productos desde Apps Script ——  
-  async function fetchProducts() {
-    const fd = new FormData();
-    fd.append('op','obtenerProductos');
-    const resp = await fetch(PRODUCTS_URL,{ method:'POST', body:fd });
-    const j = await resp.json();
-    return j.status==='success' ? j.data : null;
-  }
+    const saveJSON = (key, val) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+        return true;
+      } catch (e) {
+        console.error(`Error saving ${key}:`, e);
+        return false;
+      }
+    };
 
-  // —— Crea mesas iniciales ——  
-  function createDefaultMesas() {
-    const arr = [];
-    for(let i=1;i<=40;i++){
-      arr.push({ id:i, name:`Mesa ${i}`, cuentas:[{ nombre:'Cuenta 1', pedidos:[] }] });
+    function showNotification(msg, error = false) {
+      const n = document.getElementById('notification');
+      const t = document.getElementById('notification-text');
+      t.textContent = msg;
+      n.className = error ? 'notification error' : 'notification';
+      n.classList.add('show');
+      setTimeout(() => n.classList.remove('show'), 3000);
     }
-    saveJSON('mesas', arr);
-    return arr;
-  }
 
-  // —— INIT ——  
-(async function(){
-  // 1) Mesas e historial
-  mesas = loadJSON('mesas');
-  if(!mesas.length) mesas = createDefaultMesas();
-  salesHistory = loadJSON('salesHistory');
+    function calcularCosto(ingredientes, almacen) {
+      const factores = CONFIG.FACTORES;
+      let total = 0;
+      
+      ingredientes.forEach(item => {
+        const producto = almacen.find(p => String(p.codigo) === String(item.codigo));
+        if (!producto) return;
+        
+        const ua = factores[producto.unidadDeMedida.trim().toLowerCase()];
+        const ui = factores[item.unidad.trim().toLowerCase()];
+        
+        if (ua && ui) {
+          const baseUnits = ua * parseFloat(producto.cantidad);
+          const pricePerUnit = producto.precio / baseUnits;
+          const neededUnits = ui * item.cantidad;
+          total += pricePerUnit * neededUnits;
+        }
+      });
+      
+      return parseFloat(total.toFixed(2));
+    }
 
-  // 2) Productos cacheados + UI rápida
-  products = loadJSON('products');
-  setupCats();
-  renderCategories();
-  renderThumbnails();
-  if (products.length) selectProduct(0);
-  renderMesas();
+    function aplicarMargen(costo) {
+      return parseFloat((costo * CONFIG.MARGEN).toFixed(2));
+    }
 
-  // 3) Refrescar productos del servidor
-  try {
-    const fresh = await fetchProducts();
-    if (Array.isArray(fresh)) {
-      products = fresh;
-      saveJSON('products', products);
+    async function fetchAlmacen() {
+      try {
+        const fd = new FormData();
+        fd.append('op', 'obtenerAlmacen');
+        const r = await fetch(API_URL, { method: 'POST', body: fd });
+        const j = await r.json();
+        if (j.status === 'success') return j.data;
+      } catch (e) {
+        console.error('Error fetching almacen:', e);
+      }
+      return [];
+    }
+
+    async function fetchRecetas() {
+      try {
+        const fd = new FormData();
+        fd.append('op', 'obtenerCocina');
+        const r = await fetch(API_URL, { method: 'POST', body: fd });
+        const j = await r.json();
+        if (j.status === 'success') return j.data;
+      } catch (e) {
+        console.error('Error fetching recetas:', e);
+      }
+      return [];
+    }
+
+    async function saveSaleToServer(sale) {
+      try {
+        const fd = new FormData();
+        fd.append('op', 'guardarVentas');
+        fd.append('venta', JSON.stringify(sale));
+        fd.append('metodoPago', sale.metodoPago);
+        const r = await fetch(API_URL, { method: 'POST', body: fd });
+        const j = await r.json();
+        return j.status === 'success';
+      } catch (e) {
+        console.error('Error saving sale:', e);
+        return false;
+      }
+    }
+
+    function setupCats() {
+      const categories = ['Todas'];
+      products.forEach(p => {
+        if (p.categoria && !categories.includes(p.categoria)) {
+          categories.push(p.categoria);
+        }
+      });
+      window.categoriesJson = categories.map(c => ({ name: c, filter: c === 'Todas' ? null : c }));
+    }
+
+    function renderCategories() {
+      const m = document.getElementById('categoryMenu');
+      m.innerHTML = '';
+      
+      window.categoriesJson.forEach(c => {
+        const b = document.createElement('button');
+        b.textContent = c.name;
+        b.className = 'category-btn' + (c.name === currentCategory ? ' active' : '');
+        b.onclick = () => {
+          currentCategory = c.name;
+          renderCategories();
+          renderThumbnails();
+        };
+        m.appendChild(b);
+      });
+    }
+
+    function renderThumbnails() {
+      const l = document.getElementById('thumbList');
+      l.innerHTML = '';
+      
+      const list = currentCategory === 'Todas' ? 
+        products : 
+        products.filter(p => p.categoria === currentCategory);
+      
+      if (list.length === 0) {
+        l.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No hay productos disponibles</h3>
+            <p>Selecciona otra categoría o actualiza los datos</p>
+          </div>
+        `;
+        return;
+      }
+      
+      list.forEach((p, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <img src="${p.imagen}" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+no+disponible'">
+          <div class="product-info">
+            <div class="product-name">${p.nombre}</div>
+            <div class="product-price">$${p.precio.toFixed(2)}</div>
+          </div>
+        `;
+        li.onclick = () => selectProduct(i);
+        l.appendChild(li);
+      });
+    }
+
+    function selectProduct(i) {
+      if (i < 0 || i >= products.length) return;
+      
+      currentProductIndex = i;
+      const p = products[i];
+      
+      document.getElementById('mainImage').src = p.imagen;
+      document.getElementById('productName').textContent = p.nombre;
+      document.getElementById('productPrice').textContent = `$${p.precio.toFixed(2)}`;
+      document.getElementById('productDesc').textContent = p.descripcion || 'Sin descripción disponible';
+      
+      // Reset quantity to 1 when selecting a new product
+      currentQuantity = 1;
+      document.getElementById('quantityDisplay').textContent = currentQuantity;
+    }
+
+    function renderMesas() {
+      const bar = document.getElementById('mesaBar');
+      bar.innerHTML = '';
+      
+      mesas.forEach(m => {
+        const count = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad))
+          .reduce((a, b) => a + b, 0);
+        
+        const btn = document.createElement('button');
+        btn.className = `mesa-btn ${m.id === currentMesaId ? 'selected' : ''} ${count > 0 ? 'ocupada' : ''}`;
+        btn.innerHTML = `
+          <span>${m.name}</span>
+          <span class="mesa-count">${count} pz</span>
+        `;
+        btn.onclick = () => {
+          currentMesaId = m.id;
+          renderMesas();
+          openAccountsPanel();
+        };
+        bar.appendChild(btn);
+      });
+    }
+
+    function openAccountsPanel() {
+      const m = mesas.find(x => x.id === currentMesaId);
+      if (!m) return;
+      
+      inspectAccIdx = mesas.indexOf(m);
+      const total = m.cuentas.flatMap(c => c.pedidos.map(x => x.cantidad))
+        .reduce((a, b) => a + b, 0);
+      
+      document.getElementById('mesaNumber').textContent = `${m.name} (${total} pz)`;
+      
+      const list = document.getElementById('accountsList');
+      list.innerHTML = '';
+      
+      if (m.cuentas.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <h3>No hay cuentas</h3>
+            <p>Crea una nueva cuenta para comenzar</p>
+          </div>
+        `;
+        return;
+      }
+      
+      m.cuentas.forEach((c, i) => {
+        const pz = c.pedidos.reduce((a, x) => a + x.cantidad, 0);
+        const totalValue = c.pedidos.reduce((a, x) => a + (x.precio * x.cantidad), 0);
+        const div = document.createElement('div');
+        div.className = 'subcuenta';
+        div.innerHTML = `
+          <div>
+            <span>${c.nombre}</span>
+            <span>${pz} pz - $${totalValue.toFixed(2)}</span>
+          </div>
+          <div class='btnCobro'>
+            <button class="boton-icono info" onclick="addToSub(${inspectAccIdx},${i})">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="boton-icono warning" onclick="openEditModal(${inspectAccIdx},${i})">
+              <i class="fas fa-pen-to-square"></i>
+            </button>
+            <button class="boton-icono success" onclick="openPayModal(${inspectAccIdx},${i})">
+              <i class="fas fa-cash-register"></i>
+            </button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+      
+      document.getElementById('checkoutPanel').style.display = 'block';
+    }
+
+    function addToSub(mi, ci) {
+      if (currentProductIndex < 0 || currentProductIndex >= products.length) {
+        showNotification('Selecciona un producto primero', true);
+        return;
+      }
+      
+      const sub = mesas[mi].cuentas[ci];
+      const p = products[currentProductIndex];
+      const ex = sub.pedidos.find(x => x.codigo === p.codigo);
+      
+      if (ex) {
+        ex.cantidad += currentQuantity;
+      } else {
+        sub.pedidos.push({
+          codigo: p.codigo,
+          nombre: p.nombre,
+          precio: p.precio,
+          cantidad: currentQuantity
+        });
+      }
+      
+      saveJSON('mesas', mesas);
+      showNotification(`${currentQuantity} ${p.nombre} añadido a ${sub.nombre}`);
+      openAccountsPanel();
+      currentQuantity = 1;
+      document.getElementById('quantityDisplay').textContent = currentQuantity;
+    }
+
+    function openEditModal(mi, ci) {
+      inspectAccIdx = mi;
+      inspectSubIdx = ci;
+      editList = JSON.parse(JSON.stringify(mesas[mi].cuentas[ci].pedidos));
+      renderEditList();
+      document.getElementById('modal-edit').classList.add('active');
+    }
+
+    function renderEditList() {
+      const ul = document.getElementById('edit-list');
+      ul.innerHTML = '';
+      
+      if (editList.length === 0) {
+        ul.innerHTML = `
+          <li class="empty-state">
+            <i class="fas fa-shopping-basket"></i>
+            <h3>No hay productos</h3>
+            <p>Añade productos a esta cuenta</p>
+          </li>
+        `;
+        return;
+      }
+      
+      editList.forEach((x, i) => {
+        const li = document.createElement('li');
+        li.className = 'subcuenta';
+        li.innerHTML = `
+          <div>
+            <span>${x.nombre}</span>
+            <span>${x.cantidad} x $${x.precio.toFixed(2)} = $${(x.cantidad * x.precio).toFixed(2)}</span>
+          </div>
+          <div>
+            <button class="boton-icono danger" onclick="removeEdit(${i})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function removeEdit(i) {
+      editList.splice(i, 1);
+      renderEditList();
+    }
+
+    function openPayModal(mi, ci) {
+      inspectAccIdx = mi;
+      inspectSubIdx = ci;
+      
+      let items = [];
+      let total = 0;
+      let title = '';
+      
+      if (ci === 'all') {
+        title = 'Cobrar Mesa Completa';
+        mesas[mi].cuentas.forEach(sub => {
+          sub.pedidos.forEach(p => {
+            items.push(p);
+          });
+          total += sub.pedidos.reduce((a, x) => a + x.precio * x.cantidad, 0);
+        });
+      } else {
+        const c = mesas[mi].cuentas[ci];
+        title = `Cobrar ${c.nombre}`;
+        items = c.pedidos;
+        total = items.reduce((a, x) => a + x.precio * x.cantidad, 0);
+      }
+      
+      total = parseFloat(total.toFixed(2));
+      
+      let itemsHtml = '';
+      if (items.length === 0) {
+        itemsHtml = '<li>No hay productos en esta cuenta</li>';
+      } else {
+        items.forEach(i => {
+          itemsHtml += `
+            <li>
+              ${i.nombre} × ${i.cantidad} = $${(i.precio * i.cantidad).toFixed(2)}
+            </li>
+          `;
+        });
+      }
+      
+      const payHtml = `
+        <h3>${title}</h3>
+        <ul>${itemsHtml}</ul>
+        <div class="payment-total">Total: $${total.toFixed(2)}</div>
+        <div class="payment-form">
+          <label for="payMethod">Método de Pago:</label>
+          <select id="payMethod">
+            <option>Efectivo</option>
+            <option>Tarjeta de Crédito</option>
+            <option>Tarjeta de Débito</option>
+            <option>Transferencia</option>
+            <option>Otro</option>
+          </select>
+          
+          <label for="payAmount">Monto Recibido:</label>
+          <input type="number" id="payAmount" min="0" value="${total}" step="0.01">
+          
+          <div id="payChange">Cambio: $0.00</div>
+        </div>
+        <div class="actions">
+          <button id="payConfirm" class="btn-add">Confirmar Pago</button>
+          <button class="btn-secondary" onclick="closePayModal()">Cancelar</button>
+        </div>
+      `;
+      
+      const panel = document.getElementById('payPanel');
+      panel.innerHTML = payHtml;
+      document.getElementById('modal-cobrar').classList.add('active');
+      
+      const payAmountInput = document.getElementById('payAmount');
+      payAmountInput.oninput = e => {
+        const paid = parseFloat(e.target.value) || 0;
+        const change = paid - total;
+        document.getElementById('payChange').textContent = `Cambio: $${change >= 0 ? change.toFixed(2) : '0.00'}`;
+      };
+      
+      document.getElementById('payConfirm').onclick = confirmPay;
+    }
+
+    function closePayModal() {
+      document.getElementById('modal-cobrar').classList.remove('active');
+    }
+
+    async function confirmPay() {
+      const metodo = document.getElementById('payMethod').value;
+      const paid = parseFloat(document.getElementById('payAmount').value) || 0;
+      
+      let items = [];
+      let total = 0;
+      let mesaName = '';
+      let cuentaName = '';
+      
+      if (inspectSubIdx === 'all') {
+        const mesa = mesas[inspectAccIdx];
+        mesaName = mesa.name;
+        cuentaName = 'Cuenta Completa';
+        
+        mesa.cuentas.forEach(sub => {
+          sub.pedidos.forEach(i => {
+            items.push({
+              codigo: String(i.codigo),
+              producto: i.nombre,
+              cantidad: i.cantidad,
+              total: +(i.precio * i.cantidad).toFixed(2)
+            });
+            total += i.precio * i.cantidad;
+          });
+        });
+        total = parseFloat(total.toFixed(2));
+      } else {
+        const mesa = mesas[inspectAccIdx];
+        const sub = mesa.cuentas[inspectSubIdx];
+        mesaName = mesa.name;
+        cuentaName = sub.nombre;
+        
+        items = sub.pedidos.map(i => ({
+          codigo: String(i.codigo),
+          producto: i.nombre,
+          cantidad: i.cantidad,
+          total: +(i.precio * i.cantidad).toFixed(2)
+        }));
+        total = items.reduce((a, x) => a + x.total, 0);
+      }
+      
+      if (paid < total) {
+        showNotification('El monto recibido es insuficiente', true);
+        return;
+      }
+      
+      const sale = {
+        fecha: new Date().toISOString(),
+        metodoPago: metodo,
+        items,
+        mesa: mesaName,
+        cuenta: cuentaName,
+        total
+      };
+      
+      if (await saveSaleToServer(sale)) {
+        if (inspectSubIdx === 'all') {
+          // Vaciar todas las cuentas de la mesa
+          mesas[inspectAccIdx].cuentas.forEach(sub => {
+            sub.pedidos = [];
+          });
+        } else {
+          // Vaciar solo la cuenta específica
+          mesas[inspectAccIdx].cuentas[inspectSubIdx].pedidos = [];
+        }
+        
+        // Si la cuenta queda vacía, removerla
+        mesas[inspectAccIdx].cuentas = mesas[inspectAccIdx].cuentas.filter(c => c.pedidos.length > 0);
+        
+        // Si no quedan cuentas, crear una nueva vacía
+        if (mesas[inspectAccIdx].cuentas.length === 0) {
+          mesas[inspectAccIdx].cuentas = [{ nombre: 'Cuenta 1', pedidos: [] }];
+        }
+        
+        salesHistory.push(sale);
+        saveJSON('salesHistory', salesHistory);
+        saveJSON('mesas', mesas);
+        
+        showNotification(`Pago de $${sale.total.toFixed(2)} registrado`);
+        renderMesas();
+        closePayModal();
+        openAccountsPanel();
+      } else {
+        showNotification('Error al registrar el pago', true);
+      }
+    }
+
+    // Event listeners
+    document.getElementById('addToCartBtn').onclick = () => {
+      if (inspectAccIdx === null || inspectSubIdx === null) {
+        showNotification('Abre una cuenta primero', true);
+        return;
+      }
+      addToSub(inspectAccIdx, inspectSubIdx);
+    };
+
+    document.getElementById('incrementBtn').onclick = () => {
+      currentQuantity++;
+      document.getElementById('quantityDisplay').textContent = currentQuantity;
+    };
+
+    document.getElementById('decrementBtn').onclick = () => {
+      if (currentQuantity > 1) {
+        currentQuantity--;
+        document.getElementById('quantityDisplay').textContent = currentQuantity;
+      }
+    };
+
+    document.getElementById('btnHistory').onclick = () => {
+      const ul = document.getElementById('history-list');
+      ul.innerHTML = '';
+      
+      if (salesHistory.length === 0) {
+        ul.innerHTML = `
+          <li class="empty-state">
+            <i class="fas fa-history"></i>
+            <h3>No hay historial</h3>
+            <p>Aún no se han registrado ventas</p>
+          </li>
+        `;
+      } else {
+        salesHistory.forEach((s, i) => {
+          const li = document.createElement('li');
+          li.className = 'subcuenta';
+          li.innerHTML = `
+            <div>
+              <span>${s.mesa} - ${s.cuenta}</span>
+              <span>${new Date(s.fecha).toLocaleString()}</span>
+            </div>
+            <div>
+              <span>$${s.total.toFixed(2)}</span>
+              <span>${s.metodoPago}</span>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+      }
+      
+      document.getElementById('modal-history').classList.add('active');
+    };
+
+    document.getElementById('hist-cancel').onclick = () => {
+      document.getElementById('modal-history').classList.remove('active');
+    };
+
+    document.getElementById('addMesaBtn').onclick = () => {
+      const nextId = mesas.length > 0 ? Math.max(...mesas.map(m => m.id)) + 1 : 1;
+      mesas.push({
+        id: nextId,
+        name: `Mesa ${nextId}`,
+        cuentas: [{ nombre: 'Cuenta 1', pedidos: [] }]
+      });
+      
+      saveJSON('mesas', mesas);
+      renderMesas();
+      currentMesaId = nextId;
+      openAccountsPanel();
+      showNotification(`Mesa ${nextId} creada`);
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    document.getElementById('refreshBtn').onclick = async () => {
+      try {
+        const rec = await fetchRecetas();
+        if (rec.length) {
+          const almacen = loadJSON(CONFIG.STORAGE_KEYS.ALMACEN) || [];
+          products = rec.map(r => ({
+            codigo: r.codigo,
+            nombre: r.nombre,
+            descripcion: r.descripcion || '',
+            categoria: r.categoria || '',
+            imagen: r.imagen || 'https://via.placeholder.com/300x200?text=Imagen+no+disponible',
+            precio: aplicarMargen(calcularCosto(r.ingredientes, almacen)),
+            ingredientes: r.ingredientes
+          }));
+          
+          saveJSON('products', products);
+          setupCats();
+          renderCategories();
+          renderThumbnails();
+          
+          if (products.length) {
+            selectProduct(0);
+          }
+          
+          showNotification('Productos actualizados');
+        } else {
+          showNotification('No se encontraron recetas', true);
+        }
+      } catch (e) {
+        console.error('Error refreshing:', e);
+        showNotification('Error al actualizar', true);
+      }
+    };
+
+    document.getElementById('payAllBtn').onclick = () => {
+      openPayModal(inspectAccIdx, 'all');
+    };
+
+    document.getElementById('closeCartBtn').onclick = () => {
+      document.getElementById('checkoutPanel').style.display = 'none';
+    };
+
+    document.getElementById('newAccountBtn').onclick = () => {
+      const m = mesas[inspectAccIdx];
+      const num = m.cuentas.length + 1;
+      m.cuentas.push({ nombre: `Cuenta ${num}`, pedidos: [] });
+      saveJSON('mesas', mesas);
+      openAccountsPanel();
+      showNotification(`Cuenta ${num} creada`);
+    };
+
+    document.getElementById('edit-cancel').onclick = () => {
+      document.getElementById('modal-edit').classList.remove('active');
+    };
+
+    document.getElementById('edit-save').onclick = () => {
+      mesas[inspectAccIdx].cuentas[inspectSubIdx].pedidos = editList;
+      saveJSON('mesas', mesas);
+      document.getElementById('modal-edit').classList.remove('active');
+      openAccountsPanel();
+      showNotification('Pedido actualizado');
+    };
+
+    // Inicialización de la aplicación
+    (async () => {
+      // Cargar datos locales
+      mesas = loadJSON('mesas');
+      if (mesas.length === 0) {
+        // Crear mesa inicial
+        mesas = [{
+          id: 1,
+          name: 'Mesa 1',
+          cuentas: [{ nombre: 'Cuenta 1', pedidos: [] }]
+        }];
+        saveJSON('mesas', mesas);
+      }
+      
+      salesHistory = loadJSON('salesHistory') || [];
+      products = loadJSON('products') || [];
+      
+      // Si no hay productos, usar los de ejemplo
+      if (products.length === 0) {
+        products = sampleProducts;
+        saveJSON('products', products);
+      }
+      
+      // Configurar e inicializar la interfaz
       setupCats();
       renderCategories();
       renderThumbnails();
-      selectProduct(0);
-      // (opcional) renderMesas() aquí sólo si cambian datos de mesas
-    }
-  } catch(e) {
-    console.error(e);
-  }
-
-  // ¡NO es necesario volver a llamar renderMesas() aquí!
-})();
-
-  // —— Construye categorías tras cargar products ——  
-  function setupCats(){
-    uniqueCats = Array.from(new Set(products.map(p=>p.category)));
-    categoriesJson = [{ name:'Todas',filter:null },...uniqueCats.map(cat=>({name:cat,filter:cat}))];
-  }
-
-  // —— SAVE helpers ——  
-  function saveMesas() { saveJSON('mesas',mesas); }
-  function saveSalesHistory() { saveJSON('salesHistory',salesHistory); }
-
-  // —— 5) Render categorías ——  
-  function renderCategories(){
-    const menu = document.getElementById('categoryMenu');
-    menu.innerHTML = '';
-    categoriesJson.forEach(cat=>{
-      const btn = document.createElement('button');
-      btn.textContent = cat.name;
-      btn.className = 'category-btn' + (cat.name===currentCategory?' active':'');
-      btn.onclick = ()=>{
-        currentCategory = cat.name;
-        renderCategories();
-        renderThumbnails();
-        const filtro = cat.filter ? products.filter(p=>p.category===cat.filter) : products;
-        if(filtro.length) selectProduct(products.findIndex(p=>p.id===filtro[0].id));
-      };
-      menu.appendChild(btn);
-    });
-  }
-
-  // —— 6) Thumbnails ——  
-  function renderThumbnails(){
-    const list = document.getElementById('thumbList');
-    list.innerHTML = '';
-    const filtered = currentCategory==='Todas'
-      ? products
-      : products.filter(p=>p.category===currentCategory);
-    filtered.forEach(p=>{
-      const li = document.createElement('li');
-      li.innerHTML = `<img src="${p.image||p.img}" alt="${p.name}">`;
-      li.onclick = ()=> selectProduct(products.findIndex(x=>x.id===p.id));
-      list.appendChild(li);
-    });
-  }
-
-  // —— 7) Producto principal ——  
-  function selectProduct(i){
-    currentProductIndex = i;
-    const p = products[i];
-    document.getElementById('mainImage').src        = p.image||p.img;
-    document.getElementById('productName').textContent = p.name;
-    document.getElementById('productPrice').textContent= `$${p.price.toFixed(2)}`;
-    document.getElementById('productDesc').textContent = p.desc;
-  }
-
-  // —— 8) Mesas & abrir panel ——  
-  function renderMesas(){
-    const bar = document.getElementById('mesaBar');
-    bar.innerHTML = '';
-    mesas.forEach(m=>{
-      const total = m.cuentas.flatMap(c=>c.pedidos.map(x=>x.cantidad)).reduce((a,b)=>a+b,0);
-      const btn = document.createElement('button');
-      btn.className = 'mesa-btn'+(m.id===currentMesaId?' selected':'');
-      btn.innerHTML = `<span class="mesa-name">
-                         <span class="mesa-text">${m.name}</span>
-                         <span class="mesa-count">${total} pz</span>
-                       </span>`;
-      btn.onclick = ()=>{
-        currentMesaId = m.id;
-        renderMesas(); openAccountsPanel();
-      };
-      bar.appendChild(btn);
-    });
-  }
-
-  function openAccountsPanel(){
-    const mesa = mesas.find(m=>m.id===currentMesaId);
-    inspectAccIdx = currentMesaId-1;
-    const total = mesa.cuentas.flatMap(c=>c.pedidos.map(x=>x.cantidad)).reduce((a,b)=>a+b,0);
-    const num = document.getElementById('mesaNumber');
-    num.innerHTML = `<span class="mesa-name">
-                       <span class="mesa-text">${mesa.name}</span>
-                       <span class="mesa-count">${total} pz</span>
-                     </span>`;
-    num.querySelector('.mesa-text').onclick = e=>{
-      makeInlineEditor(e.target,v=>{
-        mesa.name=v; saveMesas(); renderMesas(); openAccountsPanel();
-      });
-    };
-
-    const list = document.getElementById('accountsList');
-    list.innerHTML = '';
-    mesa.cuentas.forEach((c,j)=>{
-      const piezas = c.pedidos.map(x=>x.cantidad).reduce((a,b)=>a+b,0);
-      const div = document.createElement('div');
-      div.className='subcuenta';
-      div.innerHTML = `<span class="sub-name">
-                         <span class="sub-text">${c.nombre}</span>
-                         <span class="sub-count">${piezas} pz</span>
-                       </span>
-                       <span class="btnCobro">
-   <button class="boton-icono" onclick="addToSub(${inspectAccIdx},${j},this)"><i class="fa-solid fa-plus"></i></button>
-    <button class="boton-icono" onclick="openEditModal(${inspectAccIdx},${j})"><i class="fa-solid fa-pen-to-square"></i>
-️</button>
-<button class="boton-icono" onclick="openCobrar(${inspectAccIdx},${j})"><i class="fa-solid fa-money-bill-transfer"></i>️</button>
-                       </span>`;
-      div.querySelector('.sub-text').onclick = e=>{
-        makeInlineEditor(e.target,v=>{
-          mesas[inspectAccIdx].cuentas[j].nombre=v;
-          saveMesas(); openAccountsPanel();
-        });
-      };
-      list.appendChild(div);
-    });
-    document.getElementById('checkoutPanel').style.display='block';
-  }
-
-  // —— 9) Inline editor ——  
-  function makeInlineEditor(el,onSave){
-    const old=el.textContent;
-    const inp=document.createElement('input');
-    inp.type='text'; inp.value=old; inp.style.width=(el.offsetWidth+20)+'px';
-    el.replaceWith(inp); inp.focus();
-    const save=()=>{
-      const v=inp.value.trim()||old;
-      onSave(v);
-      el.textContent=v; inp.replaceWith(el);
-    };
-    inp.addEventListener('blur',save);
-    inp.addEventListener('keydown',e=>{
-      if(e.key==='Enter') save();
-      if(e.key==='Escape'){ inp.value=old; inp.blur(); }
-    });
-  }
-
-  // —— 10) Nueva cuenta / Cobrar todo / Cerrar ——  
-  document.getElementById('newAccountBtn').onclick=()=>{
-    const m=mesas[inspectAccIdx];
-    m.cuentas.push({ nombre:`Cuenta ${m.cuentas.length+1}`, pedidos:[] });
-    saveMesas(); openAccountsPanel();
-  };
-  document.getElementById('payAllBtn').onclick=()=>openCobrarAll(inspectAccIdx);
-  document.getElementById('closeCartBtn').onclick=()=>document.getElementById('checkoutPanel').style.display='none';
-
-  // —— 11) Animación vuelo ——  
-  function animateProductTo(btn){
-    const p = products[currentProductIndex];
-    const flyer=document.createElement('img');
-    flyer.src=p.image||p.img; flyer.className='flying-img';
-    document.body.appendChild(flyer);
-    const start=document.getElementById('mainImage').getBoundingClientRect();
-    const end=btn.getBoundingClientRect();
-    Object.assign(flyer.style,{
-      left:start.left+'px', top:start.top+'px',
-      width:start.width+'px', height:start.height+'px'
-    });
-    requestAnimationFrame(()=>{
-      Object.assign(flyer.style,{
-        transition:'all .6s ease-in-out',
-        left:end.left+'px', top:end.top+'px',
-        width:'20px', height:'20px', opacity:'0.5'
-      });
-    });
-    flyer.addEventListener('transitionend',()=>flyer.remove());
-  }
-
-  // —— 12) Agregar a subcuenta ——  
-  window.addToSub=(i,j,btn)=>{
-    const c=mesas[i].cuentas[j], p=products[currentProductIndex];
-    const ex=c.pedidos.find(x=>x.id===p.id);
-    if(ex) ex.cantidad++; else c.pedidos.push({ id:p.id, nombre:p.name, precio:p.price, cantidad:1 });
-    saveMesas(); animateProductTo(btn); openAccountsPanel();
-  };
-
-  // —— 13) Modal Editar Pedidos ——  
-  window.openEditModal=(i,j)=>{
-    inspectAccIdx=i; inspectSubIdx=j; editSaleIdx=null;
-    editList=mesas[i].cuentas[j].pedidos.map(x=>({...x}));
-    renderEditList(); document.getElementById('modal-edit').classList.add('active');
-  };
-  function renderEditList(){
-    const ul=document.getElementById('edit-list');
-    ul.innerHTML='';
-    if(!editList.length) return void(ul.innerHTML='<li>(vacío)</li>');
-    editList.forEach((x,k)=>{
-      const li=document.createElement('li');
-      li.innerHTML=`${x.nombre} × ${x.cantidad} = $${(x.precio*x.cantidad).toFixed(2)}
-                    <button onclick="removeEdit(${k})">X</button>`;
-      ul.appendChild(li);
-    });
-  }
-  window.removeEdit=k=>{ editList.splice(k,1); renderEditList(); };
-  document.getElementById('edit-cancel').onclick=()=>{ document.getElementById('modal-edit').classList.remove('active'); editSaleIdx=null; };
-  document.getElementById('edit-save').onclick=()=>{
-    if(editSaleIdx!==null){
-      const v=salesHistory[editSaleIdx];
-      v.pedidos=editList.map(x=>({...x}));
-      v.total=v.pedidos.reduce((s,x)=>s+x.precio*x.cantidad,0);
-      saveSalesHistory();
-    } else {
-      mesas[inspectAccIdx].cuentas[inspectSubIdx].pedidos=editList.map(x=>({...x}));
-      saveMesas(); openAccountsPanel();
-    }
-    document.getElementById('modal-edit').classList.remove('active'); editSaleIdx=null;
-  };
-
-  // —— 14) Modal Cobrar ——  
-  function prepareCobrar(title,mesatext,list){
-    document.getElementById('cob-encabezado').textContent=title;
-    document.getElementById('cob-mesa').textContent=mesatext;
-    document.getElementById('cob-pedidos').innerHTML=list.length
-      ? list.map(x=>`<li>${x.nombre} × ${x.cantidad} = $${(x.precio*x.cantidad).toFixed(2)}</li>`).join('')
-      : '<li>(vacío)</li>';
-    document.getElementById('cob-total').textContent = list.reduce((s,x)=>s+x.precio*x.cantidad,0).toFixed(2);
-    const inp=document.getElementById('cob-pagado');
-    inp.value=''; document.getElementById('cob-cambio').textContent='0.00';
-    document.getElementById('cob-confirmar').disabled=true;
-    document.getElementById('modal-cobrar').classList.add('active');
-    inp.oninput=()=>{
-      const paid=parseFloat(inp.value)||0, tot=parseFloat(document.getElementById('cob-total').textContent);
-      document.getElementById('cob-cambio').textContent=(paid>tot?paid-tot:0).toFixed(2);
-      document.getElementById('cob-confirmar').disabled = paid<tot;
-    };
-  }
-  window.openCobrar=(i,j)=>{
-    const c=mesas[i].cuentas[j];
-    prepareCobrar('Cobrar sub‑cuenta',`${mesas[i].name} — ${c.nombre}`,c.pedidos);
-    inspectAccIdx=i; inspectSubIdx=j; editSaleIdx=null;
-  };
-  window.openCobrarAll=i=>{
-    const all=mesas[i].cuentas.flatMap(c=>c.pedidos.map(x=>({...x,cuenta:c.nombre})));
-    const agg={};
-    all.forEach(x=>agg[x.id]?agg[x.id].cantidad+=x.cantidad:agg[x.id]={...x});
-    prepareCobrar('Cobrar todo',`${mesas[i].name} — Todas`,Object.values(agg));
-    inspectAccIdx=i; inspectSubIdx=null; editSaleIdx=null;
-  };
-  document.getElementById('cob-cancelar').onclick=()=>document.getElementById('modal-cobrar').classList.remove('active');
-  document.getElementById('cob-confirmar').onclick=()=>{
-    const m=mesas[inspectAccIdx];
-    const pedidos=inspectSubIdx===null
-      ? m.cuentas.flatMap(c=>c.pedidos.map(x=>({...x,cuenta:c.nombre})))
-      : m.cuentas[inspectSubIdx].pedidos.map(x=>({...x,cuenta:m.cuentas[inspectSubIdx].nombre}));
-    const total=parseFloat(document.getElementById('cob-total').textContent)||0;
-    const pagado=parseFloat(document.getElementById('cob-pagado').value)||0;
-    const cambio=parseFloat(document.getElementById('cob-cambio').textContent)||0;
-    const venta={ id:Date.now(), fecha:new Date().toISOString(),
-                  mesa:m.id, cuenta:inspectSubIdx===null?'Todas':m.cuentas[inspectSubIdx].nombre,
-                  pedidos,total,pagado,cambio };
-    salesHistory.push(venta); saveSalesHistory();
-    if(inspectSubIdx===null){
-      m.name=`Mesa ${m.id}`; m.cuentas=[{ nombre:'Cuenta 1',pedidos:[] }];
-    } else {
-      m.cuentas.splice(inspectSubIdx,1);
-      if(!m.cuentas.length) m.cuentas=[{ nombre:'Cuenta 1',pedidos:[] }];
-    }
-    saveMesas(); document.getElementById('modal-cobrar').classList.remove('active');
-    renderMesas(); openAccountsPanel();
-  };
-
-  // —— 15) Historial ——  
-  document.getElementById('btnHistory').onclick=()=>{
-    const ul=document.getElementById('history-list');
-    ul.innerHTML='';
-    if(!salesHistory.length) return void(ul.innerHTML='<li>(Sin ventas aún)</li>');
-    salesHistory.forEach((v,idx)=>{
-      const li=document.createElement('li');
-      const f=new Date(v.fecha).toLocaleString();
-      li.innerHTML=`<strong>${f}</strong> — Mesa ${v.mesa} / ${v.cuenta} — Total: $${v.total.toFixed(2)}
-                    <button onclick="openEditSale(${idx})"><i class="fa-solid fa-pen-to-square"></i>
-</button>`;
-      ul.appendChild(li);
-    });
-    document.getElementById('modal-history').classList.add('active');
-  };
-  document.getElementById('hist-cancel').onclick=()=>document.getElementById('modal-history').classList.remove('active');
-  window.openEditSale=idx=>{
-    editSaleIdx=idx;
-    const v=salesHistory[idx];
-    editList=v.pedidos.map(x=>({...x}));
-    renderEditList(); document.getElementById('modal-edit').classList.add('active');
-  };
-</script>
-
+      
+      if (products.length > 0) {
+        selectProduct(0);
+      }
+      
+      renderMesas();
+    })();
+  </script>
 </body>
 </html>
