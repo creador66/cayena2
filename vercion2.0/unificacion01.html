@@ -900,14 +900,10 @@ gap: 3px;
       z-index: 0;
       position: absolute;
       font-size: 12px;
-      color: #676DAA78;
       background: none;
       font-size: 20px;
       transform: translateY(-7px);
     }
-    
-    .insight-icon.primary { background: rgba(67, 97, 238, 0.15); color: var(--primary); }
-
     .insight-value {
       z-index: 1;
       font-size: 13px;
@@ -1198,17 +1194,30 @@ gap: 3px;
         </div>
         
         <div class="total-card inventario">
-          <h3>Gastos de Inventario</h3>
+          <h3>Gastos de Compras</h3>
           <div class="value" id="total-gastos-inventario">$0.00</div>
           <div class="sub-value">Suma de todas las compras</div>
         </div>
-        
+        <div class="total-card neto">
+          <h3>Simulacion Para Almacen</h3>
+          <div class="value" id="total-almacen">$0.00</div>
+          <div class="sub-value">Total Neto - Reposición</div>
+        </div>
+
         <div class="total-card neto">
           <h3>Total Neto</h3>
           <div class="value" id="total-neto">$0.00</div>
-          <div class="sub-value">Ventas + Ingresos - Gastos</div>
+          <div class="sub-value">Ventas + Ingresos - Gastos - Compras</div>
         </div>
       </div>
+
+
+
+
+      <div class="total-card neto">
+        <div class="sub-value" id="total-porCategoria"></div>
+      </div>
+
       
       <!-- Filtros por método de pago -->
       <div class="payment-filter">
@@ -3158,317 +3167,346 @@ async function eliminarVenta(id) {
   }
   
   // FUNCIONES PARA BALANCES
-  async function loadBalances() {
-    const res = await callApi({ op: 'obtenerBalances' });
-    if (res.status === 'success') {
-      balancesData = res.data;
-      filteredBalances = [];
-      renderBalancesTable();
-      updateBalancesSummary();
-    }
-  }
-  
-  // Calcular total de ventas con filtros
-  function calculateSalesTotal(paymentFilter = 'todos') {
-    let total = 0;
-    
-    if (paymentFilter === 'todos') {
-      total = ventData.reduce((sum, v) => 
-        sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
-    } else {
-      total = ventData
-        .filter(v => v.metodoPago === paymentFilter)
-        .reduce((sum, v) => 
-          sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
-    }
-    
-    return total;
-  }
-  
-  // Filtrar por método de pago
-  function filterByPayment(payment) {
-    currentPaymentFilter = payment;
-    
-    // Actualizar botones activos
-    document.querySelectorAll('.payment-filter-btn').forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.pago === payment) {
-        btn.classList.add('active');
-      }
-    });
-    
-    updateBalancesSummary();
-  }
-  
-  function updateBalancesSummary() {
-    const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
-    
-    // Calcular total de ventas
-    const totalVentas = calculateSalesTotal(currentPaymentFilter);
-    
-    // Calcular otros ingresos
-    const totalOtrosIngresos = dataToRender
-      .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
-      .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-    
-    // Calcular otros gastos
-    const totalGastos = dataToRender
-      .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
-      .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-    
-    // Obtener el valor de compras del resumen superior (ya calculado correctamente)
-    const totalCompras = parseFloat(
-      document.getElementById('stat-purchases').textContent || '0'
-    );
-    
-    // Calcular neto restando todos los gastos
-    const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
-    
-    // Actualizar DOM
-    document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
-    document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
-    document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
-    document.getElementById('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
-    document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
-    
-    // Actualizar texto del filtro
-    const filtroText = currentPaymentFilter === 'todos' 
-      ? 'Todos los métodos' 
-      : `Solo ${currentPaymentFilter}`;
-    document.getElementById('ventas-filtro').textContent = filtroText;
-    
-    // Actualizar gráfico de barras
-    const efectivoTotal = calculateSalesTotal('Efectivo');
-    const transferenciaTotal = calculateSalesTotal('Transferencia');
-    const tarjetaTotal = calculateSalesTotal('Tarjeta');
-    const maxValue = Math.max(efectivoTotal, transferenciaTotal, tarjetaTotal, 1);
-    
-
-  }
-  
-  function renderBalancesTable() {
-    const list = document.getElementById('balances-list');
-    list.innerHTML = '';
-    
-    const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
-    
-    if (dataToRender.length === 0) {
-      list.innerHTML = `
-        <div class="no-results">
-          <i class="fas fa-scale-balanced"></i>
-          <h3>No se encontraron registros</h3>
-          <p>Intenta ajustar los filtros o agregar nuevos registros</p>
-        </div>
-      `;
-      return;
-    }
-    
-    dataToRender.forEach(b => {
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.innerHTML = `
-        <div>
-          <div class="list-title">${b.especificacion || 'Sin especificación'}</div>
-          <div class="list-subtitle">#${b.codigo} | ${b.categoria} 
-            <span class="balance-type ${b.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
-              ${b.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'}
-            </span>
-          </div>
-          <div class="list-subtitle">
-            <span class="balance-status ${b.estado === 'activo' ? 'activo' : 'inactivo'}">
-              ${b.estado === 'activo' ? 'Activo' : 'Inactivo'}
-            </span>
-          </div>
-        </div>
-        <div>
-          <div class="list-title ${b.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
-            ${b.tipo === 'ingreso' ? '+' : '-'} $${parseFloat(b.monto).toFixed(2)}
-          </div>
-        </div>
-      `;
-      
-      item.addEventListener('click', () => {
-        const modalContent = document.createElement('div');
-        modalContent.innerHTML = `
-          <div class="card">
-            <div class="card-header">Editar Balance #${b.codigo}</div>
-            <div class="card-body">
-              <input type="hidden" id="balance-codigo" value="${b.codigo}">
-              <div class="form-group">
-                <label class="form-label">Monto</label>
-                <input type="number" class="form-input" id="balance-monto" value="${b.monto}" step="0.01">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Categoría</label>
-                <input type="text" class="form-input" id="balance-categoria" value="${b.categoria || ''}">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Tipo</label>
-                <select class="form-select" id="balance-tipo">
-                  <option value="ingreso" ${b.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
-                  <option value="deducible" ${b.tipo === 'deducible' ? 'selected' : ''}>Gasto</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Estado</label>
-                <select class="form-select" id="balance-estado">
-                  <option value="activo" ${b.estado === 'activo' ? 'selected' : ''}>Activo</option>
-                  <option value="inactivo" ${b.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Especificación</label>
-                <input type="text" class="form-input" id="balance-especificacion" value="${b.especificacion || ''}">
-              </div>
-              <div class="div2">
-                <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
-                <button class="btn btn-danger" onclick="deleteBalance('${b.codigo}')">Eliminar</button>
-              </div>
-            </div>
-          </div>
-        `;
-        
-        modal.show({
-          title: 'Editar Balance',
-          message: modalContent.innerHTML
-        });
-      });
-      
-      list.appendChild(item);
-    });
-  }
-  
-  function applyBalancesFilters() {
-    const search = document.getElementById('filter-balances-search').value.toLowerCase();
-    const categoria = document.getElementById('filter-balances-categoria').value.toLowerCase();
-    const estado = document.getElementById('filter-balances-estado').value;
-    
-    balancesFilters = { search, categoria, estado };
-    
-    filteredBalances = balancesData.filter(b => {
-      if (search && !b.especificacion.toLowerCase().includes(search) && !String(b.codigo).includes(search)) {
-        return false;
-      }
-      if (categoria && b.categoria.toLowerCase().includes(categoria) === false) {
-        return false;
-      }
-      if (estado && b.estado !== estado) {
-        return false;
-      }
-      return true;
-    });
-    
-    const filterCount = Object.values(balancesFilters).filter(f => f).length;
-    document.getElementById('filter-balances-indicator').textContent = filterCount;
-    
-    renderBalancesTable();
-    updateBalancesSummary();
-  }
-  
-  function resetBalancesFilters() {
-    document.getElementById('filter-balances-search').value = '';
-    document.getElementById('filter-balances-categoria').value = '';
-    document.getElementById('filter-balances-estado').value = '';
-    balancesFilters = {};
+async function loadBalances() {
+  const res = await callApi({ op: 'obtenerBalances' });
+  if (res.status === 'success') {
+    balancesData = res.data;
     filteredBalances = [];
-    document.getElementById('filter-balances-indicator').textContent = '0';
     renderBalancesTable();
     updateBalancesSummary();
   }
+}
+
+// Calcular total de ventas con filtros
+function calculateSalesTotal(paymentFilter = 'todos') {
+  let total = 0;
   
-  function addNewBalance() {
-    const newBalance = {
-      codigo: Date.now(),
-      monto: 0,
-      categoria: '',
-      tipo: 'deducible',
-      estado: 'activo',
-      especificacion: 'Nuevo registro'
-    };
-    balancesData.push(newBalance);
-    renderBalancesTable();
-    
-    const modalContent = document.createElement('div');
-    modalContent.innerHTML = `
-      <div class="card">
-        <div class="card-header">Nuevo Balance</div>
-        <div class="card-body">
-          <input type="hidden" id="balance-codigo" value="${newBalance.codigo}">
-          <div class="form-group">
-            <label class="form-label">Monto</label>
-            <input type="number" class="form-input" id="balance-monto" value="0" step="0.01">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Categoría</label>
-            <input type="text" class="form-input" id="balance-categoria" placeholder="Categoría">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tipo</label>
-            <select class="form-select" id="balance-tipo">
-              <option value="ingreso">Ingreso</option>
-              <option value="deducible" selected>Gasto</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Estado</label>
-            <select class="form-select" id="balance-estado">
-              <option value="activo" selected>Activo</option>
-              <option value="inactivo">Inactivo</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Especificación</label>
-            <input type="text" class="form-input" id="balance-especificacion" placeholder="Descripción">
-          </div>
-          <div class="div2">
-            <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
-            <button class="btn btn-outline" onclick="modal.backdrop.style.display='none'">Cancelar</button>
-          </div>
+  if (paymentFilter === 'todos') {
+    total = ventData.reduce((sum, v) => 
+      sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
+  } else {
+    total = ventData
+      .filter(v => v.metodoPago === paymentFilter)
+      .reduce((sum, v) => 
+        sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
+  }
+  
+  return total;
+}
+
+// Filtrar por método de pago
+function filterByPayment(payment) {
+  currentPaymentFilter = payment;
+  
+  // Actualizar botones activos
+  document.querySelectorAll('.payment-filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.pago === payment) {
+      btn.classList.add('active');
+    }
+  });
+  
+  updateBalancesSummary();
+}
+
+function updateBalancesSummary() {
+  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+  
+  // 1) Total de ventas según el filtro
+  const totalVentas = calculateSalesTotal(currentPaymentFilter);
+  
+  // 2) Otros ingresos activos
+  const totalOtrosIngresos = dataToRender
+    .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
+    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+  
+  // 3) Otros gastos activos
+  const totalGastos = dataToRender
+    .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
+    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
+  
+  // 4) Compras (gasto de inventario)
+  const totalCompras = parseFloat(
+    document.getElementById('stat-purchases').textContent || '0'
+  );
+  
+  // 5) Costo de surtir el almacén al 100%
+  const totalAlmacen = parseFloat(
+    document.getElementById('stat-restock').textContent || '0'
+  );
+  
+  // 6) Neto: ingresos menos gastos y compras
+  const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
+  
+  // 7) Saldo tras surtir el almacén (operador ternario según signo de totalNeto)
+  const saldoConAlmacen = totalNeto >= 0
+    ? totalNeto - totalAlmacen
+    : totalNeto + totalAlmacen;
+  
+  // 8) Formato con signo
+  const signo = saldoConAlmacen >= 0 ? '$' : '-$';
+  const valorFormateado = Math.abs(saldoConAlmacen).toFixed(2);
+  
+  // —————— Cálculo adicional: totales por categoría ——————
+  const categoryTotals = dataToRender
+    .filter(b => b.estado === 'activo')
+    .reduce((acc, b) => {
+      const cat = b.categoria || 'Sin categoría';
+      acc[cat] = (acc[cat] || 0) + parseFloat(b.monto);
+      return acc;
+    }, {});
+  const textoCategorias = Object.entries(categoryTotals)
+    .map(([cat, tot]) => `${cat}: $${tot.toFixed(2)}`)
+    .join(', ');
+  document.getElementById('total-porCategoria').textContent = textoCategorias;
+  
+  // —————— Actualización del DOM ——————
+  document.getElementById('total-ventas').textContent         = '$' + totalVentas.toFixed(2);
+  document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
+  document.getElementById('total-gastos').textContent         = '$' + totalGastos.toFixed(2);
+  document.getElementById('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
+  document.getElementById('total-neto').textContent           = '$' + totalNeto.toFixed(2);
+  document.getElementById('total-almacen').textContent        = signo + valorFormateado;
+  
+  // Texto del filtro de ventas
+  const filtroText = currentPaymentFilter === 'todos'
+    ? 'Todos los métodos'
+    : `Solo ${currentPaymentFilter}`;
+  document.getElementById('ventas-filtro').textContent = filtroText;
+  
+  // —————— Gráfico de barras simplificado ——————
+  const efectivoTotal      = calculateSalesTotal('Efectivo');
+  const transferenciaTotal = calculateSalesTotal('Transferencia');
+  const tarjetaTotal       = calculateSalesTotal('Tarjeta');
+  const maxValue = Math.max(efectivoTotal, transferenciaTotal, tarjetaTotal, 1);
+  
+  document.getElementById('bar-efectivo').style.width       = `${(efectivoTotal / maxValue) * 100}%`;
+  document.getElementById('label-efectivo').textContent     = '$' + efectivoTotal.toFixed(2);
+  
+  document.getElementById('bar-transferencia').style.width  = `${(transferenciaTotal / maxValue) * 100}%`;
+  document.getElementById('label-transferencia').textContent = '$' + transferenciaTotal.toFixed(2);
+  
+  document.getElementById('bar-tarjeta').style.width        = `${(tarjetaTotal / maxValue) * 100}%`;
+  document.getElementById('label-tarjeta').textContent      = '$' + tarjetaTotal.toFixed(2);
+}
+
+function renderBalancesTable() {
+  const list = document.getElementById('balances-list');
+  list.innerHTML = '';
+  
+  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+  
+  if (dataToRender.length === 0) {
+    list.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-scale-balanced"></i>
+        <h3>No se encontraron registros</h3>
+        <p>Intenta ajustar los filtros o agregar nuevos registros</p>
+      </div>
+    `;
+    return;
+  }
+  
+  dataToRender.forEach(b => {
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <div>
+        <div class="list-title">${b.especificacion || 'Sin especificación'}</div>
+        <div class="list-subtitle">#${b.codigo} | ${b.categoria} 
+          <span class="balance-type ${b.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
+            ${b.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'}
+          </span>
+        </div>
+        <div class="list-subtitle">
+          <span class="balance-status ${b.estado === 'activo' ? 'activo' : 'inactivo'}">
+            ${b.estado === 'activo' ? 'Activo' : 'Inactivo'}
+          </span>
+        </div>
+      </div>
+      <div>
+        <div class="list-title ${b.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
+          ${b.tipo === 'ingreso' ? '+' : '-'} $${parseFloat(b.monto).toFixed(2)}
         </div>
       </div>
     `;
     
-    modal.show({
-      title: 'Nuevo Balance',
-      message: modalContent.innerHTML
+    item.addEventListener('click', () => {
+      const modalContent = document.createElement('div');
+      modalContent.innerHTML = `
+        <div class="card">
+          <div class="card-header">Editar Balance #${b.codigo}</div>
+          <div class="card-body">
+            <input type="hidden" id="balance-codigo" value="${b.codigo}">
+            <div class="form-group">
+              <label class="form-label">Monto</label>
+              <input type="number" class="form-input" id="balance-monto" value="${b.monto}" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Categoría</label>
+              <input type="text" class="form-input" id="balance-categoria" value="${b.categoria || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" id="balance-tipo">
+                <option value="ingreso" ${b.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
+                <option value="deducible" ${b.tipo === 'deducible' ? 'selected' : ''}>Gasto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="balance-estado">
+                <option value="activo" ${b.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                <option value="inactivo" ${b.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Especificación</label>
+              <input type="text" class="form-input" id="balance-especificacion" value="${b.especificacion || ''}">
+            </div>
+            <div class="div2">
+              <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+              <button class="btn btn-danger" onclick="deleteBalance('${b.codigo}')">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.show({
+        title: 'Editar Balance',
+        message: modalContent.innerHTML
+      });
     });
-  }
-  
-  async function saveBalance() {
-    const codigo = document.getElementById('balance-codigo').value;
-    const monto = parseFloat(document.getElementById('balance-monto').value);
-    const categoria = document.getElementById('balance-categoria').value;
-    const tipo = document.getElementById('balance-tipo').value;
-    const estado = document.getElementById('balance-estado').value;
-    const especificacion = document.getElementById('balance-especificacion').value;
     
-    if (isNaN(monto) || monto <= 0) {
-      return showAlert('El monto debe ser un número positivo');
+    list.appendChild(item);
+  });
+}
+
+function applyBalancesFilters() {
+  const search = document.getElementById('filter-balances-search').value.toLowerCase();
+  const categoria = document.getElementById('filter-balances-categoria').value.toLowerCase();
+  const estado = document.getElementById('filter-balances-estado').value;
+  
+  balancesFilters = { search, categoria, estado };
+  
+  filteredBalances = balancesData.filter(b => {
+    if (search && !b.especificacion.toLowerCase().includes(search) && !String(b.codigo).includes(search)) {
+      return false;
     }
-    
-    const params = {
-      codigo,
-      monto,
-      categoria,
-      tipo,
-      estado,
-      especificacion
-    };
-    
-    await postOpNotify('guardarBalances', params, 'Balance guardado');
-    await loadBalances();
+    if (categoria && !b.categoria.toLowerCase().includes(categoria)) {
+      return false;
+    }
+    if (estado && b.estado !== estado) {
+      return false;
+    }
+    return true;
+  });
+  
+  const filterCount = Object.values(balancesFilters).filter(f => f).length;
+  document.getElementById('filter-balances-indicator').textContent = filterCount;
+  
+  renderBalancesTable();
+  updateBalancesSummary();
+}
+
+function resetBalancesFilters() {
+  document.getElementById('filter-balances-search').value       = '';
+  document.getElementById('filter-balances-categoria').value   = '';
+  document.getElementById('filter-balances-estado').value      = '';
+  balancesFilters = {};
+  filteredBalances = [];
+  document.getElementById('filter-balances-indicator').textContent = '0';
+  renderBalancesTable();
+  updateBalancesSummary();
+}
+
+function addNewBalance() {
+  const newBalance = {
+    codigo: Date.now(),
+    monto: 0,
+    categoria: '',
+    tipo: 'deducible',
+    estado: 'activo',
+    especificacion: 'Nuevo registro'
+  };
+  balancesData.push(newBalance);
+  renderBalancesTable();
+  
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div class="card">
+      <div class="card-header">Nuevo Balance</div>
+      <div class="card-body">
+        <input type="hidden" id="balance-codigo" value="${newBalance.codigo}">
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input type="number" class="form-input" id="balance-monto" value="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <input type="text" class="form-input" id="balance-categoria" placeholder="Categoría">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="balance-tipo">
+            <option value="ingreso">Ingreso</option>
+            <option value="deducible" selected>Gasto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select class="form-select" id="balance-estado">
+            <option value="activo" selected>Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Especificación</label>
+          <input type="text" class="form-input" id="balance-especificacion" placeholder="Descripción">
+        </div>
+        <div class="div2">
+          <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+          <button class="btn btn-outline" onclick="modal.backdrop.style.display='none'">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  modal.show({
+    title: 'Nuevo Balance',
+    message: modalContent.innerHTML
+  });
+}
+
+async function saveBalance() {
+  const codigo         = document.getElementById('balance-codigo').value;
+  const monto          = parseFloat(document.getElementById('balance-monto').value);
+  const categoria      = document.getElementById('balance-categoria').value;
+  const tipo           = document.getElementById('balance-tipo').value;
+  const estado         = document.getElementById('balance-estado').value;
+  const especificacion = document.getElementById('balance-especificacion').value;
+  
+  if (isNaN(monto) || monto <= 0) {
+    return showAlert('El monto debe ser un número positivo');
   }
   
-  async function deleteBalance(codigo) {
-    const ok = await showConfirm('¿Eliminar este registro?');
-    if (!ok) return;
-    await postOpNotify('eliminarBalances', { codigo }, 'Registro eliminado');
-    await loadBalances();
-  }
+  const params = { codigo, monto, categoria, tipo, estado, especificacion };
   
-  function exportarBalances() {
-    showAlert('Funcionalidad de exportación para balances está en desarrollo');
-  }
+  await postOpNotify('guardarBalances', params, 'Balance guardado');
+  await loadBalances();
+}
+
+async function deleteBalance(codigo) {
+  const ok = await showConfirm('¿Eliminar este registro?');
+  if (!ok) return;
+  await postOpNotify('eliminarBalances', { codigo }, 'Registro eliminado');
+  await loadBalances();
+}
+
+function exportarBalances() {
+  showAlert('Funcionalidad de exportación para balances está en desarrollo');
+}
+
   
 
   // CARGA GENERAL
