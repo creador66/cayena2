@@ -1877,6 +1877,7 @@ function renderStockTable() {
         <div class="list-subtitle">#${it.codigo} | ${it.unidadDeMedida}</div>
         <div class="list-subtitle">Restante: ${humanizeComposite(remain, info.categoria)}</div>
         <div class="list-subtitle">Estado: <span class="status-badge ${estado}">${estadoText}</span></div>
+        <div class="list-subtitle">${accion}</div>
       </div>
       <div>
         <span class="list-title">$${parseFloat(it.precio).toFixed(2)}</span>
@@ -1910,8 +1911,10 @@ function renderStockTable() {
               <div class="card-label">Unidad</div>
               <div class="card-value">
                 <select class="form-select" id="unidad-${it.codigo}">
-                  ${info.opcionesUnidad.map(u=>`<option value="${u}"${u===it.unidadDeMedida?' selected':''}>${u}</option>`).join('')}
-                </select>
+  ${(it.unidadDeMedida ? info.opcionesUnidad : ALL_UNITS)
+    .map(u => `<option value="${u}"${u === it.unidadDeMedida ? ' selected' : ''}>${u}</option>`)
+    .join('')}
+</select>
               </div>
             </div>
             <div class="card-row">
@@ -2322,7 +2325,7 @@ list.appendChild(item);
   document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
   document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
 }
-
+const ALL_UNITS = ['mg', 'g', 'kg', 'ml', 'l', 'pz'];
   // ACCIONES STOCK/COMPRAS
   async function addNewProducto() {
     almacenData.push({ 
