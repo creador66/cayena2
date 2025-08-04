@@ -859,6 +859,7 @@ gap: 3px;
     }
     
     .bar-inner {
+    
       position: absolute;
       bottom: 0;
       width: 100%;
@@ -879,6 +880,7 @@ gap: 3px;
     }
     
     .insight-card {
+      position: relative;
       background: white;
       border-radius: var(--border-radius);
       padding: 5px;
@@ -895,25 +897,22 @@ gap: 3px;
     }
     
     .insight-icon {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 5px;
-      font-size: 14px;
+      z-index: 0;
+      position: absolute;
+      font-size: 12px;
+      color: #676DAA78;
+      background: none;
+      font-size: 20px;
+      transform: translateY(-7px);
     }
     
     .insight-icon.primary { background: rgba(67, 97, 238, 0.15); color: var(--primary); }
-    .insight-icon.success { background: rgba(76, 175, 80, 0.15); color: var(--success); }
-    .insight-icon.warning { background: rgba(255, 152, 0, 0.15); color: var(--warning); }
-    .insight-icon.danger { background: rgba(247, 37, 133, 0.15); color: var(--danger); }
-    
+
     .insight-value {
-      font-size: 10px;
+      z-index: 1;
+      font-size: 13px;
       font-weight: 700;
-      margin-bottom: 5px;
+      color: #FFFFFF;
     }
     
     .insight-label {
@@ -1112,8 +1111,8 @@ gap: 3px;
 <div class="insights-grid">
   <!-- Total de piezas -->
   <div class="insight-card" id="insight-total-pieces">
-    <div class="insight-icon primary">
-      <i class="fas fa-box"></i>
+    <div class="insight-icon">
+      <i>⚫️</i>
     </div>
     <div class="insight-value">0</div>
     <div id="btn-clear-status" class="insight-label">Total pz</div>
@@ -1121,8 +1120,8 @@ gap: 3px;
 
   <!-- Bajo -->
   <div class="insight-card" data-status="low">
-    <div class="insight-icon warning">
-      <i class="fas fa-exclamation-triangle"></i>
+    <div class="insight-icon">
+      <i>🔴</i>
     </div>
     <div class="insight-value" id="insight-count-low">0</div>
     <div class="insight-label">Bajo</div>
@@ -1130,8 +1129,8 @@ gap: 3px;
 
   <!-- Medio -->
   <div class="insight-card" data-status="medium">
-    <div class="insight-icon warning">
-      <i class="fas fa-adjust"></i>
+    <div class="insight-icon">
+      <i>🟠</i>
     </div>
     <div class="insight-value" id="insight-count-medium">0</div>
     <div class="insight-label">Medio</div>
@@ -1139,8 +1138,8 @@ gap: 3px;
 
   <!-- Bueno -->
   <div class="insight-card" data-status="good">
-    <div class="insight-icon success">
-      <i class="fas fa-check-circle"></i>
+    <div class="insight-icon">
+      <i>🟢</i>
     </div>
     <div class="insight-value" id="insight-count-good">0</div>
     <div class="insight-label">Bueno</div>
@@ -1148,8 +1147,8 @@ gap: 3px;
 
   <!-- Excelente -->
   <div class="insight-card" data-status="excess">
-    <div class="insight-icon primary">
-      <i class="fas fa-star"></i>
+    <div class="insight-icon">
+      <i>🔵</i>
     </div>
     <div class="insight-value" id="insight-count-excess">0</div>
     <div class="insight-label">Excelente</div>
@@ -2087,7 +2086,6 @@ list.appendChild(item);
     datos.forEach((prod, index) => {
       texto += `*${index + 1}. ${prod.nombre}*\n`;
       texto += `   🔢 Código: ${prod.codigo}\n`;
-      texto += `   📦 Existencias: ${prod.existencias}\n`;
       texto += `   🟡 Estado: ${prod.estado}\n`;
       texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
       texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
