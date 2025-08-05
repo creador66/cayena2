@@ -1546,116 +1546,128 @@ gap: 3px;
   </div>
 
 <script>
-  // CONSTANTES
-  const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
-  const FACTORES   = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
-  const MARGEN     = 2;
-  const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
-  
-  // ESTADO GLOBAL
-  let balancesData = [];
-  let almacenData = [], comprasData = [], ventData = [], cocData = [];
-  let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
-  
-  // FILTROS
-  let stockFilters = {}, comprasFilters = {}, ventasFilters = {}, recetasFilters = {};
-  let filteredStock = [], filteredCompras = [], filteredVentas = [], filteredRecetas = [];
-  let balancesFilters = {}, filteredBalances = [];
-  let currentPaymentFilter = 'todos';
-  
-  // MODAL REUTILIZABLE
-  const modal = {
-    backdrop: document.getElementById('modal-backdrop'),
-    header:   document.getElementById('modal-header'),
-    body:     document.getElementById('modal-body'),
-    footer:   document.getElementById('modal-footer'),
-    show: ({ title = '', message = '', confirm = false }) => new Promise(res => {
-      modal.header.textContent = title;
-      modal.body.innerHTML   = message;
-      modal.footer.innerHTML   = '';
-      const btnOk = document.createElement('button');
-      btnOk.className = 'btn btn-primary';
-      btnOk.textContent = 'OK';
-      btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
-      modal.footer.append(btnOk);
-      if (confirm) {
-        const btnCancel = document.createElement('button');
-        btnCancel.className = 'btn btn-outline';
-        btnCancel.textContent = 'Cancelar';
-        btnCancel.onclick = () => (modal.backdrop.style.display = 'none', res(false));
-        modal.footer.append(btnCancel);
-      }
-      modal.backdrop.style.display = 'flex';
-    })
-  };
-  const showAlert   = msg => modal.show({ title: '¡Atención!', message: msg });
-  const showConfirm = msg => modal.show({ title: 'Confirma', message: msg, confirm: true });
+// CONSTANTES
+const API_URL    = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+const FACTORES   = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
+const MARGEN     = 2;
+const CATEGORIAS = { volumen:['ml','l'], peso:['mg','g','kg'], conteo:['pz'] };
+const ALL_UNITS  = ['mg','g','kg','ml','l','pz'];
 
-  // UTILIDADES DE FETCH
-  const callApi = params => {
-    const url = new URL(API_URL);
-    Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
-    return fetch(url).then(r => r.json());
-  };
-  async function postOpNotify(op, params = {}, successTitle = 'Éxito') {
-    try {
-      const data = await postOp(op, params);
-      const msg = typeof data === 'string' ? data : data?.message ?? JSON.stringify(data);
-      await modal.show({ title: successTitle, message: msg });
-      return data;
-    } catch (err) {
-      const errMsg = err?.message ?? String(err);
-      await modal.show({ title: 'Error', message: errMsg });
-      throw err;
+// ESTADO GLOBAL
+let balancesData = [];
+let almacenData = [], comprasData = [], ventData = [], cocData = [];
+let recetas = [], recetasData = [], categorias = [], productInfo = {}, editMode = false;
+
+// FILTROS
+let stockFilters = {}, comprasFilters = {}, ventasFilters = {}, recetasFilters = {};
+let filteredStock = [], filteredCompras = [], filteredVentas = [], filteredRecetas = [];
+let balancesFilters = {}, filteredBalances = [];
+let currentPaymentFilter = 'todos';
+
+// MODAL REUTILIZABLE
+const modal = {
+  backdrop: document.getElementById('modal-backdrop'),
+  header:   document.getElementById('modal-header'),
+  body:     document.getElementById('modal-body'),
+  footer:   document.getElementById('modal-footer'),
+  show: ({ title = '', message = '', confirm = false }) => new Promise(res => {
+    modal.header.textContent = title;
+    modal.body.innerHTML   = message;
+    modal.footer.innerHTML   = '';
+    const btnOk = document.createElement('button');
+    btnOk.className = 'btn btn-primary';
+    btnOk.textContent = 'OK';
+    btnOk.onclick = () => (modal.backdrop.style.display = 'none', res(true));
+    modal.footer.append(btnOk);
+    if (confirm) {
+      const btnCancel = document.createElement('button');
+      btnCancel.className = 'btn btn-outline';
+      btnCancel.textContent = 'Cancelar';
+      btnCancel.onclick = () => (modal.backdrop.style.display = 'none', res(false));
+      modal.footer.append(btnCancel);
     }
+    modal.backdrop.style.display = 'flex';
+  })
+};
+const showAlert   = msg => modal.show({ title: '¡Atención!', message: msg });
+const showConfirm = msg => modal.show({ title: 'Confirma', message: msg, confirm: true });
+
+// UTILIDADES DE FETCH
+const callApi = params => {
+  const url = new URL(API_URL);
+  Object.entries(params).forEach(([k,v]) => url.searchParams.append(k,v));
+  return fetch(url).then(r => r.json());
+};
+async function postOpNotify(op, params = {}, successTitle = 'Éxito') {
+  try {
+    const data = await postOp(op, params);
+    const msg = typeof data === 'string' ? data : data?.message ?? JSON.stringify(data);
+    await modal.show({ title: successTitle, message: msg });
+    return data;
+  } catch (err) {
+    const errMsg = err?.message ?? String(err);
+    await modal.show({ title: 'Error', message: errMsg });
+    throw err;
   }
-  const postOp = async (op, params = {}) => {
-    const fd = new FormData(); fd.append('op', op);
-    Object.entries(params).forEach(([k,v]) => fd.append(k,v));
-    const res = await fetch(API_URL, { method: 'POST', body: fd });
-    const json = await res.json();
-    if (json.status === 'success') return json.data;
-    else throw new Error(json.message);
-  };
+}
+const postOp = async (op, params = {}) => {
+  const fd = new FormData(); fd.append('op', op);
+  Object.entries(params).forEach(([k,v]) => fd.append(k,v));
+  const res = await fetch(API_URL, { method: 'POST', body: fd });
+  const json = await res.json();
+  if (json.status === 'success') return json.data;
+  else throw new Error(json.message);
+};
 
-  // UTILIDADES DE UNIDAD
-  const categoriaDe = u =>
-    ['mg','g','kg'].includes(u) ? 'peso'
-  : ['ml','l'].includes(u)    ? 'volumen'
-  :                             'conteo';
+// UTILIDADES DE UNIDAD
+const categoriaDe = u =>
+  ['mg','g','kg'].includes(u) ? 'peso'
+: ['ml','l'].includes(u)    ? 'volumen'
+:                             'conteo';
 
-  const humanizeComposite = (b, c) =>
-    c === 'peso' ?
-    ((kg => (kg ? kg + 'kg ' : '') + ((b % 1000) ? (b % 1000) + 'g' : '') || '0g')(Math.trunc(b / 1000))) :
-    c === 'volumen' ?
-    ((l => (l ? l + 'l ' : '') + ((b % 1000) ? (b % 1000) + 'ml' : '') || '0ml')(Math.trunc(b / 1000))) :
-    `${b.toFixed(0)}pz`;
-
-  // PRODUCT INFO
-  function buildProductInfo() {
-    productInfo = {};
-    almacenData.forEach(it => {
-      const uni = it.unidadDeMedida.trim().toLowerCase();
-      const cat = categoriaDe(uni);
-      const base = parseFloat(it.cantidad)*FACTORES[uni] || 1;
-      productInfo[it.codigo] = {
-        priceBase: parseFloat(it.precio)/base || 0,
-        categoria:  cat,
-        opcionesUnidad: CATEGORIAS[cat],
-        name: it.name,
-        active: it.active !== false
-      };
-    });
-  }
-
-  // Buscar recetas que usan un producto
-  function buscarRecetasConProducto(codigoProducto) {
-    return cocData.filter(receta => 
-      receta.ingredientes.some(ing => ing.codigo == codigoProducto && parseFloat(ing.cantidad) > 0)
-    ).map(receta => receta.nombre);
+function humanizeComposite(b, c) {
+  const absB = Math.abs(b);
+  let result = '';
+  
+  if (c === 'peso') {
+      const kg = Math.floor(absB / 1000);
+      const g = absB % 1000;
+      result = (kg ? kg + 'kg ' : '') + (g ? g + 'g' : '') || '0g';
+  } else if (c === 'volumen') {
+      const l = Math.floor(absB / 1000);
+      const ml = absB % 1000;
+      result = (l ? l + 'l ' : '') + (ml ? ml + 'ml' : '') || '0ml';
+  } else {
+      result = absB.toFixed(0) + 'pz';
   }
   
-  // FILTROS STOCK
+  return b < 0 ? '-' + result : result;
+}
+
+// PRODUCT INFO CORREGIDO
+function buildProductInfo() {
+  productInfo = {};
+  almacenData.forEach(it => {
+    const uni = it.unidadDeMedida.trim().toLowerCase();
+    const cat = categoriaDe(uni);
+    const baseQty = parseFloat(it.cantidad) * FACTORES[uni];
+    productInfo[it.codigo] = {
+      priceBase: baseQty > 0 ? parseFloat(it.precio) / baseQty : 0,
+      categoria:  cat,
+      opcionesUnidad: CATEGORIAS[cat],
+      name: it.name,
+      active: it.active !== false
+    };
+  });
+}
+
+// Buscar recetas que usan un producto
+function buscarRecetasConProducto(codigoProducto) {
+  return cocData.filter(receta => 
+    receta.ingredientes.some(ing => ing.codigo == codigoProducto && parseFloat(ing.cantidad) > 0)
+  ).map(receta => receta.nombre);
+}
+
 // FILTRADO DE STOCK
 function applyStockFilters() {
   const search   = document.getElementById('filter-stock-search').value.toLowerCase();
@@ -1748,7 +1760,6 @@ function resetStockFilters() {
 }
 
 // ACTUALIZAR ESTADÍSTICAS DE PRODUCTOS
-// 1) Actualiza los valores de las tarjetas
 function updateStockInsights() {
   const dataToRender = filteredStock.length ? filteredStock : almacenData;
 
@@ -1792,34 +1803,6 @@ function updateStockInsights() {
   document.getElementById('insight-count-good').textContent   = goodCount;
   document.getElementById('insight-count-excess').textContent = excCount;
 }
-
-// 2) Al hacer clic en las tarjetas, fijar filtro y desactivar el select
-function bindInsightFilters() {
-  const statusSelect = document.getElementById('filter-stock-status');
-
-  document.querySelectorAll('.insight-card[data-status]').forEach(card => {
-    const estado = card.dataset.status;
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', () => {
-      statusSelect.value    = estado;
-      statusSelect.disabled = true;
-      applyStockFilters();
-    });
-  });
-
-  // Botón para limpiar y re-habilitar el select
-  document.getElementById('btn-clear-status').addEventListener('click', () => {
-    statusSelect.value    = '';
-    statusSelect.disabled = false;
-    applyStockFilters();
-  });
-}
-
-// 3) Inicializar al cargar la página
-document.addEventListener('DOMContentLoaded', () => {
-  bindInsightFilters();
-});
-
 
 // RENDERIZAR TABLA DE STOCK
 function renderStockTable() {
@@ -1897,7 +1880,7 @@ function renderStockTable() {
       const card = document.createElement('div');
       card.className = 'card fade-in';
       card.innerHTML = `
-          <div class="card-header">${it.name} ${!info.active ? '(Inactivo)' : ''}</div>
+          <div class="card-header">Detalle de Producto</div>
           <div class="card-body">
             <div class="card-row">
               <div class="card-label">Código</div>
@@ -1932,6 +1915,12 @@ function renderStockTable() {
               </div>
             </div>
             <div class="card-row">
+              <div class="card-label">Nombre</div>
+              <div class="card-value">
+                <input class="form-input" type="text" id="name-${it.codigo}" value="${it.name ||''}">
+              </div>
+            </div>
+            <div class="card-row">
               <div class="card-label">Proveedor</div>
               <div class="card-value">
                 <input class="form-input" type="text" id="prov-${it.codigo}" value="${it.proveedor||''}">
@@ -1960,7 +1949,6 @@ function renderStockTable() {
               <div class="card-label">Estado</div>
               <div class="card-value"><span class="status-badge ${estado}">${estadoText}</span></div>
             </div>
-            
             <div class="card-row">
               <div class="card-label">Valor inventario</div>
               <div class="card-value">$${(remain * info.priceBase).toFixed(2)}</div>
@@ -1998,285 +1986,283 @@ function renderStockTable() {
             </div>
           </div>
         `;
-
-modal.show({
-title: 'Detalle de Producto',
-message: card.innerHTML
-});
-});
-
-list.appendChild(item);
-});
+      modal.show({
+        title: 'Detalle de Producto',
+        message: card.innerHTML
+      });
+    });
+    list.appendChild(item);
+  });
 }
 
-  // EXPORTAR DATOS
-  function exportarDatos() {
-    const modalContent = document.createElement('div');
-    modalContent.innerHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <h3>Exportar Datos Filtrados</h3>
-        <p>Seleccione el formato de exportación:</p>
-        <div class="export-options">
-          <div class="export-option pdf" onclick="exportarPDF()">
-            <i class="fas fa-file-pdf"></i>
-            <span>PDF</span>
-          </div>
-          <div class="export-option whatsapp" onclick="solicitarNumeroWhatsApp()">
-            <i class="fab fa-whatsapp"></i>
-            <span>WhatsApp</span>
-          </div>
-          <div class="export-option csv" onclick="exportarCSV()">
-            <i class="fas fa-file-csv"></i>
-            <span>CSV</span>
-          </div>
+// EXPORTAR DATOS
+function exportarDatos() {
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div style="text-align: center; padding: 20px;">
+      <h3>Exportar Datos Filtrados</h3>
+      <p>Seleccione el formato de exportación:</p>
+      <div class="export-options">
+        <div class="export-option pdf" onclick="exportarPDF()">
+          <i class="fas fa-file-pdf"></i>
+          <span>PDF</span>
+        </div>
+        <div class="export-option whatsapp" onclick="solicitarNumeroWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          <span>WhatsApp</span>
+        </div>
+        <div class="export-option csv" onclick="exportarCSV()">
+          <i class="fas fa-file-csv"></i>
+          <span>CSV</span>
         </div>
       </div>
-    `;
-    
-    modal.show({
-      title: 'Exportar Datos',
-      message: modalContent.innerHTML
-    });
-  }
+    </div>
+  `;
+  
+  modal.show({
+    title: 'Exportar Datos',
+    message: modalContent.innerHTML
+  });
+}
 
-  function solicitarNumeroWhatsApp() {
-    const savedNumber = localStorage.getItem('whatsappNumber') || '';
+function solicitarNumeroWhatsApp() {
+  const savedNumber = localStorage.getItem('whatsappNumber') || '';
+  
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div style="padding: 15px;">
+      <p>Ingrese el número de teléfono (con código de país, sin espacios ni caracteres especiales):</p>
+      <input
+        type="tel"
+        id="whatsapp-number"
+        class="form-input"
+        placeholder="Ej: 5491123456789"
+        style="width: 100%; padding: 12px; margin-bottom: 15px;"
+        value="${savedNumber}"
+      >
+      <button
+        class="btn btn-primary"
+        onclick="enviarWhatsApp()"
+        style="width: 100%; padding: 12px;"
+      >
+        <i class="fab fa-whatsapp"></i> Enviar
+      </button>
+    </div>
+  `;
+  
+  modal.show({
+    title: 'Enviar por WhatsApp',
+    message: modalContent.innerHTML
+  });
+  
+  setTimeout(() => {
+    const input = document.getElementById('whatsapp-number');
+    if (!input) return;
     
-    const modalContent = document.createElement('div');
-    modalContent.innerHTML = `
-      <div style="padding: 15px;">
-        <p>Ingrese el número de teléfono (con código de país, sin espacios ni caracteres especiales):</p>
-        <input
-          type="tel"
-          id="whatsapp-number"
-          class="form-input"
-          placeholder="Ej: 5491123456789"
-          style="width: 100%; padding: 12px; margin-bottom: 15px;"
-          value="${savedNumber}"
-        >
-        <button
-          class="btn btn-primary"
-          onclick="enviarWhatsApp()"
-          style="width: 100%; padding: 12px;"
-        >
-          <i class="fab fa-whatsapp"></i> Enviar
-        </button>
-      </div>
-    `;
-    
-    modal.show({
-      title: 'Enviar por WhatsApp',
-      message: modalContent.innerHTML
+    input.addEventListener('input', () => {
+      localStorage.setItem('whatsappNumber', input.value.trim());
     });
-    
-    setTimeout(() => {
-      const input = document.getElementById('whatsapp-number');
-      if (!input) return;
-      
-      input.addEventListener('input', () => {
-        localStorage.setItem('whatsappNumber', input.value.trim());
-      });
-    }, 100);
-  }
+  }, 100);
+}
 
-  function enviarWhatsApp() {
-    const numero = document.getElementById('whatsapp-number').value.trim();
-    if (!numero) {
-      return showAlert('Por favor, ingrese un número de teléfono.');
-    }
-    
-    const datos = getDatosExportacion();
-    
-    // Formatear los datos como texto
-    let texto = '📋 *Lista de Compras Generada por IAEgoStock Pro* 📋\n\n';
-    texto += '*Fecha:* ' + new Date().toLocaleDateString() + '\n';
-    texto += '*Productos Filtrados:* ' + datos.length + '\n\n';
-    
-    datos.forEach((prod, index) => {
-      texto += `*${index + 1}. ${prod.nombre}*\n`;
-      texto += `   🔢 Código: ${prod.codigo}\n`;
-      texto += `   🟡 Estado: ${prod.estado}\n`;
-      texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
-      texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
-    });
-    
-    // Calcular totales
-    const totalReposicion = datos
-      .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
-      .toFixed(2);
-    texto += `*TOTAL REPOSICIÓN:* $${totalReposicion}\n\n`;
-    
-    // Codificar el texto para URL
-    const textoCodificado = encodeURIComponent(texto);
-    const url = `https://wa.me/${numero}?text=${textoCodificado}`;
-    
-    // Crear un <a> temporal y disparar el click para abrir en nueva pestaña
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+function enviarWhatsApp() {
+  const numero = document.getElementById('whatsapp-number').value.trim();
+  if (!numero) {
+    return showAlert('Por favor, ingrese un número de teléfono.');
   }
   
-  function getDatosExportacion() {
-    const compMap = {}, usedMap = {};
-    
-    comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
-    ventData.forEach(v => v.venta.forEach(it => {
-      const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
-      rec && rec.ingredientes.forEach(ing =>
-        usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad
-      );
-    }));
-    
-    const productos = filteredStock.length ? filteredStock : almacenData;
-    
-    return productos.map(it => {
-      const infoI = productInfo[it.codigo] || {};
-      const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
-      const bought = compMap[it.codigo] || 0;
-      const used   = usedMap[it.codigo] || 0;
-      const remain = bought - used;
-      const pct     = recBase ? remain/recBase*100 : 0;
-      const estado  = pct <= 30 ? 'Bajo' 
-                    : pct <= 50 ? 'Medio'
-                    : pct <=90 ? 'Bueno'
-                    :             'Excedente';
-      const delta   = recBase - remain;
-      const reponer = delta > 0 ? humanizeComposite(delta, infoI.categoria) : 'Sobrante';
-      const valorReposicion = (delta > 0 ? delta * (infoI.priceBase || 0) : 0).toFixed(2);
-      
-      return {
-        nombre: it.name,
-        codigo: it.codigo,
-        existencias: humanizeComposite(remain, infoI.categoria),
-        estado: estado,
-        reponer: reponer,
-        valorReposicion: valorReposicion
-      };
-    });
-  }
+  const datos = getDatosExportacion();
+  
+  // Formatear los datos como texto
+  let texto = '📋 *Lista de Compras Generada por IAEgoStock Pro* 📋\n\n';
+  texto += '*Fecha:* ' + new Date().toLocaleDateString() + '\n';
+  texto += '*Productos Filtrados:* ' + datos.length + '\n\n';
+  
+  datos.forEach((prod, index) => {
+    texto += `*${index + 1}. ${prod.nombre}*\n`;
+    texto += `   🔢 Código: ${prod.codigo}\n`;
+    texto += `   🟡 Estado: ${prod.estado}\n`;
+    texto += `   📦 Cantidad a reponer: ${prod.reponer}\n`;
+    texto += `   💰 Valor reposición: $${prod.valorReposicion}\n\n`;
+  });
+  
+  // Calcular totales
+  const totalReposicion = datos
+    .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
+    .toFixed(2);
+  texto += `*TOTAL REPOSICIÓN:* $${totalReposicion}\n\n`;
+  
+  // Codificar el texto para URL
+  const textoCodificado = encodeURIComponent(texto);
+  const url = `https://wa.me/${numero}?text=${textoCodificado}`;
+  
+  // Crear un <a> temporal y disparar el click para abrir en nueva pestaña
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
 
-  function exportarPDF() {
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      return showAlert('La librería jsPDF no está cargada.');
-    }
-    const { jsPDF } = window.jspdf;
-    const datos    = getDatosExportacion();
-    const doc      = new jsPDF({ unit: 'pt', format: 'letter' });
-    const margin   = 40;
-    const lineH    = 16;
-    const pageW    = doc.internal.pageSize.getWidth();
-    const pageH    = doc.internal.pageSize.getHeight();
-    let   y        = margin;
+function getDatosExportacion() {
+  const compMap = {}, usedMap = {};
+  
+  comprasData.forEach(c => compMap[c.idProducto] = (compMap[c.idProducto]||0) + c.cantidad*FACTORES[c.unidad]);
+  ventData.forEach(v => v.venta.forEach(it => {
+    const rec = cocData.find(r => String(r.codigo)===String(it.codigo));
+    rec && rec.ingredientes.forEach(ing =>
+      usedMap[ing.codigo] = (usedMap[ing.codigo]||0) + ing.cantidad*FACTORES[ing.unidad]*it.cantidad
+    );
+  }));
+  
+  const productos = filteredStock.length ? filteredStock : almacenData;
+  
+  return productos.map(it => {
+    const infoI = productInfo[it.codigo] || {};
+    const recBase = (parseFloat(it.stockRecomendado) || 0) * FACTORES[it.unidadDeMedida];
+    const bought = compMap[it.codigo] || 0;
+    const used   = usedMap[it.codigo] || 0;
+    const remain = bought - used;
+    const pct     = recBase ? remain/recBase*100 : 0;
+    const estado  = pct <= 30 ? 'Bajo' 
+                  : pct <= 50 ? 'Medio'
+                  : pct <=90 ? 'Bueno'
+                  :             'Excedente';
+    const delta   = recBase - remain;
+    const reponer = delta > 0 ? humanizeComposite(delta, infoI.categoria) : 'Sobrante';
+    const valorReposicion = (delta > 0 ? delta * (infoI.priceBase || 0) : 0).toFixed(2);
     
-    // --- Encabezado ---
-    doc.setFontSize(16).text('Reporte de IAEgoStock Pro', margin, y);
-    y += lineH * 1.2;
-    doc.setFontSize(11)
-       .text(`Fecha: ${new Date().toLocaleDateString()}`, margin, y);
-    y += lineH;
-    doc.text(`Productos listados: ${datos.length}`, margin, y);
-    y += lineH * 1.5;
-    
-    // --- Cabecera Tabla con fondo ---
-    const colsX = [0, 30, 200, 260, 340, 420, 490];
-    const headers = ['No.', 'Producto', 'Código', 'Existencias', 'Estado', 'Reponer', 'Valor Repo.'];
-    
-    doc.setFillColor(60, 120, 216);
-    doc.setTextColor(255);
-    doc.setFontSize(12);
-    headers.forEach((h, i) => {
-      const x = margin + colsX[i];
-      doc.rect(x - 2, y - lineH + 4, (i === 1 ? 150 : 60), lineH, 'F');
-      doc.text(h, x, y);
-    });
-    
-    // línea bajo encabezado
-    doc.setDrawColor(0);
-    y += lineH;
-    doc.line(margin, y - 4, pageW - margin, y - 4);
-    
-    // Restaurar estilos para filas
-    doc.setFontSize(10);
-    doc.setTextColor(0);
-    
-    // --- Filas ---
-    datos.forEach((p, idx) => {
-      if (y + lineH > pageH - margin) {
-        doc.addPage();
-        y = margin;
-      }
-      // sombreado alterno
-      if (idx % 2 === 1) {
-        doc.setFillColor(240);
-        doc.rect(margin, y - lineH + 4, pageW - 2 * margin, lineH, 'F');
-      }
-      const vals = [
-        String(idx + 1),
-        p.nombre,
-        String(p.codigo),
-        String(p.existencias),
-        p.estado,
-        String(p.reponer),
-        `$${parseFloat(p.valorReposicion).toFixed(2)}`
-      ];
-      vals.forEach((txt, i) => {
-        const x = margin + colsX[i];
-        if (i === 1) {
-          doc.text(txt, x, y, { maxWidth: 150 });
-        } else {
-          doc.text(txt, x, y);
-        }
-      });
-      y += lineH;
-    });
-    
-    // --- Total reposición ---
+    return {
+      nombre: it.name,
+      codigo: it.codigo,
+      existencias: humanizeComposite(remain, infoI.categoria),
+      estado: estado,
+      reponer: reponer,
+      valorReposicion: valorReposicion
+    };
+  });
+}
+
+function exportarPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    return showAlert('La librería jsPDF no está cargada.');
+  }
+  const { jsPDF } = window.jspdf;
+  const datos    = getDatosExportacion();
+  const doc      = new jsPDF({ unit: 'pt', format: 'letter' });
+  const margin   = 40;
+  const lineH    = 16;
+  const pageW    = doc.internal.pageSize.getWidth();
+  const pageH    = doc.internal.pageSize.getHeight();
+  let   y        = margin;
+  
+  // --- Encabezado ---
+  doc.setFontSize(16).text('Reporte de IAEgoStock Pro', margin, y);
+  y += lineH * 1.2;
+  doc.setFontSize(11)
+     .text(`Fecha: ${new Date().toLocaleDateString()}`, margin, y);
+  y += lineH;
+  doc.text(`Productos listados: ${datos.length}`, margin, y);
+  y += lineH * 1.5;
+  
+  // --- Cabecera Tabla con fondo ---
+  const colsX = [0, 30, 200, 260, 340, 420, 490];
+  const headers = ['No.', 'Producto', 'Código', 'Existencias', 'Estado', 'Reponer', 'Valor Repo.'];
+  
+  doc.setFillColor(60, 120, 216);
+  doc.setTextColor(255);
+  doc.setFontSize(12);
+  headers.forEach((h, i) => {
+    const x = margin + colsX[i];
+    doc.rect(x - 2, y - lineH + 4, (i === 1 ? 150 : 60), lineH, 'F');
+    doc.text(h, x, y);
+  });
+  
+  // línea bajo encabezado
+  doc.setDrawColor(0);
+  y += lineH;
+  doc.line(margin, y - 4, pageW - margin, y - 4);
+  
+  // Restaurar estilos para filas
+  doc.setFontSize(10);
+  doc.setTextColor(0);
+  
+  // --- Filas ---
+  datos.forEach((p, idx) => {
     if (y + lineH > pageH - margin) {
       doc.addPage();
       y = margin;
     }
-    const total = datos.reduce((s, p) => s + parseFloat(p.valorReposicion), 0).toFixed(2);
-    y += lineH;
-    doc.setFontSize(12).text(`TOTAL REPOSICIÓN: $${total}`, margin, y);
-    
-    // Mostrar PDF
-    window.location.href = doc.output('bloburl');
-  }
-  
-  function exportarCSV() {
-    const datos = getDatosExportacion();
-    
-    // 1) Cabecera CSV
-    let csv = 'Producto,Código,Existencias,Estado,Reposición,Valor Reposición\n';
-    
-    // 2) Filas de datos (escapando comillas)
-    const escape = str => String(str).replace(/"/g, '""');
-    datos.forEach(prod => {
-      csv += `"${escape(prod.nombre)}","${escape(prod.codigo)}","${escape(prod.existencias)}","${escape(prod.estado)}","${escape(prod.reponer)}","${escape(prod.valorReposicion)}"\n`;
+    // sombreado alterno
+    if (idx % 2 === 1) {
+      doc.setFillColor(240);
+      doc.rect(margin, y - lineH + 4, pageW - 2 * margin, lineH, 'F');
+    }
+    const vals = [
+      String(idx + 1),
+      p.nombre,
+      String(p.codigo),
+      String(p.existencias),
+      p.estado,
+      String(p.reponer),
+      `$${parseFloat(p.valorReposicion).toFixed(2)}`
+    ];
+    vals.forEach((txt, i) => {
+      const x = margin + colsX[i];
+      if (i === 1) {
+        doc.text(txt, x, y, { maxWidth: 150 });
+      } else {
+        doc.text(txt, x, y);
+      }
     });
-    
-    // 3) Total reposición
-    const totalReposicion = datos
-      .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
-      .toFixed(2);
-    csv += `\n"","","","","TOTAL","${totalReposicion}"`;
-    
-    // 4) Crear blob y generar URL
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    
-    window.location.href = url;
-    
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  }
+    y += lineH;
+  });
   
-  // ACTUALIZAR ESTADÍSTICAS SUPERIORES (basadas en filtros)
-  function updateTopStats() {
+  // --- Total reposición ---
+  if (y + lineH > pageH - margin) {
+    doc.addPage();
+    y = margin;
+  }
+  const total = datos.reduce((s, p) => s + parseFloat(p.valorReposicion), 0).toFixed(2);
+  y += lineH;
+  doc.setFontSize(12).text(`TOTAL REPOSICIÓN: $${total}`, margin, y);
+  
+  // Mostrar PDF
+  window.location.href = doc.output('bloburl');
+}
+
+function exportarCSV() {
+  const datos = getDatosExportacion();
+  
+  // 1) Cabecera CSV
+  let csv = 'Producto,Código,Existencias,Estado,Reposición,Valor Reposición\n';
+  
+  // 2) Filas de datos (escapando comillas)
+  const escape = str => String(str).replace(/"/g, '""');
+  datos.forEach(prod => {
+    csv += `"${escape(prod.nombre)}","${escape(prod.codigo)}","${escape(prod.existencias)}","${escape(prod.estado)}","${escape(prod.reponer)}","${escape(prod.valorReposicion)}"\n`;
+  });
+  
+  // 3) Total reposición
+  const totalReposicion = datos
+    .reduce((sum, prod) => sum + parseFloat(prod.valorReposicion), 0)
+    .toFixed(2);
+  csv += `\n"","","","","TOTAL","${totalReposicion}"`;
+  
+  // 4) Crear blob y generar URL
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  
+  window.location.href = url;
+  
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+// ACTUALIZAR ESTADÍSTICAS SUPERIORES
+function updateTopStats() {
   let totalInv = 0,
       totalCompras = 0,
       totalRestock = 0;
@@ -2332,142 +2318,127 @@ list.appendChild(item);
   document.getElementById('stat-purchases').textContent   = totalCompras.toFixed(2);
   document.getElementById('stat-restock').textContent     = totalRestock.toFixed(2);
 }
-const ALL_UNITS = ['mg', 'g', 'kg', 'ml', 'l', 'pz'];
-  // ACCIONES STOCK/COMPRAS
-  async function addNewProducto() {
-    almacenData.push({ 
-      codigo: Date.now(), 
-      name:'Nuevo Producto', 
-      precio:0, 
-      cantidad:0, 
-      unidadDeMedida: '', 
-      stockRecomendado:0, 
-      proveedor:'',
-      active: true
-    });
-    buildProductInfo(); 
-    renderStockTable();
-    updateStockInsights();
-  }
+
+// ACCIONES STOCK/COMPRAS
+async function addNewProducto() {
+  almacenData.push({ 
+    codigo: Date.now(), 
+    name:'Nuevo Producto', 
+    precio:0, 
+    cantidad:0, 
+    unidadDeMedida: '', 
+    stockRecomendado:0, 
+    proveedor:'',
+    active: true
+  });
+  buildProductInfo(); 
+  renderStockTable();
+  updateStockInsights();
+}
+
+async function saveAlmacen(codigo) {
+  const name = document.getElementById(`name-${codigo}`)?.value.trim() || 'Nuevo Producto';
   
-  async function saveAlmacen(codigo) {
-    const name = document.getElementById(`name-${codigo}`)?.value.trim() || 'Nuevo Producto';
-    
-    await postOpNotify('guardarAlmacen', {
-      codigo,
-      name,
-      precio: document.getElementById(`precio-${codigo}`).value,
-      cantidad: document.getElementById(`cant-${codigo}`).value,
-      unidadDeMedida: document.getElementById(`unidad-${codigo}`).value,
-      stockRecomendado: document.getElementById(`rec-${codigo}`).value,
-      proveedor: document.getElementById(`prov-${codigo}`).value
-    }, 'Almacén actualizado');
-    await loadData();
-  }
+  await postOpNotify('guardarAlmacen', {
+    codigo,
+    name,
+    precio: document.getElementById(`precio-${codigo}`).value,
+    cantidad: document.getElementById(`cant-${codigo}`).value,
+    unidadDeMedida: document.getElementById(`unidad-${codigo}`).value,
+    stockRecomendado: document.getElementById(`rec-${codigo}`).value,
+    proveedor: document.getElementById(`prov-${codigo}`).value
+  }, 'Almacén actualizado');
+  await loadData();
+}
+
+async function deleteAlmacen(codigo) {
+  // Buscar recetas que usan este producto
+  const recetasQueLoUsan = buscarRecetasConProducto(codigo);
   
-  async function deleteAlmacen(codigo) {
-    // Buscar recetas que usan este producto
-    const recetasQueLoUsan = buscarRecetasConProducto(codigo);
-    
-    if (recetasQueLoUsan.length > 0) {
-      const message = `
-        <div class="card">
-          <div class="card-header">¡Advertencia!</div>
-          <div class="card-body">
-            <p>Este producto está siendo usado en las siguientes recetas:</p>
-            <ul style="padding-left: 20px; margin: 10px 0;">
-              ${recetasQueLoUsan.map(r => `<li>${r}</li>`).join('')}
-            </ul>
-            <p>Si continúa, el producto se marcará como inactivo y en las recetas su cantidad se establecerá a 0.</p>
-          </div>
+  if (recetasQueLoUsan.length > 0) {
+    const message = `
+      <div class="card">
+        <div class="card-header">¡Advertencia!</div>
+        <div class="card-body">
+          <p>Este producto está siendo usado en las siguientes recetas:</p>
+          <ul style="padding-left: 20px; margin: 10px 0;">
+            ${recetasQueLoUsan.map(r => `<li>${r}</li>`).join('')}
+          </ul>
+          <p>Si continúa, el producto se marcará como inactivo y en las recetas su cantidad se establecerá a 0.</p>
         </div>
-        <p>¿Desea continuar con la eliminación?</p>
-      `;
-      
-      const ok = await showConfirm(message);
-      if (!ok) return;
-      
-      // Actualizar las recetas: poner a 0 la cantidad de este ingrediente
-      for (const receta of cocData) {
-        if (receta.ingredientes.some(ing => ing.codigo == codigo)) {
-          receta.ingredientes = receta.ingredientes.map(ing => {
-            if (ing.codigo == codigo) {
-              return { ...ing, cantidad: 0 };
-            }
-            return ing;
-          });
-          await postOp('guardarCocina', {
-            codigo: receta.codigo,
-            nombre: receta.nombre,
-            categoria: receta.categoria,
-            imagen: receta.imagen || '',
-            ingredientes: JSON.stringify(receta.ingredientes)
-          });
-        }
+      </div>
+      <p>¿Desea continuar con la eliminación?</p>
+    `;
+    
+    const ok = await showConfirm(message);
+    if (!ok) return;
+    
+    // Actualizar las recetas: poner a 0 la cantidad de este ingrediente
+    for (const receta of cocData) {
+      if (receta.ingredientes.some(ing => ing.codigo == codigo)) {
+        receta.ingredientes = receta.ingredientes.map(ing => {
+          if (ing.codigo == codigo) {
+            return { ...ing, cantidad: 0 };
+          }
+          return ing;
+        });
+        await postOp('guardarCocina', {
+          codigo: receta.codigo,
+          nombre: receta.nombre,
+          categoria: receta.categoria,
+          imagen: receta.imagen || '',
+          ingredientes: JSON.stringify(receta.ingredientes)
+        });
       }
-      
-      // Marcar el producto como inactivo
-      const producto = almacenData.find(p => p.codigo == codigo);
-      if (producto) {
-        producto.active = false;
-        await postOpNotify('guardarAlmacen', {
-          codigo,
-          name: producto.name,
-          precio: producto.precio,
-          cantidad: producto.cantidad,
-          unidadDeMedida: producto.unidadDeMedida,
-          stockRecomendado: producto.stockRecomendado,
-          proveedor: producto.proveedor,
-          active: false
-        }, 'Producto marcado como inactivo');
-      }
-    } else {
-      const ok = await showConfirm(`¿Eliminar producto ${codigo}?`);
-      if (!ok) return;
-      await postOpNotify('eliminarAlmacen',{codigo},'Producto eliminado');
     }
     
-    await loadData();
+    // Marcar el producto como inactivo
+    const producto = almacenData.find(p => p.codigo == codigo);
+    if (producto) {
+      producto.active = false;
+      await postOpNotify('guardarAlmacen', {
+        codigo,
+        name: producto.name,
+        precio: producto.precio,
+        cantidad: producto.cantidad,
+        unidadDeMedida: producto.unidadDeMedida,
+        stockRecomendado: producto.stockRecomendado,
+        proveedor: producto.proveedor,
+        active: false
+      }, 'Producto marcado como inactivo');
+    }
+  } else {
+    const ok = await showConfirm(`¿Eliminar producto ${codigo}?`);
+    if (!ok) return;
+    await postOpNotify('eliminarAlmacen',{codigo},'Producto eliminado');
   }
   
-  async function buyProduct(id) {
-    const info = productInfo[id];
-    const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
-    if (qty <= 0) {
-      return showAlert('La cantidad debe ser mayor que cero');
-    }
-    const uni   = document.getElementById(`buyunit-${id}`).value;
-    const total = (info.priceBase * qty * FACTORES[uni]).toFixed(0);
-    const fecha = new Date().toISOString().slice(0,10);
-    await postOpNotify('guardarCompras',{ 
-      idProducto: id,
-      fecha,
-      name: almacenData.find(x => x.codigo == id).name,
-      precio: total,
-      cantidad: qty,
-      unidad: uni
-    },'Compra registrada');
-    await loadData();
+  await loadData();
+}
+
+// COMPRAS - CORREGIDO
+async function buyProduct(id) {
+  const info = productInfo[id];
+  const qty  = parseFloat(document.getElementById(`buyqty-${id}`).value) || 0;
+  if (qty <= 0) {
+    return showAlert('La cantidad debe ser mayor que cero');
   }
+  const uni   = document.getElementById(`buyunit-${id}`).value;
+  const factor = FACTORES[uni];
+  const total = (info.priceBase * qty * factor).toFixed(2); // CORRECCIÓN
+  const fecha = new Date().toISOString().slice(0,10);
+  await postOpNotify('guardarCompras',{ 
+    idProducto: id,
+    fecha,
+    name: almacenData.find(x => x.codigo == id).name,
+    precio: total,
+    cantidad: qty,
+    unidad: uni
+  },'Compra registrada');
+  await loadData();
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-// 
-// ==============================
-// MÓDULO DE COMPRAS
-// ==============================
-
-// 1) Renderizar la tabla de compras (muestra siempre el total guardado en c.precio)
+// RENDERIZAR TABLA DE COMPRAS
 function renderComprasTable() {
   const list = document.getElementById('compras-list');
   list.innerHTML = '';
@@ -2510,128 +2481,50 @@ function renderComprasTable() {
     });
 }
 
-// 2) Abrir modal para editar una compra
-function openEditCompraModal(c) {
-  const prod = almacenData.find(x => x.codigo == c.idProducto);
-  const info = productInfo[c.idProducto];
+// FILTROS COMPRAS
+function applyComprasFilters() {
+  const search = document.getElementById('filter-compras-search').value.toLowerCase();
+  const provider = document.getElementById('filter-compras-provider').value.toLowerCase();
+  const from = document.getElementById('filter-compras-from').value;
+  const to = document.getElementById('filter-compras-to').value;
 
-  // Precio unitario histórico = total guardado / cantidad
-  const precioUnitarioGuardado = Number(c.precio) / Number(c.cantidad);
-  const totalInicial = Number(c.precio).toFixed(2);
+  comprasFilters = { search, provider, from, to };
 
-  const card = document.createElement('div');
-  card.className = 'card fade-in';
-  card.innerHTML = `
-    <div class="card-header">Detalle de Compra #${c.idCompra}</div>
-    <div class="card-body">
-      <div class="card-row">
-        <div class="card-label">Producto</div>
-        <div class="card-value">${prod.name}</div>
-      </div>
-      <div class="card-row">
-        <div class="card-label">Fecha</div>
-        <div class="card-value">
-          <input type="date" class="form-input"
-                 id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}">
-        </div>
-      </div>
-      <div class="card-row">
-        <div class="card-label">Cantidad</div>
-        <div class="card-value">
-          <input type="number" class="form-input"
-                 id="qty-${c.idCompra}" value="${c.cantidad}"
-                 min="0" step="0.1"
-                 oninput="recalcEditTotal('${c.idCompra}', ${precioUnitarioGuardado})">
-        </div>
-      </div>
-      <div class="card-row">
-        <div class="card-label">Unidad</div>
-        <div class="card-value">
-          <select class="form-select" id="unit-${c.idCompra}" disabled>
-            ${info.opcionesUnidad.map(u =>
-              `<option value="${u}"${u === c.unidad ? ' selected' : ''}>${u}</option>`
-            ).join('')}
-          </select>
-        </div>
-      </div>
-      <div class="card-row">
-        <div class="card-label">Precio unitario histórico</div>
-        <div class="card-value">$${precioUnitarioGuardado.toFixed(2)}</div>
-      </div>
-      <div class="card-row">
-        <div class="card-label">Total</div>
-        <div class="card-value" id="total-${c.idCompra}">$${totalInicial}</div>
-      </div>
-      <div class="div2">
-        <button class="btn btn-primary"
-                onclick="saveCompra('${c.idCompra}','${c.idProducto}', true)">
-          <i class="fas fa-save"></i> Guardar
-        </button>
-        <button class="btn btn-danger"
-                onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">
-          <i class="fas fa-trash"></i> Eliminar
-        </button>
-      </div>
-    </div>`;
-  modal.show({ title: 'Editar Compra', message: card.innerHTML });
+  filteredCompras = comprasData.filter(c => {
+    const prod = almacenData.find(p => p.codigo == c.idProducto) || { name: '' };
+    if (search && !prod.name.toLowerCase().includes(search) && !String(c.idProducto).includes(search)) {
+      return false;
+    }
+    if (provider && !c.proveedor.toLowerCase().includes(provider)) {
+      return false;
+    }
+    if (from && c.fecha < from) {
+      return false;
+    }
+    if (to && c.fecha > to) {
+      return false;
+    }
+    return true;
+  });
+
+  const filterCount = Object.values(comprasFilters).filter(f => f).length;
+  document.getElementById('filter-compras-indicator').textContent = filterCount;
+
+  renderComprasTable();
 }
 
-// 3) Recalcular el total dentro del modal de edición (usa precio histórico)
-function recalcEditTotal(idC, precioUnitarioGuardado) {
-  const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
-  document.getElementById(`total-${idC}`).textContent =
-    `$${(precioUnitarioGuardado * qty).toFixed(2)}`;
+function resetComprasFilters() {
+  document.getElementById('filter-compras-search').value = '';
+  document.getElementById('filter-compras-provider').value = '';
+  document.getElementById('filter-compras-from').value = '';
+  document.getElementById('filter-compras-to').value = '';
+  comprasFilters = {};
+  filteredCompras = [];
+  document.getElementById('filter-compras-indicator').textContent = '0';
+  renderComprasTable();
 }
 
-// 4) Guardar compra (tanto nueva como editada)
-async function saveCompra(idC, idP, isEdit = false) {
-  const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
-  if (qty <= 0) return showAlert('La cantidad debe ser mayor que cero');
-  const fecha = document.getElementById(`date-${idC}`).value;
-  const uni = document.getElementById(`unit-${idC}`).value;
-
-  let precioUnitario;
-  if (isEdit) {
-    // Sacamos precio histórico de comprasData
-    const original = comprasData.find(c =>
-      c.idCompra == idC && c.idProducto == idP
-    );
-    precioUnitario = Number(original.precio) / Number(original.cantidad);
-  } else {
-    // Compra nueva: precio actual * factor
-    precioUnitario = productInfo[idP].priceBase * FACTORES[uni];
-  }
-
-  const total = (precioUnitario * qty).toFixed(2);
-
-  await postOpNotify('guardarCompras', {
-    idCompra: idC,
-    idProducto: idP,
-    fecha,
-    cantidad: qty,
-    unidad: uni,
-    name: almacenData.find(x => x.codigo == idP).name,
-    precio: total  // guardamos el total bajo la clave 'precio'
-  }, 'Compra guardada');
-
-  await loadData();
-}
-
-// 5) Eliminar compra
-async function deleteCompra(idC, idP) {
-  const ok = await showConfirm(`¿Eliminar compra ${idC}?`);
-  if (!ok) return;
-  await postOpNotify('eliminarCompras', {
-    idCompra: idC,
-    idProducto: idP
-  }, 'Compra eliminada');
-  await loadData();
-}
-
-
-// ==============================
 // NAVEGACIÓN
-// ==============================
 function cambiarSeccion(sec) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.nav-btn[data-sec="${sec}"]`).classList.add('active');
@@ -2640,12 +2533,7 @@ function cambiarSeccion(sec) {
   window.scrollTo(0, 0);
 }
 
-
-// ==============================
-// MÓDULO DE VENTAS
-// ==============================
-
-// 1) Crear fila de venta (para el formulario)
+// VENTAS
 function crearItemRow(cod = '', cant = '', tot = '') {
   const row = document.createElement('div');
   row.className = 'sale-item';
@@ -2669,7 +2557,6 @@ function crearItemRow(cod = '', cant = '', tot = '') {
   return row;
 }
 
-// 2) Recalcular total de una fila de venta
 function recalcRow(el) {
   const row = el.closest('.sale-item');
   const sel = row.querySelector('.sale-item-select');
@@ -2679,12 +2566,10 @@ function recalcRow(el) {
   inpTot.value = (Number(rec.precio) * Number(inpCant.value || 0)).toFixed(2);
 }
 
-// 3) Agregar otra fila al formulario de venta
 function agregarItemVenta() {
   document.getElementById('items-container').append(crearItemRow());
 }
 
-// 4) Renderizar cada ticket en la lista
 function renderTicketCard(v) {
   const fechaStr = new Date(v.fecha).toLocaleDateString();
   const itemsHtml = v.venta.map(it =>
@@ -2744,7 +2629,6 @@ function renderTicketCard(v) {
   return item;
 }
 
-// 5) Cargar y mostrar todas las ventas
 async function cargarVentas() {
   await fetchRecetas(); // asegura que 'recetas' esté poblado
   const list = document.getElementById('tickets-list');
@@ -2765,7 +2649,6 @@ async function cargarVentas() {
   actualizarResumen(dataToRender);
 }
 
-// 6) Iniciar edición de una venta (pasa al formulario de 'ventas')
 function startEdit(v) {
   document.getElementById('form-id').value = v.id;
   document.getElementById('form-fecha').value =
@@ -2780,7 +2663,6 @@ function startEdit(v) {
   cambiarSeccion('ventas');
 }
 
-// 7) Resetear el formulario de venta
 function resetForm() {
   document.getElementById('form-id').value = '';
   document.getElementById('form-fecha').value =
@@ -2789,7 +2671,6 @@ function resetForm() {
   document.getElementById('items-container').innerHTML = '';
 }
 
-// 8) Actualizar el resumen de totales de ventas
 function actualizarResumen(vs) {
   let e = 0, t = 0, ta = 0;
   vs.forEach(v => {
@@ -2804,7 +2685,6 @@ function actualizarResumen(vs) {
   document.getElementById('sum-total').textContent = (e + t + ta).toFixed(2);
 }
 
-// 9) Guardar venta (nueva o editada)
 async function guardarVenta() {
   const fecha = document.getElementById('form-fecha').value;
   const rows = document.querySelectorAll('#items-container .sale-item');
@@ -2837,7 +2717,6 @@ async function guardarVenta() {
   await loadData();
 }
 
-// 10) Eliminar venta
 async function eliminarVenta(id) {
   const ok = await showConfirm('¿Eliminar venta?');
   if (!ok) return;
@@ -2845,328 +2724,408 @@ async function eliminarVenta(id) {
   await loadData();
 }
 
-  // RECETAS
-  async function fetchRecetas() {
-    const cocR = await callApi({ op: 'obtenerCocina' });
-    if (cocR.status === 'success') {
-      cocData = cocR.data.map(r => ({
-        ...r,
-        ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
-      }));
-    }
-    recetas = cocData.map(r => {
-      const costo = r.ingredientes.reduce((sum, ing) => {
-        const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
-        if (!p) return sum;
-        const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
-        return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
-      }, 0);
-      return {
-        codigo: r.codigo,
-        nombre: r.nombre,
-        precio: (costo * MARGEN).toFixed(2)
-      };
-    });
-  }
+// FILTROS VENTAS
+function applyVentasFilters() {
+  const search = document.getElementById('filter-ventas-search').value.toLowerCase();
+  const payment = document.getElementById('filter-ventas-payment').value;
+  const from = document.getElementById('filter-ventas-from').value;
+  const to = document.getElementById('filter-ventas-to').value;
 
-  async function cargarRecetas() {
-    await fetchRecetas();
-    recetasData = cocData;
-    categorias = [...new Set(recetasData.map(r => r.categoria))];
-    
-    // Actualizar select de categorías en formulario
-    const sel = document.getElementById('receta-categoria');
-    sel.innerHTML = [
-      '<option value="">-- Selecciona --</option>',
-      ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
-    ].join('');
-    
-    // Actualizar select de categorías en filtros
-    const filterCatSel = document.getElementById('filter-recetas-category');
-    filterCatSel.innerHTML = [
-      '<option value="">Todas</option>',
-      ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
-    ].join('');
-    
-    mostrarRecetas();
+  ventasFilters = { search, payment, from, to };
+
+  filteredVentas = ventData.filter(v => {
+    if (search) {
+      const found = v.venta.some(it => {
+        const rec = cocData.find(r => String(r.codigo) === String(it.codigo));
+        return rec && rec.nombre.toLowerCase().includes(search);
+      });
+      if (!found) return false;
+    }
+    if (payment && v.metodoPago !== payment) {
+      return false;
+    }
+    if (from && v.fecha < from) {
+      return false;
+    }
+    if (to && v.fecha > to) {
+      return false;
+    }
+    return true;
+  });
+
+  const filterCount = Object.values(ventasFilters).filter(f => f).length;
+  document.getElementById('filter-ventas-indicator').textContent = filterCount;
+
+  cargarVentas();
+}
+
+function resetVentasFilters() {
+  document.getElementById('filter-ventas-search').value = '';
+  document.getElementById('filter-ventas-payment').value = '';
+  document.getElementById('filter-ventas-from').value = '';
+  document.getElementById('filter-ventas-to').value = '';
+  ventasFilters = {};
+  filteredVentas = [];
+  document.getElementById('filter-ventas-indicator').textContent = '0';
+  cargarVentas();
+}
+
+// RECETAS
+async function fetchRecetas() {
+  const cocR = await callApi({ op: 'obtenerCocina' });
+  if (cocR.status === 'success') {
+    cocData = cocR.data.map(r => ({
+      ...r,
+      ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
+    }));
+  }
+  recetas = cocData.map(r => {
+    const costo = r.ingredientes.reduce((sum, ing) => {
+      const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
+      if (!p) return sum;
+      const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
+      return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
+    }, 0);
+    return {
+      codigo: r.codigo,
+      nombre: r.nombre,
+      precio: (costo * MARGEN).toFixed(2)
+    };
+  });
+}
+
+async function cargarRecetas() {
+  await fetchRecetas();
+  recetasData = cocData;
+  categorias = [...new Set(recetasData.map(r => r.categoria))];
+  
+  // Actualizar select de categorías en formulario
+  const sel = document.getElementById('receta-categoria');
+  sel.innerHTML = [
+    '<option value="">-- Selecciona --</option>',
+    ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
+  ].join('');
+  
+  // Actualizar select de categorías en filtros
+  const filterCatSel = document.getElementById('filter-recetas-category');
+  filterCatSel.innerHTML = [
+    '<option value="">Todas</option>',
+    ...categorias.sort().map(c => `<option value="${c}">${c}</option>`)
+  ].join('');
+  
+  mostrarRecetas();
+}
+
+function mostrarRecetas() {
+  const list = document.getElementById('recetas-list'); 
+  list.innerHTML = '';
+  
+  const dataToRender = filteredRecetas.length ? filteredRecetas : recetasData;
+  
+  if (dataToRender.length === 0) {
+    list.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-book"></i>
+        <h3>No se encontraron recetas</h3>
+        <p>Intenta ajustar los filtros o crear nuevas recetas</p>
+      </div>
+    `;
+    return;
   }
   
-  function mostrarRecetas() {
-    const list = document.getElementById('recetas-list'); 
-    list.innerHTML = '';
+  dataToRender.forEach(r => {
+    const costo = r.ingredientes.reduce((sum, ing) => {
+      const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
+      if (!p) return sum;
+      const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
+      return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
+    }, 0).toFixed(2);
     
-    const dataToRender = filteredRecetas.length ? filteredRecetas : recetasData;
-    
-    if (dataToRender.length === 0) {
-      list.innerHTML = `
-        <div class="no-results">
-          <i class="fas fa-book"></i>
-          <h3>No se encontraron recetas</h3>
-          <p>Intenta ajustar los filtros o crear nuevas recetas</p>
-        </div>
-      `;
-      return;
+    // Verificar si hay ingredientes inactivos
+    let hasInactive = false;
+    for (const ing of r.ingredientes) {
+      const product = almacenData.find(p => p.codigo == ing.codigo);
+      if (product && product.active === false) {
+        hasInactive = true;
+        break;
+      }
     }
     
-    dataToRender.forEach(r => {
-      const costo = r.ingredientes.reduce((sum, ing) => {
-        const p = almacenData.find(x => String(x.codigo) === String(ing.codigo));
-        if (!p) return sum;
-        const basePrice = p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad);
-        return sum + basePrice * (FACTORES[ing.unidad.trim().toLowerCase()] * ing.cantidad);
-      }, 0).toFixed(2);
-      
-      // Verificar si hay ingredientes inactivos
-      let hasInactive = false;
-      for (const ing of r.ingredientes) {
-        const product = almacenData.find(p => p.codigo == ing.codigo);
-        if (product && product.active === false) {
-          hasInactive = true;
-          break;
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <div class="recipe-card">
+        ${r.imagen ? 
+          `<img src="${r.imagen}" class="recipe-image" alt="${r.nombre}">` : 
+          `<div class="recipe-image"><i class="fas fa-utensils"></i></div>`
         }
-      }
-      
-      const item = document.createElement('div');
-      item.className = 'list-item';
-      item.innerHTML = `
-        <div class="recipe-card">
-          ${r.imagen ? 
-            `<img src="${r.imagen}" class="recipe-image" alt="${r.nombre}">` : 
-            `<div class="recipe-image"><i class="fas fa-utensils"></i></div>`
-          }
-          <div class="recipe-info">
-            <div class="list-title">${r.nombre} ${hasInactive ? '<span class="status-badge status-inactive">Inactivo</span>' : ''}</div>
-            <div class="list-subtitle">#${r.codigo} | ${r.categoria}</div>
-            <div class="list-subtitle">${r.ingredientes.length} ingredientes</div>
-          </div>
+        <div class="recipe-info">
+          <div class="list-title">${r.nombre} ${hasInactive ? '<span class="status-badge status-inactive">Inactivo</span>' : ''}</div>
+          <div class="list-subtitle">#${r.codigo} | ${r.categoria}</div>
+          <div class="list-subtitle">${r.ingredientes.length} ingredientes</div>
         </div>
-        <div>
-          <div class="list-title">$${(costo * MARGEN).toFixed(2)}</div>
-          <div class="list-subtitle">Costo: $${costo}</div>
+      </div>
+      <div>
+        <div class="list-title">$${(costo * MARGEN).toFixed(2)}</div>
+        <div class="list-subtitle">Costo: $${costo}</div>
+      </div>
+    `;
+    
+    item.addEventListener('click', () => {
+      const ingredientesHtml = r.ingredientes
+        .map(i => {
+          const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
+          const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad))* 
+                      (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad) : 0;
+          
+          // Estado del producto según productInfo
+          const infoProd = productInfo[p?.codigo] || {};
+          const estado = p
+            ? (infoProd.active
+                ? ''
+                : '<span class="status-badge status-low">Inactivo</span>')
+            : '<span class="status-badge status-low">No encontrado</span>';
+          
+          // Nombre del producto o código si no se encuentra
+          const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
+          
+          return `
+          <div class="card-row">
+            <div>
+              <div>${nombreProducto} ${estado}</div>
+              <div class="list-subtitle">${i.cantidad}${i.unidad} | #${i.codigo}</div>
+            </div>
+            <div class="card-value">$${c.toFixed(2)}</div>
+          </div>`;
+        })
+        .join('');
+        
+      const card = document.createElement('div');
+      card.className = 'card fade-in';
+      card.innerHTML = `
+        <div class="card-header">${r.nombre}</div>
+        <div class="card-body">
+          <div class="card-row">
+            <div class="card-label">Código</div>
+            <div class="card-value">${r.codigo}</div>
+          </div>
+          <div class="card-row">
+            <div class="card-label">Categoría</div>
+            <div class="card-value">${r.categoria}</div>
+          </div>
+          ${r.imagen ? `<div class="card-row"><div colspan="2"><img src="${r.imagen}" style="max-width:100%; border-radius:12px;"></div></div>` : ''}
+          <div class="card-row">
+            <div class="card-label">Ingredientes</div>
+            <div class="card-value"></div>
+          </div>
+          ${ingredientesHtml}
+          <div class="card-row">
+            <div class="card-label">Costo total</div>
+            <div class="card-value">$${costo}</div>
+          </div>
+          <div class="card-row">
+            <div class="card-label">Precio de venta</div>
+            <div class="card-value">$${(costo * MARGEN).toFixed(2)}</div>
+          </div>
+          <div class="div2">
+            <button class="btn btn-primary" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
+            <button class="btn btn-danger" onclick="eliminarReceta('${r.codigo}')">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+          </div>
         </div>
       `;
       
-      item.addEventListener('click', () => {
-        const ingredientesHtml = r.ingredientes
-          .map(i => {
-            const p = almacenData.find(x => String(x.codigo) === String(i.codigo));
-            const c = p ? (p.precio / (FACTORES[p.unidadDeMedida.trim().toLowerCase()] * p.cantidad))* 
-                        (FACTORES[i.unidad.trim().toLowerCase()] * i.cantidad) : 0;
-            
-            // Estado del producto según productInfo
-            const infoProd = productInfo[p?.codigo] || {};
-            const estado = p
-              ? (infoProd.active
-                  ? ''
-                  : '<span class="status-badge status-low">Inactivo</span>')
-              : '<span class="status-badge status-low">No encontrado</span>';
-            
-            // Nombre del producto o código si no se encuentra
-            const nombreProducto = p ? p.name : `Producto ${i.codigo}`;
-            
-            return `
-            <div class="card-row">
-              <div>
-                <div>${nombreProducto} ${estado}</div>
-                <div class="list-subtitle">${i.cantidad}${i.unidad} | #${i.codigo}</div>
-              </div>
-              <div class="card-value">$${c.toFixed(2)}</div>
-            </div>`;
-          })
-          .join('');
-          
-        const card = document.createElement('div');
-        card.className = 'card fade-in';
-        card.innerHTML = `
-          <div class="card-header">${r.nombre}</div>
-          <div class="card-body">
-            <div class="card-row">
-              <div class="card-label">Código</div>
-              <div class="card-value">${r.codigo}</div>
-            </div>
-            <div class="card-row">
-              <div class="card-label">Categoría</div>
-              <div class="card-value">${r.categoria}</div>
-            </div>
-            ${r.imagen ? `<div class="card-row"><div colspan="2"><img src="${r.imagen}" style="max-width:100%; border-radius:12px;"></div></div>` : ''}
-            <div class="card-row">
-              <div class="card-label">Ingredientes</div>
-              <div class="card-value"></div>
-            </div>
-            ${ingredientesHtml}
-            <div class="card-row">
-              <div class="card-label">Costo total</div>
-              <div class="card-value">$${costo}</div>
-            </div>
-            <div class="card-row">
-              <div class="card-label">Precio de venta</div>
-              <div class="card-value">$${(costo * MARGEN).toFixed(2)}</div>
-            </div>
-            <div class="div2">
-              <button class="btn btn-primary" onclick='cargarEnForm(${JSON.stringify(r)})'>Editar</button>
-              <button class="btn btn-danger" onclick="eliminarReceta('${r.codigo}')">
-                <i class="fas fa-trash"></i> Eliminar
-              </button>
-            </div>
-          </div>
-        `;
-        
-        modal.show({
-          title: 'Detalle de Receta',
-          message: card.innerHTML
-        });
+      modal.show({
+        title: 'Detalle de Receta',
+        message: card.innerHTML
       });
-      
-      list.appendChild(item);
-    });
-  }
-  
-  function cargarEnForm(r) {
-    editMode = true;
-    document.getElementById('receta-codigo').value = r.codigo;
-    document.getElementById('receta-nombre').value = r.nombre;
-    document.getElementById('receta-categoria').value = r.categoria;
-    document.getElementById('receta-imagen').value = r.imagen || '';
-    
-    const cont = document.getElementById('ingredientes-container');
-    cont.innerHTML = '';
-    r.ingredientes.forEach(i => agregarFila(i));
-    
-    modal.backdrop.style.display = 'none';
-    cambiarSeccion('recetas');
-  }
-  
-  async function guardarReceta() {
-    const cod = document.getElementById('receta-codigo').value.trim();
-    const nom = document.getElementById('receta-nombre').value.trim();
-    const cat = document.getElementById('receta-categoria').value;
-    
-    const ingredientes = Array.from(
-      document.getElementById('ingredientes-container').querySelectorAll('.form-row')
-    ).map(row => {
-      const selP = row.querySelector('.producto-select');
-      const inpCant = row.querySelector('.cantidad-input');
-      const selU = row.querySelector('.unidad-select');
-      return {
-        codigo: selP.value,
-        cantidad: Number(inpCant.value) || 0,
-        unidad: selU.value
-      };
     });
     
-    const receta = {
+    list.appendChild(item);
+  });
+}
+
+function cargarEnForm(r) {
+  editMode = true;
+  document.getElementById('receta-codigo').value = r.codigo;
+  document.getElementById('receta-nombre').value = r.nombre;
+  document.getElementById('receta-categoria').value = r.categoria;
+  document.getElementById('receta-imagen').value = r.imagen || '';
+  
+  const cont = document.getElementById('ingredientes-container');
+  cont.innerHTML = '';
+  r.ingredientes.forEach(i => agregarFila(i));
+  
+  modal.backdrop.style.display = 'none';
+  cambiarSeccion('recetas');
+}
+
+async function guardarReceta() {
+  const cod = document.getElementById('receta-codigo').value.trim();
+  const nom = document.getElementById('receta-nombre').value.trim();
+  const cat = document.getElementById('receta-categoria').value;
+  
+  const ingredientes = Array.from(
+    document.getElementById('ingredientes-container').querySelectorAll('.form-row')
+  ).map(row => {
+    const selP = row.querySelector('.producto-select');
+    const inpCant = row.querySelector('.cantidad-input');
+    const selU = row.querySelector('.unidad-select');
+    return {
+      codigo: selP.value,
+      cantidad: Number(inpCant.value) || 0,
+      unidad: selU.value
+    };
+  });
+  
+  await postOpNotify(
+    'guardarCocina',
+    {
       codigo: cod,
       nombre: nom,
       categoria: cat,
       imagen: document.getElementById('receta-imagen').value.trim(),
-      ingredientes: ingredientes
-    };
-    
-    await postOpNotify(
-      'guardarCocina',
-      {
-        codigo: cod,
-        nombre: nom,
-        categoria: cat,
-        imagen: document.getElementById('receta-imagen').value.trim(),
-        ingredientes: JSON.stringify(ingredientes)
-      },
-      'Receta guardada'
-    );
-    
-    await cargarRecetas();
-    limpiarForm();
-  }
+      ingredientes: JSON.stringify(ingredientes)
+    },
+    'Receta guardada'
+  );
   
-  async function eliminarReceta(codigo) {
-    const ok = await showConfirm(`¿Eliminar receta ${codigo}?`);
-    if (!ok) return;
-    await postOpNotify('eliminarCocina', { codigo }, 'Receta eliminada');
-    await cargarRecetas();
-  }
+  await cargarRecetas();
+  limpiarForm();
+}
+
+async function eliminarReceta(codigo) {
+  const ok = await showConfirm(`¿Eliminar receta ${codigo}?`);
+  if (!ok) return;
+  await postOpNotify('eliminarCocina', { codigo }, 'Receta eliminada');
+  await cargarRecetas();
+}
+
+function agregarFila(item = {}) {
+  const cont = document.getElementById('ingredientes-container');
+  const row = document.createElement('div');
+  row.className = 'form-row';
   
-  function agregarFila(item = {}) {
-    const cont = document.getElementById('ingredientes-container');
-    const row = document.createElement('div');
-    row.className = 'form-row';
-    
-    // 1) Construimos el <select> de productos
-    const opcionesProductos = almacenData
-      .map(p => `<option value="${p.codigo}">${p.name} ${p.active === false ? '(Inactivo)' : ''}</option>`)
+  // 1) Construimos el <select> de productos
+  const opcionesProductos = almacenData
+    .map(p => `<option value="${p.codigo}">${p.name} ${p.active === false ? '(Inactivo)' : ''}</option>`)
+    .join('');
+  
+  row.innerHTML = `
+    <select class="form-select producto-select">
+      <option value="">-- Seleccione --</option>
+      ${opcionesProductos}
+    </select>
+    <input class="form-input cantidad-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
+    <select class="form-select unidad-select">
+      <option value="">-- Unidad --</option>
+      <!-- Aquí iremos inyectando dinámicamente -->
+    </select>
+    <button class="btn btn-icon btn-danger" onclick="this.parentNode.remove()">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  
+  // 2) Referencias a los selects y al input
+  const productoSelect = row.querySelector('.producto-select');
+  const unidadSelect   = row.querySelector('.unidad-select');
+  const cantidadInput  = row.querySelector('.cantidad-input');
+  
+  // 3) Función para poblar las unidades según productInfo
+  function poblarUnidades(codigoProducto, unidadInicial = '') {
+    unidadSelect.innerHTML = ''; 
+    if (!codigoProducto || !productInfo[codigoProducto]) {
+      unidadSelect.innerHTML = `<option value="">-- Unidad --</option>`;
+      return;
+    }
+    const opciones = productInfo[codigoProducto].opcionesUnidad;
+    unidadSelect.innerHTML = opciones
+      .map(u => `<option value="${u}"${u === unidadInicial ? ' selected' : ''}>${u}</option>`)
       .join('');
-    
-    row.innerHTML = `
-      <select class="form-select producto-select">
-        <option value="">-- Seleccione --</option>
-        ${opcionesProductos}
-      </select>
-      <input class="form-input cantidad-input" type="number" min="0.1" step="0.1" value="${item.cantidad || 1}" placeholder="Cant">
-      <select class="form-select unidad-select">
-        <option value="">-- Unidad --</option>
-        <!-- Aquí iremos inyectando dinámicamente -->
-      </select>
-      <button class="btn btn-icon btn-danger" onclick="this.parentNode.remove()">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-    
-    // 2) Referencias a los selects y al input
-    const productoSelect = row.querySelector('.producto-select');
-    const unidadSelect   = row.querySelector('.unidad-select');
-    const cantidadInput  = row.querySelector('.cantidad-input');
-    
-    // 3) Función para poblar las unidades según productInfo
-    function poblarUnidades(codigoProducto, unidadInicial = '') {
-      unidadSelect.innerHTML = ''; 
-      if (!codigoProducto || !productInfo[codigoProducto]) {
-        unidadSelect.innerHTML = `<option value="">-- Unidad --</option>`;
-        return;
-      }
-      const opciones = productInfo[codigoProducto].opcionesUnidad;
-      unidadSelect.innerHTML = opciones
-        .map(u => `<option value="${u}"${u === unidadInicial ? ' selected' : ''}>${u}</option>`)
-        .join('');
-    }
-    
-    // 4) Cuando cambie el producto, actualizamos unidades
-    productoSelect.addEventListener('change', () => {
-      poblarUnidades(productoSelect.value);
-    });
-    
-    // 5) Si estamos en modo edición (item trae código y unidad), preseleccionamos
-    if (item.codigo) {
-      productoSelect.value = item.codigo;
-      poblarUnidades(item.codigo, item.unidad);
-      cantidadInput.value = item.cantidad || 1;
-    }
-    
-    cont.appendChild(row);
   }
   
-  function limpiarForm() {
-    editMode = false;
-    document.getElementById('receta-codigo').value = '';
-    document.getElementById('receta-nombre').value = '';
-    document.getElementById('receta-categoria').selectedIndex = 0;
-    document.getElementById('receta-imagen').value = '';
-    document.getElementById('ingredientes-container').innerHTML = '';
+  // 4) Cuando cambie el producto, actualizamos unidades
+  productoSelect.addEventListener('change', () => {
+    poblarUnidades(productoSelect.value);
+  });
+  
+  // 5) Si estamos en modo edición (item trae código y unidad), preseleccionamos
+  if (item.codigo) {
+    productoSelect.value = item.codigo;
+    poblarUnidades(item.codigo, item.unidad);
+    cantidadInput.value = item.cantidad || 1;
   }
   
-  // TOGGLE FILTROS
-  function toggleFilter(section) {
-    const controls = document.getElementById(`filter-${section}-controls`);
-    const icon = document.getElementById(`filter-${section}-icon`);
-    
-    if (controls.style.display === 'none' || controls.style.display === '') {
-      controls.style.display = 'grid';
-      icon.className = 'fas fa-chevron-up';
-    } else {
-      controls.style.display = 'none';
-      icon.className = 'fas fa-chevron-down';
+  cont.appendChild(row);
+}
+
+function limpiarForm() {
+  editMode = false;
+  document.getElementById('receta-codigo').value = '';
+  document.getElementById('receta-nombre').value = '';
+  document.getElementById('receta-categoria').selectedIndex = 0;
+  document.getElementById('receta-imagen').value = '';
+  document.getElementById('ingredientes-container').innerHTML = '';
+}
+
+// FILTROS RECETAS
+function applyRecetasFilters() {
+  const search = document.getElementById('filter-recetas-search').value.toLowerCase();
+  const category = document.getElementById('filter-recetas-category').value;
+  const status = document.getElementById('filter-recetas-status').value;
+
+  recetasFilters = { search, category, status };
+
+  filteredRecetas = recetasData.filter(r => {
+    if (search && !r.nombre.toLowerCase().includes(search) && !String(r.codigo).includes(search)) {
+      return false;
     }
-  }
+    if (category && r.categoria !== category) {
+      return false;
+    }
+    if (status) {
+      let hasInactive = r.ingredientes.some(ing => {
+        const p = almacenData.find(prod => prod.codigo == ing.codigo);
+        return p && p.active === false;
+      });
+      if (status === 'active' && hasInactive) return false;
+      if (status === 'inactive' && !hasInactive) return false;
+    }
+    return true;
+  });
+
+  const filterCount = Object.values(recetasFilters).filter(f => f).length;
+  document.getElementById('filter-recetas-indicator').textContent = filterCount;
+
+  mostrarRecetas();
+}
+
+function resetRecetasFilters() {
+  document.getElementById('filter-recetas-search').value = '';
+  document.getElementById('filter-recetas-category').value = '';
+  document.getElementById('filter-recetas-status').value = '';
+  recetasFilters = {};
+  filteredRecetas = [];
+  document.getElementById('filter-recetas-indicator').textContent = '0';
+  mostrarRecetas();
+}
+
+// TOGGLE FILTROS
+function toggleFilter(section) {
+  const controls = document.getElementById(`filter-${section}-controls`);
+  const icon = document.getElementById(`filter-${section}-icon`);
   
-  // FUNCIONES PARA BALANCES
+  if (controls.style.display === 'none' || controls.style.display === '') {
+    controls.style.display = 'grid';
+    icon.className = 'fas fa-chevron-up';
+  } else {
+    controls.style.display = 'none';
+    icon.className = 'fas fa-chevron-down';
+  }
+}
+
+// BALANCES - CORREGIDO
 async function loadBalances() {
   const res = await callApi({ op: 'obtenerBalances' });
   if (res.status === 'success') {
@@ -3238,16 +3197,14 @@ function updateBalancesSummary() {
   // 6) Neto: ingresos menos gastos y compras
   const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
   
-  // 7) Saldo tras surtir el almacén (operador ternario según signo de totalNeto)
-  const saldoConAlmacen = totalNeto >= 0
-    ? totalNeto - totalAlmacen
-    : totalNeto + totalAlmacen;
+  // 7) CORRECCIÓN: Cálculo simplificado
+  const saldoConAlmacen = totalNeto - totalAlmacen;
   
   // 8) Formato con signo
   const signo = saldoConAlmacen >= 0 ? '$' : '-$';
   const valorFormateado = Math.abs(saldoConAlmacen).toFixed(2);
   
-  // —————— Cálculo adicional: totales por categoría ——————
+  // === BLOQUE AÑADIDO: Totales por categoría ===
   const categoryTotals = dataToRender
     .filter(b => b.estado === 'activo')
     .reduce((acc, b) => {
@@ -3255,39 +3212,28 @@ function updateBalancesSummary() {
       acc[cat] = (acc[cat] || 0) + parseFloat(b.monto);
       return acc;
     }, {});
+  
   const textoCategorias = Object.entries(categoryTotals)
     .map(([cat, tot]) => `${cat}: $${tot.toFixed(2)}`)
     .join(', ');
-  document.getElementById('total-porCategoria').textContent = textoCategorias;
+  // === FIN DEL BLOQUE AÑADIDO ===
   
   // —————— Actualización del DOM ——————
-  document.getElementById('total-ventas').textContent         = '$' + totalVentas.toFixed(2);
+  document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
   document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
-  document.getElementById('total-gastos').textContent         = '$' + totalGastos.toFixed(2);
+  document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
   document.getElementById('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
-  document.getElementById('total-neto').textContent           = '$' + totalNeto.toFixed(2);
-  document.getElementById('total-almacen').textContent        = signo + valorFormateado;
+  document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
+  document.getElementById('total-almacen').textContent = signo + valorFormateado;
+  
+  // Añadimos la actualización del elemento de categorías
+  document.getElementById('total-porCategoria').textContent = textoCategorias;
   
   // Texto del filtro de ventas
-  const filtroText = currentPaymentFilter === 'todos'
-    ? 'Todos los métodos'
-    : `Solo ${currentPaymentFilter}`;
+  const filtroText = currentPaymentFilter === 'todos' ?
+    'Todos los métodos' :
+    `Solo ${currentPaymentFilter}`;
   document.getElementById('ventas-filtro').textContent = filtroText;
-  
-  // —————— Gráfico de barras simplificado ——————
-  const efectivoTotal      = calculateSalesTotal('Efectivo');
-  const transferenciaTotal = calculateSalesTotal('Transferencia');
-  const tarjetaTotal       = calculateSalesTotal('Tarjeta');
-  const maxValue = Math.max(efectivoTotal, transferenciaTotal, tarjetaTotal, 1);
-  
-  document.getElementById('bar-efectivo').style.width       = `${(efectivoTotal / maxValue) * 100}%`;
-  document.getElementById('label-efectivo').textContent     = '$' + efectivoTotal.toFixed(2);
-  
-  document.getElementById('bar-transferencia').style.width  = `${(transferenciaTotal / maxValue) * 100}%`;
-  document.getElementById('label-transferencia').textContent = '$' + transferenciaTotal.toFixed(2);
-  
-  document.getElementById('bar-tarjeta').style.width        = `${(tarjetaTotal / maxValue) * 100}%`;
-  document.getElementById('label-tarjeta').textContent      = '$' + tarjetaTotal.toFixed(2);
 }
 
 function renderBalancesTable() {
@@ -3499,60 +3445,305 @@ async function saveBalance() {
 async function deleteBalance(codigo) {
   const ok = await showConfirm('¿Eliminar este registro?');
   if (!ok) return;
-  await postOpNotify('eliminarBalances', { codigo }, 'Registro eliminado');
+  await postOpNotify('eliminarBalances', {codigo }, 'Registro eliminado');
   await loadBalances();
 }
 
-function exportarBalances() {
-  showAlert('Funcionalidad de exportación para balances está en desarrollo');
+// FUNCIÓN PARA EDITAR COMPRA
+function openEditCompraModal(c) {
+  const prod = almacenData.find(x => x.codigo == c.idProducto);
+  const info = productInfo[c.idProducto];
+
+  // Precio unitario histórico = total guardado / cantidad
+  const precioUnitarioGuardado = Number(c.precio) / Number(c.cantidad);
+  const totalInicial = Number(c.precio).toFixed(2);
+
+  const card = document.createElement('div');
+  card.className = 'card fade-in';
+  card.innerHTML = `
+    <div class="card-header">Detalle de Compra #${c.idCompra}</div>
+    <div class="card-body">
+      <div class="card-row">
+        <div class="card-label">Producto</div>
+        <div class="card-value">${prod.name}</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">Fecha</div>
+        <div class="card-value">
+          <input type="date" class="form-input"
+                 id="date-${c.idCompra}" value="${c.fecha.slice(0,10)}">
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">Cantidad</div>
+        <div class="card-value">
+          <input type="number" class="form-input"
+                 id="qty-${c.idCompra}" value="${c.cantidad}"
+                 min="0" step="0.1"
+                 oninput="recalcEditTotal('${c.idCompra}', ${precioUnitarioGuardado})">
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">Unidad</div>
+        <div class="card-value">
+          <select class="form-select" id="unit-${c.idCompra}" disabled>
+            ${info.opcionesUnidad.map(u =>
+              `<option value="${u}"${u === c.unidad ? ' selected' : ''}>${u}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">Precio unitario histórico</div>
+        <div class="card-value">$${precioUnitarioGuardado.toFixed(2)}</div>
+      </div>
+      <div class="card-row">
+        <div class="card-label">Total</div>
+        <div class="card-value" id="total-${c.idCompra}">$${totalInicial}</div>
+      </div>
+      <div class="div2">
+        <button class="btn btn-primary"
+                onclick="saveCompra('${c.idCompra}','${c.idProducto}', true)">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+        <button class="btn btn-danger"
+                onclick="deleteCompra('${c.idCompra}','${c.idProducto}')">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+      </div>
+    </div>`;
+  modal.show({ title: 'Editar Compra', message: card.innerHTML });
 }
 
-  
+// FUNCIÓN PARA RECALCULAR TOTAL AL EDITAR COMPRA
+function recalcEditTotal(idC, precioUnitarioGuardado) {
+  const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
+  document.getElementById(`total-${idC}`).textContent =
+    `$${(precioUnitarioGuardado * qty).toFixed(2)}`;
+}
 
-  // CARGA GENERAL
-  async function loadData() {
-    const [alm, comp, vent, coc, bal] = await Promise.all([
-      callApi({op:'obtenerAlmacen'}),
-      callApi({op:'obtenerCompras'}),
-      callApi({op:'obtenerVentas'}),
-      callApi({op:'obtenerCocina'}),
-      callApi({op:'obtenerBalances'})
-    ]);
-    almacenData = alm.data; 
-    comprasData = comp.data; 
-    ventData = vent.data;
-    if (coc.status === 'success') {
-      cocData = coc.data.map(r => ({
-        ...r,
-        ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
-      }));
+// GUARDAR Y ELIMINAR COMPRA
+async function saveCompra(idC, idP, isEdit = false) {
+  const qty = parseFloat(document.getElementById(`qty-${idC}`).value) || 0;
+  if (qty <= 0) return showAlert('La cantidad debe ser mayor que cero');
+  const fecha = document.getElementById(`date-${idC}`).value;
+  const uni = document.getElementById(`unit-${idC}`).value;
+
+  let precioUnitario;
+  if (isEdit) {
+    // Sacamos precio histórico de comprasData
+    const original = comprasData.find(c =>
+      c.idCompra == idC && c.idProducto == idP
+    );
+    precioUnitario = Number(original.precio) / Number(original.cantidad);
+  } else {
+    // Compra nueva: precio actual * factor
+    precioUnitario = productInfo[idP].priceBase * FACTORES[uni];
+  }
+
+  const total = (precioUnitario * qty).toFixed(2);
+
+  await postOpNotify('guardarCompras', {
+    idCompra: idC,
+    idProducto: idP,
+    fecha,
+    cantidad: qty,
+    unidad: uni,
+    name: almacenData.find(x => x.codigo == idP).name,
+    precio: total  // guardamos el total bajo la clave 'precio'
+  }, 'Compra guardada');
+
+  await loadData();
+}
+
+async function deleteCompra(idC, idP) {
+  const ok = await showConfirm(`¿Eliminar compra ${idC}?`);
+  if (!ok) return;
+  await postOpNotify('eliminarCompras', {
+    idCompra: idC,
+    idProducto: idP
+  }, 'Compra eliminada');
+  await loadData();
+}
+
+// FUNCIÓN PARA EXPORTAR BALANCES
+function exportarBalances() {
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div style="text-align: center; padding: 20px;">
+      <h3>Exportar Balances</h3>
+      <p>Seleccione el formato de exportación:</p>
+      <div class="export-options">
+        <div class="export-option pdf" onclick="exportarBalancesPDF()">
+          <i class="fas fa-file-pdf"></i>
+          <span>PDF</span>
+        </div>
+        <div class="export-option csv" onclick="exportarBalancesCSV()">
+          <i class="fas fa-file-csv"></i>
+          <span>CSV</span>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  modal.show({
+    title: 'Exportar Balances',
+    message: modalContent.innerHTML
+  });
+}
+
+function exportarBalancesPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    return showAlert('La librería jsPDF no está cargada.');
+  }
+  const { jsPDF } = window.jspdf;
+  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+  const doc = new jsPDF();
+  let y = 20;
+
+  // Encabezado
+  doc.setFontSize(16);
+  doc.text('Reporte de Balances', 105, 15, null, null, 'center');
+  
+  // Fecha y filtros
+  doc.setFontSize(10);
+  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, y);
+  y += 10;
+  doc.text(`Filtro de pago: ${currentPaymentFilter}`, 10, y);
+  y += 10;
+  
+  // Cabecera de tabla
+  doc.setFillColor(60, 120, 216);
+  doc.setTextColor(255);
+  doc.rect(10, y, 190, 10, 'F');
+  doc.text('ID', 15, y + 7);
+  doc.text('Especificación', 40, y + 7);
+  doc.text('Categoría', 100, y + 7);
+  doc.text('Tipo', 140, y + 7);
+  doc.text('Estado', 160, y + 7);
+  doc.text('Monto', 180, y + 7);
+  y += 12;
+  
+  // Restaurar colores
+  doc.setTextColor(0);
+  doc.setFontSize(10);
+  
+  // Filas
+  dataToRender.forEach(b => {
+    if (y > 280) {
+      doc.addPage();
+      y = 20;
     }
-    if (bal.status === 'success') {
-      balancesData = bal.data;
-    }
-    buildProductInfo();
-    renderStockTable();
-    renderComprasTable();
-    await cargarVentas();
-    await cargarRecetas();
-    renderBalancesTable();
-    updateTopStats();
-    updateBalancesSummary();
-    updateStockInsights();
+    
+    doc.text(b.codigo, 15, y);
+    doc.text(b.especificacion || '-', 40, y, { maxWidth: 55 });
+    doc.text(b.categoria || '-', 100, y, { maxWidth: 35 });
+    doc.text(b.tipo, 140, y);
+    doc.text(b.estado, 160, y);
+    doc.text(`$${parseFloat(b.monto).toFixed(2)}`, 180, y);
+    y += 10;
+  });
+  
+  // Totales
+  y += 10;
+  doc.setFontSize(12);
+  doc.text(`Total Ventas: $${calculateSalesTotal(currentPaymentFilter).toFixed(2)}`, 10, y);
+  y += 10;
+  doc.text(`Total Otros Ingresos: $${document.getElementById('total-otros-ingresos').textContent.replace('$', '')}`, 10, y);
+  y += 10;
+  doc.text(`Total Gastos: $${document.getElementById('total-gastos').textContent.replace('$', '')}`, 10, y);
+  y += 10;
+  doc.text(`Total Compras: $${document.getElementById('total-gastos-inventario').textContent.replace('$', '')}`, 10, y);
+  y += 10;
+  doc.text(`Total Neto: $${document.getElementById('total-neto').textContent.replace('$', '')}`, 10, y);
+  y += 10;
+  doc.text(`Saldo con Almacén: ${document.getElementById('total-almacen').textContent}`, 10, y);
+  
+  // Guardar PDF
+  doc.save(`balances_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+function exportarBalancesCSV() {
+  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
+  
+  // Cabecera CSV
+  let csv = 'ID,Especificación,Categoría,Tipo,Estado,Monto\n';
+  
+  // Filas de datos
+  dataToRender.forEach(b => {
+    csv += `"${b.codigo}","${b.especificacion || ''}","${b.categoria || ''}",`;
+    csv += `"${b.tipo}","${b.estado}",${b.monto}\n`;
+  });
+  
+  // Totales
+  csv += '\n';
+  csv += `Total Ventas,${calculateSalesTotal(currentPaymentFilter).toFixed(2)}\n`;
+  csv += `Otros Ingresos,${document.getElementById('total-otros-ingresos').textContent.replace('$', '')}\n`;
+  csv += `Gastos,${document.getElementById('total-gastos').textContent.replace('$', '')}\n`;
+  csv += `Compras,${document.getElementById('total-gastos-inventario').textContent.replace('$', '')}\n`;
+  csv += `Neto,${document.getElementById('total-neto').textContent.replace('$', '')}\n`;
+  csv += `Saldo con Almacén,${document.getElementById('total-almacen').textContent.replace('$', '').replace('-', '-')}\n`;
+  
+  // Crear blob y descargar
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `balances_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
+}
+
+// CARGA GENERAL - CORREGIDO
+async function loadData() {
+  const [alm, comp, vent, coc, bal] = await Promise.all([
+    callApi({op:'obtenerAlmacen'}),
+    callApi({op:'obtenerCompras'}),
+    callApi({op:'obtenerVentas'}),
+    callApi({op:'obtenerCocina'}),
+    callApi({op:'obtenerBalances'})
+  ]);
+  
+  if (alm.status === 'success') almacenData = alm.data;
+  if (comp.status === 'success') comprasData = comp.data;
+  if (vent.status === 'success') ventData = vent.data;
+  
+  if (coc.status === 'success') {
+    cocData = coc.data.map(r => ({
+      ...r,
+      ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : r.ingredientes
+    }));
   }
   
-  // Inicialización
-  window.onload = async () => {
-    resetForm();
-    document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
-    
-    // Ocultar todos los paneles de filtros al inicio
-    document.querySelectorAll('.filter-controls').forEach(el => {
-      el.style.display = 'none';
-    });
-    
-    await loadData();
-  };
+  if (bal.status === 'success') {
+    balancesData = bal.data;
+  }
+  
+  buildProductInfo();
+  renderStockTable();
+  renderComprasTable();
+  await cargarVentas();
+  await cargarRecetas();
+  renderBalancesTable();
+  updateTopStats();
+  updateBalancesSummary();
+  updateStockInsights();
+}
+
+// Inicialización
+window.onload = async () => {
+  resetForm();
+  document.getElementById('form-fecha').value = new Date().toISOString().slice(0,10);
+  
+  // Ocultar todos los paneles de filtros al inicio
+  document.querySelectorAll('.filter-controls').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  await loadData();
+};
 </script>
 </body>
 </html>
