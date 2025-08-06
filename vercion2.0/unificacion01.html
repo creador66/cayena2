@@ -1,525 +1,77 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>POS IAEgo</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg-light: #f8f9fa; --text-dark: #212529; --text-light: #f8f9fa;
-      --border: #dee2e6; --primary: #212529; --success: #28a745;
-      --warning: #ffc107; --danger: #dc3545; --disabled: #adb5bd;
-      --hover-light: rgba(33,37,41,0.05); --shadow: 0 4px 12px rgba(0,0,0,0.08);
-      --transition: all 0.2s ease;
-    }
-    body { font-family:'Segoe UI','Roboto','Helvetica Neue',sans-serif; background:#fff; color:var(--text-dark); line-height:1.6; }
-    .container { max-width:1200px; margin:0 auto; padding:1.5rem; }
-    .hidden { display:none!important; }
-    header { background:var(--primary); color:var(--text-light); padding:1.5rem; box-shadow:var(--shadow); }
-    header h1 { font-weight:600; font-size:1.8rem; letter-spacing:-0.5px; }
-    header h1 i { margin-right:12px; }
-    .stats-bar { display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid var(--border); margin-bottom:1.5rem; }
-    .stats-item { display:flex; align-items:center; gap:0.5rem; }
-    .btn { cursor:pointer; padding:0.7rem 1.5rem; border:none; border-radius:6px; font-weight:600; font-size:0.95rem; transition:var(--transition); display:inline-flex; align-items:center; gap:0.5rem; }
-    .btn-primary { background:var(--primary); color:#fff; }
-    .btn-primary:hover { background:#343a40; }
-    .btn-success { background:var(--success); color:#fff; }
-    .btn-outline { background:transparent; border:1px solid var(--primary); color:var(--primary); }
-    .btn-outline:hover { background:var(--hover-light); }
-    .btn-sm { padding:0.4rem 0.8rem; font-size:0.85rem; }
-    .btn:disabled { background:var(--disabled); cursor:not-allowed; }
-    .mesas-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-    .mesas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:1rem; margin-bottom:2rem; }
-    .mesa { border:1px solid var(--border); padding:1.2rem 0.5rem; text-align:center; border-radius:8px; cursor:pointer; transition:var(--transition); box-shadow:var(--shadow); position:relative; overflow:hidden; }
-    .mesa:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.1); }
-    .mesa::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
-    .mesa.disponible::before { background:#adb5bd; }
-    .mesa.ocupada::before { background:var(--primary); }
-    .mesa-number { font-size:1.4rem; font-weight:700; margin-bottom:0.3rem; }
-    .mesa-capacity { font-size:0.9rem; color:#6c757d; }
-    .mesa-actions { margin-top:0.8rem; display:flex; justify-content:center; gap:0.5rem; }
-    .mesa-actions button { background:none; border:none; cursor:pointer; font-size:0.9rem; padding:0.3rem; color:#6c757d; transition:var(--transition); }
-    .mesa-actions button:hover { color:var(--primary); }
-
-    .menu-container { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
-    .menu-section h2 { font-size:1.4rem; margin-bottom:1.2rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border); }
-    .subcuentas-section { background:#fff; border-radius:8px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; }
-    .subcuentas-header { display:flex; gap:0.8rem; margin-bottom:1.2rem; }
-    .subcuentas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
-    .sub-btn { background:#fff; border:1px solid var(--border); border-radius:6px; padding:0.8rem; text-align:center; cursor:pointer; transition:var(--transition); position:relative; }
-    .sub-btn:hover { background:var(--hover-light); }
-    .sub-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-    .sub-btn .cobrar-btn { position:absolute; top:0.3rem; right:0.3rem; background:none; border:none; color:inherit; cursor:pointer; opacity:0.7; transition:var(--transition); }
-    .sub-btn .cobrar-btn:hover { opacity:1; }
-
-    .notas-section { margin:1.5rem 0; }
-    .notas-section input { width:100%; padding:0.8rem 1rem; border:1px solid var(--border); border-radius:6px; font-size:1rem; }
-
-    .productos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; }
-    .producto { border:1px solid var(--border); border-radius:8px; padding:1.2rem 0.8rem; text-align:center; cursor:pointer; transition:var(--transition); }
-    .producto:hover { background:var(--hover-light); transform:translateY(-3px); }
-    .producto-name { font-weight:600; margin-bottom:0.5rem; }
-    .producto-price { font-weight:700; color:var(--primary); }
-
-    .pedido-section { background:#fff; border-radius:8px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; }
-    .pedido-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-    .pedido-items { max-height:400px; overflow-y:auto; }
-    .pedido-item { display:flex; justify-content:space-between; padding:1rem 0; border-bottom:1px solid var(--border); }
-    .pedido-item:last-child { border-bottom:none; }
-    .pedido-item.canceled { opacity:0.6; }
-    .pedido-item-info { flex-grow:1; }
-    .pedido-item-name { font-weight:600; }
-    .pedido-item-sub { font-size:0.85rem; color:#6c757d; margin-top:0.2rem; }
-    .pedido-item-note { font-size:0.85rem; color:#495057; font-style:italic; margin-top:0.3rem; }
-    .pedido-item-actions { display:flex; align-items:center; gap:0.8rem; }
-    .pedido-item-quantity { font-weight:600; min-width:30px; text-align:center; }
-    .pedido-total { display:flex; justify-content:space-between; padding:1.2rem 0; margin-top:1rem; border-top:2px solid var(--border); font-size:1.2rem; font-weight:700; }
-    .cobrar-section { display:flex; justify-content:flex-end; gap:1rem; }
-
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000; }
-    .modal-content { background:#fff; padding:2rem; width:100%; max-width:400px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
-    .modal-header { margin-bottom:1.5rem; }
-    .modal-body label { display:block; margin-bottom:0.5rem; font-weight:500; }
-    .modal-body input { width:100%; padding:0.8rem; border:1px solid var(--border); border-radius:6px; margin-bottom:1.2rem; font-size:1rem; }
-    .modal-footer { display:flex; justify-content:flex-end; gap:1rem; }
-
-    .notification { position:fixed; bottom:2rem; right:2rem; padding:1.2rem 1.8rem; border-radius:8px; background:#fff; box-shadow:var(--shadow); display:flex; align-items:center; gap:0.8rem; z-index:1001; transform:translateY(100px); opacity:0; transition:var(--transition); }
-    .notification.show { transform:translateY(0); opacity:1; }
-    .notification.ok { border-left:4px solid var(--success); }
-    .notification.error { border-left:4px solid var(--danger); }
-    .notification i { font-size:1.4rem; }
-    .notification.ok i { color:var(--success); }
-    .notification.error i { color:var(--danger); }
-
-    @media(max-width:768px) {
-      .menu-container { grid-template-columns:1fr; }
-      .mesas-grid { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); }
-    }
-
-    /* Teclado Virtual */
-    #virtual-keyboard { position:fixed; bottom:0; left:0; width:100%; background:#e0e0e0; padding:8px 0; box-shadow:0 -2px 5px rgba(0,0,0,0.3); z-index:2000; }
-    #virtual-keyboard.hidden { display:none!important; }
-    .vk-row { display:flex; justify-content:center; margin-bottom:4px; }
-    .vk-button { flex:1; margin:2px; padding:12px 0; border:none; border-radius:5px; background:#fff; box-shadow:var(--shadow); font-size:1rem; user-select:none; transition:var(--transition); }
-    .vk-button:active { background:var(--hover-light); }
-    .vk-button.wide { flex:2; }
-  </style>
-</head>
-<body>
-  <header>
-    <div class="container">
-      <h1><i class="fas fa-cash-register"></i> POS IAEgo</h1>
+async function registrarVenta(items, cuentaName, full) {
+  // Crear overlay/modal
+  const overlay = document.createElement('div');
+  overlay.style = `
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10000;
+  `;
+  // Construir contenido del modal
+  const modal = document.createElement('div');
+  modal.style = `
+    background: #fff; border-radius: 8px;
+    padding: 1.5rem; width: 90%; max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  `;
+  // Lista de items
+  const itemsList = items.map(i => {
+    const subtotal = (i.precio * i.qty).toFixed(2);
+    return `<li>${i.nombre} x${i.qty} — $${subtotal}</li>`;
+  }).join('');
+  // Total
+  const total = items
+    .reduce((sum, i) => sum + i.precio * i.qty, 0)
+    .toFixed(2);
+  
+  modal.innerHTML = `
+    <h3 style="margin-top:0;">Cobrar ${full ? 'Mesa' : 'Subcuenta'}</h3>
+    <ul style="max-height:200px; overflow-y:auto; margin:0 0 1rem; padding-left:1.2rem;">
+      ${itemsList}
+    </ul>
+    <p style="font-weight:600; text-align:right; margin:0 0 1rem;">
+      Total: $${total}
+    </p>
+    <label for="pay-method" style="display:block; margin-bottom:0.5rem;">Método de pago:</label>
+    <select id="pay-method" style="width:100%; padding:0.6rem; margin-bottom:1.2rem; border-radius:4px; border:1px solid #ccc;">
+      <option>Efectivo</option>
+      <option>Tarjeta</option>
+      <option>Transferencia</option>
+    </select>
+    <div style="text-align:right;">
+      <button id="cancel-sale" style="margin-right:0.5rem; padding:0.6rem 1.2rem; background:#ccc; border:none; border-radius:4px;">Cancelar</button>
+      <button id="confirm-sale" style="padding:0.6rem 1.2rem; background:#28a745; color:#fff; border:none; border-radius:4px;">Confirmar</button>
     </div>
-  </header>
+  `;
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
 
-  <div class="container">
-    <!-- Barra de estadísticas -->
-    <div class="stats-bar">
-      <div class="stats-item">
-        <i class="fas fa-table"></i>
-        <span>Mesas libres: <strong id="mesas-disponibles">0</strong></span>
-      </div>
-      <div class="stats-item">
-        <i class="fas fa-clock"></i>
-        <span>Hora: <strong id="current-time">00:00:00</strong></span>
-      </div>
-      <div class="stats-item">
-        <i class="fas fa-coins"></i>
-        <span>Ventas hoy: <strong id="ventas-hoy">$0.00</strong></span>
-      </div>
-    </div>
-
-    <!-- Vista de Mesas -->
-    <div id="mesas-view">
-      <div class="mesas-header">
-        <h2>Administración de Mesas</h2>
-        <button class="btn btn-primary" onclick="mostrarModalMesa()">
-          <i class="fas fa-plus"></i> Nueva Mesa
-        </button>
-      </div>
-      <div class="mesas-grid" id="mesas-container"></div>
-    </div>
-
-    <!-- Vista de Menú y Pedido -->
-    <div id="menu-view" class="hidden">
-      <div class="menu-container">
-        <!-- Sección de subcuentas, notas, productos -->
-        <div class="menu-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
-            <h2>Menú</h2>
-            <button class="btn btn-outline" onclick="volverAMesas()">
-              <i class="fas fa-arrow-left"></i> Volver a Mesas
-            </button>
-          </div>
-          <div class="subcuentas-section">
-            <div class="subcuentas-header">
-              <input type="text" id="input-nueva-subcuenta" placeholder="Nueva subcuenta">
-              <button class="btn btn-primary" onclick="addSubcuenta()">
-                <i class="fas fa-plus"></i> Agregar
-              </button>
-            </div>
-            <div class="subcuentas-grid" id="subcuentas-container"></div>
-          </div>
-          <div class="notas-section">
-            <input type="text" id="input-nota" placeholder="Nota para el producto">
-          </div>
-          <!-- Aquí generamos productos dinámicamente -->
-          <div class="productos-grid" id="productos-container"></div>
-        </div>
-
-        <!-- Sección de pedido -->
-        <div class="pedido-section">
-          <div class="pedido-header">
-            <h2>Pedido Mesa <span id="pedido-mesa-numero">--</span></h2>
-          </div>
-          <div class="pedido-items" id="pedido-items"></div>
-          <div class="pedido-total">
-            <span>Total:</span> <span id="pedido-total">$0.00</span>
-          </div>
-          <div class="cobrar-section">
-            <button class="btn btn-success" id="btn-cobrar-todo" onclick="cobrarTodo()" disabled>
-              <i class="fas fa-cash-register"></i> Cobrar Todo
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Mesa -->
-  <div id="modal-mesa" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header"><h3 id="titulo-mesa">Nueva Mesa</h3></div>
-      <div class="modal-body">
-        <label>Número:</label>
-        <input type="number" id="input-mesa-numero">
-        <label>Capacidad:</label>
-        <input type="number" id="input-mesa-capacidad">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="cerrarModalMesa()">Cancelar</button>
-        <button class="btn btn-primary" onclick="guardarMesa()">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="notification" class="notification"></div>
-  <div id="virtual-keyboard" class="hidden"></div>
-
-  <script>
-    // ---------- Configuración y constantes ----------
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
-    const STORAGE_KEYS = {
-      MESAS: 'pv_tables',
-      ALMACEN: 'almacen6525',
-      COSTEADAS: 'recetasCosteadas'
+  // Controladores
+  overlay.querySelector('#cancel-sale').onclick = () => {
+    document.body.removeChild(overlay);
+  };
+  overlay.querySelector('#confirm-sale').onclick = async () => {
+    const metodo = overlay.querySelector('#pay-method').value;
+    const venta = {
+      fecha: new Date().toISOString(),
+      metodoPago: metodo,
+      items: items.map(i => ({
+        codigo: String(i.codigo),
+        cuenta: cuentaName,
+        producto: i.nombre,
+        cantidad: i.qty,
+        total: +(i.precio * i.qty).toFixed(2)
+      }))
     };
-    const MARGEN = 2;
-    const FACTORES = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
-
-    // Estado global
-    let mesas = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESAS) || '[]');
-    let recetas = [];
-    let categorias = [];
-    let mesaSel = null;
-    let subActiva = null;
-    let ventasHoy = 0;
-
-    // ---------- Helpers API ----------
-    async function apiFetch(op, payload = {}) {
-      const form = new FormData();
-      form.append('op', op);
-      Object.entries(payload).forEach(([k,v]) => form.append(k,v));
-      const resp = await fetch(GAS_URL, { method:'POST', body: form });
-      const json = await resp.json();
-      if(json.status==='success') return json.data;
-      throw new Error(json.message);
-    }
-
-    function calcularCosto(ingredientes) {
-      const almacen = JSON.parse(localStorage.getItem(STORAGE_KEYS.ALMACEN) || '[]');
-      let total=0;
-      ingredientes.forEach(item => {
-        const p = almacen.find(x => String(x.codigo)===String(item.codigo));
-        if(!p) return;
-        const uAl = FACTORES[p.unidadDeMedida.toLowerCase().trim()];
-        const uIn = FACTORES[item.unidad.toLowerCase().trim()];
-        const precioUnit = p.precio/(uAl*parseFloat(p.cantidad));
-        total += precioUnit * (uIn*item.cantidad);
+    try {
+      await apiFetch('guardarVentas', {
+        venta: JSON.stringify(venta),
+        metodoPago: metodo
       });
-      return +total.toFixed(2);
+      alert(`Cobro registrado exitosamente con ${metodo}`);
+      document.body.removeChild(overlay);
+    } catch (err) {
+      alert('Error al guardar la venta: ' + err.message);
     }
-    function aplicarMargen(costo) {
-      return +(costo * MARGEN).toFixed(2);
-    }
-
-    // ---------- Inicialización ----------
-    window.onload = async () => {
-      actualizarReloj();
-      setInterval(actualizarReloj,1000);
-      await cargarDatos();  // trae recetas y almacén
-      renderMesas();
-      renderMenu();
-    };
-
-    async function cargarDatos() {
-      // Obtener inventario y recetas costeadas
-      const almacen = await apiFetch('obtenerAlmacen');
-      localStorage.setItem(STORAGE_KEYS.ALMACEN, JSON.stringify(almacen));
-      const cocina = await apiFetch('obtenerCocina');
-      localStorage.setItem(STORAGE_KEYS.COSTEADAS, JSON.stringify(cocina));
-
-      // Calcular precios y categorizar
-      const costeadas = JSON.parse(localStorage.getItem(STORAGE_KEYS.COSTEADAS) || '[]');
-      recetas = costeadas.map(r => ({
-        ...r,
-        precio: aplicarMargen(calcularCosto(r.ingredientes))
-      }));
-      categorias = [...new Set(recetas.map(r=>r.categoria))].filter(c=>c).sort();
-    }
-
-    // ---------- Renderizado Mesas ----------
-    function renderMesas() {
-      const c = document.getElementById('mesas-container');
-      c.innerHTML = mesas.length===0
-        ? '<p class="text-center py-4">No hay mesas</p>'
-        : mesas.map(m=>`
-            <div class="mesa ${m.estado}" onclick="seleccionarMesa(${m.id})">
-              <div class="mesa-number">${m.numero}</div>
-              <div class="mesa-capacity">${m.capacidad} personas</div>
-              <div class="mesa-actions">
-                <button onclick="editarMesa(event,${m.id})"><i class="fas fa-edit"></i></button>
-                <button onclick="eliminarMesa(event,${m.id})"><i class="fas fa-trash"></i></button>
-              </div>
-            </div>
-          `).join('');
-      document.getElementById('mesas-disponibles').textContent =
-        mesas.filter(m=>m.estado==='disponible').length;
-    }
-
-    function mostrarModalMesa(id) {
-      const modal = document.getElementById('modal-mesa');
-      const m = mesas.find(x=>x.id===id);
-      document.getElementById('titulo-mesa').textContent = m?'Editar Mesa':'Nueva Mesa';
-      document.getElementById('input-mesa-numero').value = m?m.numero:'';
-      document.getElementById('input-mesa-capacidad').value = m?m.capacidad:'';
-      modal.classList.remove('hidden');
-      modal.dataset.editId = m ? m.id : '';
-    }
-    function cerrarModalMesa() {
-      document.getElementById('modal-mesa').classList.add('hidden');
-    }
-    function guardarMesa() {
-      const num = +document.getElementById('input-mesa-numero').value;
-      const cap = +document.getElementById('input-mesa-capacidad').value;
-      const editId = document.getElementById('modal-mesa').dataset.editId;
-      if(!num||!cap) return alert('Datos inválidos');
-      if(editId) {
-        mesas = mesas.map(m=> m.id==editId ? {...m,numero:num,capacidad:cap} : m );
-      } else {
-        const id = Date.now();
-        mesas.push({ id, numero:num, capacidad:cap, estado:'disponible', subs:[{ id:1, name:'General', cart:[] }] });
-      }
-      persistMesas();
-      cerrarModalMesa();
-      renderMesas();
-    }
-    function editarMesa(e,id){ e.stopPropagation(); mostrarModalMesa(id); }
-    function eliminarMesa(e,id){
-      e.stopPropagation();
-      mesas = mesas.filter(x=>x.id!==id);
-      persistMesas();
-      renderMesas();
-    }
-
-    function persistMesas(){
-      localStorage.setItem(STORAGE_KEYS.MESAS, JSON.stringify(mesas));
-    }
-
-    // ---------- Selección de Mesa y Menú ----------
-    function seleccionarMesa(id) {
-      mesaSel = id;
-      const m = mesas.find(x=>x.id===id);
-      m.estado='ocupada';
-      persistMesas();
-      renderMesas();
-      // cambiar vista
-      document.getElementById('mesas-view').classList.add('hidden');
-      document.getElementById('menu-view').classList.remove('hidden');
-      document.getElementById('pedido-mesa-numero').textContent = m.numero;
-      subActiva = m.subs[0].name;
-      renderSubcuentas();
-      renderPedido();
-    }
-    function volverAMesas() {
-      document.getElementById('menu-view').classList.add('hidden');
-      document.getElementById('mesas-view').classList.remove('hidden');
- 
-    }
-
-    // ---------- Renderizado Menú y Productos ----------
-    function renderMenu() {
-      renderProductos();
-    }
-    function renderProductos() {
-      const c = document.getElementById('productos-container');
-      c.innerHTML = recetas.map(r=>`
-        <div class="producto" onclick="agregarProd('${r.codigo}')">
-          ${r.imagen
-            ? `<img src="${r.imagen}" style="width:40px;height:40px;">`
-            : `<i class="fas fa-utensils fa-2x mb-2"></i>`}
-          <div class="producto-name">${r.nombre}</div>
-          <div class="producto-price">$${r.precio.toFixed(2)}</div>
-        </div>
-      `).join('');
-    }
-
-    // ---------- Subcuentas ----------
-    function renderSubcuentas() {
-      const m = mesas.find(x=>x.id===mesaSel);
-      document.getElementById('subcuentas-container').innerHTML =
-        m.subs.map(s=>`
-          <div class="sub-btn ${s.name===subActiva?'active':''}" onclick="setSub('${s.name}')">
-            ${s.name}
-            <button class="cobrar-btn" onclick="cobrarSub(event,'${s.name}')">
-              <i class="fas fa-cash-register"></i>
-            </button>
-          </div>
-        `).join('');
-    }
-    function addSubcuenta() {
-      const name = document.getElementById('input-nueva-subcuenta').value.trim();
-      if(!name) return alert('Nombre vacío');
-      const m = mesas.find(x=>x.id===mesaSel);
-      m.subs.push({ id:Date.now(), name, cart:[] });
-      document.getElementById('input-nueva-subcuenta').value='';
-      persistMesas();
-      renderSubcuentas();
-    }
-    function setSub(name) {
-      subActiva = name;
-      renderSubcuentas();
-    }
-
-    // ---------- Pedido ----------
-    function agregarProd(codigo) {
-      const m = mesas.find(x=>x.id===mesaSel);
-      const r = recetas.find(x=>String(x.codigo)===String(codigo));
-      if(!r) return alert('Producto no encontrado');
-      const nota = document.getElementById('input-nota').value.trim() || null;
-      let sub = m.subs.find(s=>s.name===subActiva);
-      if(!sub) return;
-      const exist = sub.cart.find(i=>i.codigo===r.codigo && i.nota===nota);
-      if(exist) exist.qty++;
-      else sub.cart.push({ codigo:r.codigo, nombre:r.nombre, precio:r.precio, qty:1, nota });
-      document.getElementById('input-nota').value='';
-      persistMesas();
-      renderPedido();
-    }
-    function renderPedido() {
-      const m = mesas.find(x => x.id === mesaSel);
-      // Incluimos el nombre de la subcuenta en cada ítem
-      const items = m.subs.flatMap(s => s.cart.map(i => ({ ...i, subName: s.name })));
-      document.getElementById('pedido-items').innerHTML =
-        items.length === 0
-          ? '<p class="text-center py-4">Sin productos</p>'
-          : items.map((i, idx) => `
-            <div class="pedido-item${i.canceled ? ' canceled' : ''}">
-              <div class="pedido-item-info">
-                <div class="pedido-item-name">${i.nombre}</div>
-                <div class="pedido-item-sub">Subcuenta: ${i.subName}</div>
-                ${i.nota ? `<div class="pedido-item-note">Nota: ${i.nota}</div>` : ''}
-              </div>
-              <div class="pedido-item-actions">
-                <button class="btn btn-sm btn-outline" onclick="modifyQuantity(${idx}, -1)"><i class="fas fa-minus"></i></button>
-                <div class="pedido-item-quantity">${i.qty}</div>
-                <button class="btn btn-sm btn-outline" onclick="modifyQuantity(${idx}, 1)"><i class="fas fa-plus"></i></button>
-                <button class="btn btn-sm btn-outline" onclick="toggleCancel(${idx})">${i.canceled ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-times"></i>'}</button>
-              </div>
-            </div>
-          `).join('');
-
-      const total = items.filter(i => !i.canceled).reduce((sum, i) => sum + i.precio * i.qty, 0);
-      document.getElementById('pedido-total').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('btn-cobrar-todo').disabled = items.filter(i => !i.canceled).length === 0;
-    }
-
-    function modifyQuantity(idx, change) {
-      const m = mesas.find(x => x.id === mesaSel);
-      const items = m.subs.flatMap(s => s.cart);
-      items[idx].qty += change;
-      if (items[idx].qty <= 0) items.splice(idx, 1);
-      persistMesas();
-      renderPedido();
-    }
-
-    function toggleCancel(idx) {
-      const m = mesas.find(x => x.id === mesaSel);
-      const items = m.subs.flatMap(s => s.cart);
-      items[idx].canceled = !items[idx].canceled;
-      persistMesas();
-      renderPedido();
-    }
-
-    // ---------- Cobros ----------
-    function cobrarSub(e,name) {
-      e.stopPropagation();
-      const m = mesas.find(x=>x.id===mesaSel);
-      const sub = m.subs.find(s=>s.name===name);
-      const total = sub.cart.reduce((s,i)=>s + i.precio*i.qty,0);
-      if(total>0) registrarVenta(sub.cart, name, true);
-      // limpiar subcuenta
-      m.subs = m.subs.filter(s=>s.name!==name);
-      if(m.subs.length===0) {
-        mesas = mesas.filter(x=>x.id!==mesaSel);
-        volverAMesas();
-      }
-      persistMesas();
-      renderMesas(); renderSubcuentas(); renderPedido();
-    }
-    function cobrarTodo() {
-      const m = mesas.find(x=>x.id===mesaSel);
-      const items = m.subs.flatMap(s=>s.cart);
-      const total = items.reduce((s,i)=>s+i.precio*i.qty,0);
-      if(total>0) registrarVenta(items, m.numero, true);
-      mesas = mesas.filter(x=>x.id!==mesaSel);
-      persistMesas();
-      renderMesas();
-      volverAMesas();
-    }
-
-    async function registrarVenta(items, cuentaName, full) {
-      const venta = {
-        fecha: new Date().toISOString(),
-        metodoPago: 'Efectivo',
-        items: items.map(i=>({
-          codigo: String(i.codigo),
-          cuenta: cuentaName,
-          producto: i.nombre,
-          cantidad: i.qty,
-          total: +(i.precio*i.qty).toFixed(2)
-        }))
-      };
-      try {
-        await apiFetch('guardarVentas', { venta: JSON.stringify(venta), metodoPago:'Efectivo' });
-        alert('Cobro registrado exitosamente');
-      } catch(err) {
-        alert('Error al guardar la venta: '+err);
-      }
-    }
-
-    // ---------- Reloj y notificaciones ----------
-    function actualizarReloj() {
-      document.getElementById('current-time').textContent =
-        new Date().toLocaleTimeString('es-ES');
-      document.getElementById('ventas-hoy').textContent =
-        `$${ventasHoy.toFixed(2)}`;
-    }
-
-    // ---------- Teclado Virtual (igual al tuyo) ----------
-    /* ... tu implementación existente ... */
-  </script>
-</body>
-</html>
+  };
+}
