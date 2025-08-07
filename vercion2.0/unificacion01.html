@@ -82,8 +82,12 @@
     .modal-content { background:#fff; padding:2rem; width:100%; max-width:400px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
     .modal-header { margin-bottom:1.5rem; }
     .modal-body label { display:block; margin-bottom:0.5rem; font-weight:500; }
-    .modal-body input { width:100%; padding:0.8rem; border:1px solid var(--border); border-radius:6px; margin-bottom:1.2rem; font-size:1rem; }
+    .modal-body input, .modal-body select { width:100%; padding:0.8rem; border:1px solid var(--border); border-radius:6px; margin-bottom:1.2rem; font-size:1rem; }
     .modal-footer { display:flex; justify-content:flex-end; gap:1rem; }
+    
+    .cobro-items-list { max-height:200px; overflow-y:auto; margin:0 0 1rem; padding-left:1.2rem; }
+    .cobro-items-list li { margin-bottom:0.5rem; padding:0.3rem 0; border-bottom:1px solid var(--border); }
+    .cobro-total-display { font-weight:600; text-align:right; margin:0 0 1rem; }
 
     .notification { position:fixed; bottom:2rem; right:2rem; padding:1.2rem 1.8rem; border-radius:8px; background:#fff; box-shadow:var(--shadow); display:flex; align-items:center; gap:0.8rem; z-index:1001; transform:translateY(100px); opacity:0; transition:var(--transition); }
     .notification.show { transform:translateY(0); opacity:1; }
@@ -179,7 +183,7 @@
             <span>Total:</span> <span id="pedido-total">$0.00</span>
           </div>
           <div class="cobrar-section">
-            <button class="btn btn-success" id="btn-cobrar-todo" onclick="cobrarTodo()" disabled>
+            <button class="btn btn-success" id="btn-cobrar-todo" onclick="iniciarCobro('todo')" disabled>
               <i class="fas fa-cash-register"></i> Cobrar Todo
             </button>
           </div>
@@ -205,6 +209,31 @@
     </div>
   </div>
 
+  <!-- Modal de Cobro Reutilizable -->
+  <div id="modal-cobro" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="titulo-cobro">Cobrar</h3>
+      </div>
+      <div class="modal-body">
+        <ul id="cobro-items-container" class="cobro-items-list"></ul>
+        <div class="cobro-total-display">
+          Total: <span id="cobro-total">$0.00</span>
+        </div>
+        <label for="pay-method">Método de pago:</label>
+        <select id="pay-method" class="modal-select">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="cerrarModalCobro()">Cancelar</button>
+        <button class="btn btn-success" onclick="confirmarCobro()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="notification" class="notification"></div>
   <div id="virtual-keyboard" class="hidden"></div>
 
@@ -226,6 +255,14 @@
     let mesaSel = null;
     let subActiva = null;
     let ventasHoy = 0;
+    
+    // Estado del modal de cobro
+    let cobroActual = {
+      items: [],
+      tipo: null, // 'subcuenta' o 'todo'
+      cuentaName: null,
+      callback: null
+    };
 
     // ---------- Helpers API ----------
     async function apiFetch(op, payload = {}) {
@@ -356,7 +393,6 @@
     function volverAMesas() {
       document.getElementById('menu-view').classList.add('hidden');
       document.getElementById('mesas-view').classList.remove('hidden');
- 
     }
 
     // ---------- Renderizado Menú y Productos ----------
@@ -383,7 +419,7 @@
         m.subs.map(s=>`
           <div class="sub-btn ${s.name===subActiva?'active':''}" onclick="setSub('${s.name}')">
             ${s.name}
-            <button class="cobrar-btn" onclick="cobrarSub(event,'${s.name}')">
+            <button class="cobrar-btn" onclick="iniciarCobro('subcuenta', event, '${s.name}')">
               <i class="fas fa-cash-register"></i>
             </button>
           </div>
@@ -463,128 +499,131 @@
       renderPedido();
     }
 
-    // ---------- Cobros ----------
-    function cobrarSub(e,name) {
-      e.stopPropagation();
-      const m = mesas.find(x=>x.id===mesaSel);
-      const sub = m.subs.find(s=>s.name===name);
-      const total = sub.cart.reduce((s,i)=>s + i.precio*i.qty,0);
-      if(total>0) registrarVenta(sub.cart, name, true);
-      // limpiar subcuenta
-      m.subs = m.subs.filter(s=>s.name!==name);
-      if(m.subs.length===0) {
-        mesas = mesas.filter(x=>x.id!==mesaSel);
+    // ---------- Modal de Cobro Reutilizable ----------
+    function iniciarCobro(tipo, e = null, nombreSubcuenta = null) {
+      if (e) e.stopPropagation();
+      
+      const m = mesas.find(x => x.id === mesaSel);
+      let items = [];
+      let titulo = "";
+      
+      if (tipo === 'subcuenta') {
+        const sub = m.subs.find(s => s.name === nombreSubcuenta);
+        items = [...sub.cart];
+        titulo = `Cobrar Subcuenta: ${nombreSubcuenta}`;
+      } else if (tipo === 'todo') {
+        items = m.subs.flatMap(s => s.cart);
+        titulo = `Cobrar Mesa: ${m.numero}`;
+      }
+      
+      // Filtrar items cancelados
+      items = items.filter(i => !i.canceled);
+      
+      if (items.length === 0) {
+        mostrarNotificacion("No hay items para cobrar", false);
+        return;
+      }
+      
+      // Configurar el cobro actual
+      cobroActual = {
+        tipo,
+        items,
+        cuentaName: tipo === 'subcuenta' ? nombreSubcuenta : m.numero,
+        callback: tipo === 'subcuenta' 
+          ? () => eliminarSubcuenta(m, nombreSubcuenta) 
+          : () => eliminarMesaCompleta(m)
+      };
+      
+      // Configurar el modal
+      document.getElementById('titulo-cobro').textContent = titulo;
+      
+      const container = document.getElementById('cobro-items-container');
+      container.innerHTML = items.map(i => {
+        const subtotal = (i.precio * i.qty).toFixed(2);
+        return `<li>${i.nombre} x${i.qty} — $${subtotal}</li>`;
+      }).join('');
+      
+      const total = items.reduce((sum, i) => sum + i.precio * i.qty, 0).toFixed(2);
+      document.getElementById('cobro-total').textContent = `$${total}`;
+      
+      // Mostrar modal
+      mostrarModalCobro();
+    }
+    
+    function mostrarModalCobro() {
+      document.getElementById('modal-cobro').classList.remove('hidden');
+    }
+    
+    function cerrarModalCobro() {
+      document.getElementById('modal-cobro').classList.add('hidden');
+      cobroActual = {
+        items: [],
+        tipo: null,
+        cuentaName: null,
+        callback: null
+      };
+    }
+    
+    async function confirmarCobro() {
+      if (!cobroActual.tipo || cobroActual.items.length === 0) return;
+      
+      const metodo = document.getElementById('pay-method').value;
+      const venta = {
+        fecha: new Date().toISOString(),
+        metodoPago: metodo,
+        items: cobroActual.items.map(i => ({
+          codigo: String(i.codigo),
+          cuenta: cobroActual.cuentaName,
+          producto: i.nombre,
+          cantidad: i.qty,
+          total: +(i.precio * i.qty).toFixed(2)
+        }))
+      };
+      
+      try {
+        await apiFetch('guardarVentas', {
+          venta: JSON.stringify(venta),
+          metodoPago: metodo
+        });
+        
+        // Actualizar ventas hoy
+        const totalVenta = cobroActual.items.reduce((sum, i) => sum + i.precio * i.qty, 0);
+        ventasHoy += totalVenta;
+        actualizarReloj();
+        
+        // Ejecutar callback para limpiar mesa/subcuenta
+        cobroActual.callback();
+        
+        // Cerrar modal y mostrar notificación
+        cerrarModalCobro();
+        mostrarNotificacion(`Cobro registrado exitosamente con ${metodo}`, true);
+      } catch (err) {
+        mostrarNotificacion('Error al guardar la venta: ' + err.message, false);
+      }
+    }
+    
+    function eliminarSubcuenta(mesa, nombreSubcuenta) {
+      // Eliminar la subcuenta cobrada
+      mesa.subs = mesa.subs.filter(s => s.name !== nombreSubcuenta);
+      
+      // Si no quedan subcuentas, eliminar la mesa
+      if (mesa.subs.length === 0) {
+        mesas = mesas.filter(x => x.id !== mesaSel);
         volverAMesas();
       }
+      
       persistMesas();
-      renderMesas(); renderSubcuentas(); renderPedido();
+      renderMesas();
+      renderSubcuentas();
+      renderPedido();
     }
-    function cobrarTodo() {
-      const m = mesas.find(x=>x.id===mesaSel);
-      const items = m.subs.flatMap(s=>s.cart);
-      const total = items.reduce((s,i)=>s+i.precio*i.qty,0);
-      if(total>0) registrarVenta(items, m.numero, true);
-      mesas = mesas.filter(x=>x.id!==mesaSel);
+    
+    function eliminarMesaCompleta(mesa) {
+      mesas = mesas.filter(x => x.id !== mesa.id);
       persistMesas();
       renderMesas();
       volverAMesas();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-async function registrarVenta(items, cuentaName, full) {
-  // Crear overlay/modal
-  const overlay = document.createElement('div');
-  overlay.style = `
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10000;
-  `;
-  // Construir contenido del modal
-  const modal = document.createElement('div');
-  modal.style = `
-    background: #fff; border-radius: 8px;
-    padding: 1.5rem; width: 90%; max-width: 400px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  `;
-  // Lista de items
-  const itemsList = items.map(i => {
-    const subtotal = (i.precio * i.qty).toFixed(2);
-    return `<li>${i.nombre} x${i.qty} — $${subtotal}</li>`;
-  }).join('');
-  // Total
-  const total = items
-    .reduce((sum, i) => sum + i.precio * i.qty, 0)
-    .toFixed(2);
-  
-  modal.innerHTML = `
-    <h3 style="margin-top:0;">Cobrar ${full ? 'Mesa' : 'Subcuenta'}</h3>
-    <ul style="max-height:200px; overflow-y:auto; margin:0 0 1rem; padding-left:1.2rem;">
-      ${itemsList}
-    </ul>
-    <p style="font-weight:600; text-align:right; margin:0 0 1rem;">
-      Total: $${total}
-    </p>
-    <label for="pay-method" style="display:block; margin-bottom:0.5rem;">Método de pago:</label>
-    <select id="pay-method" style="width:100%; padding:0.6rem; margin-bottom:1.2rem; border-radius:4px; border:1px solid #ccc;">
-      <option>Efectivo</option>
-      <option>Tarjeta</option>
-      <option>Transferencia</option>
-    </select>
-    <div style="text-align:right;">
-      <button id="cancel-sale" style="margin-right:0.5rem; padding:0.6rem 1.2rem; background:#ccc; border:none; border-radius:4px;">Cancelar</button>
-      <button id="confirm-sale" style="padding:0.6rem 1.2rem; background:#28a745; color:#fff; border:none; border-radius:4px;">Confirmar</button>
-    </div>
-  `;
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  // Controladores
-  overlay.querySelector('#cancel-sale').onclick = () => {
-    document.body.removeChild(overlay);
-  };
-  overlay.querySelector('#confirm-sale').onclick = async () => {
-    const metodo = overlay.querySelector('#pay-method').value;
-    const venta = {
-      fecha: new Date().toISOString(),
-      metodoPago: metodo,
-      items: items.map(i => ({
-        codigo: String(i.codigo),
-        cuenta: cuentaName,
-        producto: i.nombre,
-        cantidad: i.qty,
-        total: +(i.precio * i.qty).toFixed(2)
-      }))
-    };
-    try {
-      await apiFetch('guardarVentas', {
-        venta: JSON.stringify(venta),
-        metodoPago: metodo
-      });
-      alert(`Cobro registrado exitosamente con ${metodo}`);
-      document.body.removeChild(overlay);
-    } catch (err) {
-      alert('Error al guardar la venta: ' + err.message);
-    }
-  };
-}
-
-
-
 
     // ---------- Reloj y notificaciones ----------
     function actualizarReloj() {
@@ -593,9 +632,21 @@ async function registrarVenta(items, cuentaName, full) {
       document.getElementById('ventas-hoy').textContent =
         `$${ventasHoy.toFixed(2)}`;
     }
+    
+    function mostrarNotificacion(mensaje, esExito) {
+      const notif = document.getElementById('notification');
+      notif.innerHTML = `
+        <i class="fas ${esExito ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        ${mensaje}
+      `;
+      notif.className = `notification ${esExito ? 'ok' : 'error'} show`;
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 3000);
+    }
 
-    // ---------- Teclado Virtual (igual al tuyo) ----------
-    /* ... tu implementación existente ... */
+    // ---------- Teclado Virtual ----------
+    // (Implementación existente)
   </script>
 </body>
 </html>
