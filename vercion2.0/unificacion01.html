@@ -3,118 +3,879 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>POS IAEgo</title>
+  <title>POS IAEgo - Sistema de Categorías</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg-light: #f8f9fa; --text-dark: #212529; --text-light: #f8f9fa;
-      --border: #dee2e6; --primary: #212529; --success: #28a745;
-      --warning: #ffc107; --danger: #dc3545; --disabled: #adb5bd;
-      --hover-light: rgba(33,37,41,0.05); --shadow: 0 4px 12px rgba(0,0,0,0.08);
-      --transition: all 0.2s ease;
+  * { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  }
+  
+  :root {
+    --bg-light: #f8f9fa;
+    --bg-panel: #ffffff;
+    --text-dark: #1e1e2f;
+    --text-light: #ffffff;
+    --text-gray: #6c757d;
+    --border: #e1e3e8;
+    --primary: #4a4e69;
+    --primary-light: #6d7298;
+    --success: #28a745;
+    --success-light: #3dd160;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --hover-light: rgba(74, 78, 105, 0.05);
+    --transition: all 0.3s ease;
+    --radius: 10px;
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 6px 15px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  body { 
+    background: var(--bg-light); 
+    color: var(--text-dark); 
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  
+  .container { 
+    max-width: 1400px; 
+    margin: 0 auto; 
+    padding: 1.5rem; 
+  }
+  
+  .hidden { display: none !important; }
+
+  /* Header */
+  header {
+    background: var(--primary);
+    color: var(--text-light);
+    box-shadow: var(--shadow-md);
+    padding: 0.8rem 0;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header h1 {
+    font-weight: 600;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  /* Barra de estadísticas */
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    background: var(--bg-panel);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+  }
+  
+  .stats-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.95rem;
+  }
+  
+  .stats-item i {
+    font-size: 1.6rem;
+    color: var(--primary);
+    background: rgba(74, 78, 105, 0.1);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .stats-item span strong {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  
+  /* Botones */
+  .btn {
+    cursor: pointer;
+    padding: 0.8rem 1.6rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-sm);
+    background: var(--bg-panel);
+    color: var(--text-dark);
+    white-space: nowrap;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .btn-primary { 
+    background: var(--primary); 
+    color: #fff; 
+  }
+  
+  .btn-primary:hover { 
+    background: var(--primary-light); 
+  }
+  
+  .btn-success { 
+    background: var(--success); 
+    color: #fff; 
+  }
+  
+  .btn-success:hover {
+    background: var(--success-light);
+  }
+  
+  .btn-outline { 
+    background: transparent; 
+    border: 1px solid var(--primary); 
+    color: var(--primary); 
+  }
+  
+  .btn-outline:hover { 
+    background: var(--hover-light); 
+  }
+  
+  .btn-sm { 
+    padding: 0.5rem 1rem; 
+    font-size: 0.85rem; 
+  }
+  
+  .btn:disabled { 
+    opacity: 0.6; 
+    cursor: not-allowed; 
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Sección de mesas */
+  .mesas-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 1.5rem; 
+  }
+  
+  .mesas-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .mesas-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 1.2rem; 
+    margin-bottom: 2rem; 
+  }
+  
+  .mesa {     
+    background: var(--bg-panel);
+    padding: 1.5rem 0.5rem;
+    text-align: center;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  
+  .mesa:hover { 
+    transform: translateY(-5px); 
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+  }
+  
+  .mesa::before { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    height: 4px; 
+  }
+  
+  .mesa.disponible::before { background: #adb5bd; }
+  .mesa.ocupada::before { background: var(--primary); }
+  
+  .mesa-number { 
+    font-size: 1.8rem; 
+    font-weight: 700; 
+    margin-bottom: 0.3rem; 
+    color: var(--primary);
+  }
+  
+  .mesa-capacity { 
+    font-size: 0.9rem; 
+    color: var(--text-gray); 
+    margin-bottom: 0.8rem;
+  }
+  
+  .mesa-actions { 
+    margin-top: 0.8rem; 
+    display: flex; 
+    justify-content: center; 
+    gap: 0.5rem; 
+  }
+  
+  .mesa-actions button { 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    font-size: 0.9rem; 
+    padding: 0.3rem; 
+    color: var(--text-gray); 
+    transition: var(--transition); 
+  }
+  
+  .mesa-actions button:hover { 
+    color: var(--primary); 
+  }
+  
+  /* Diseño de dos columnas para menú y pedido */
+  .menu-container { 
+    display: grid; 
+    grid-template-columns: 3fr 2fr; 
+    gap: 1.5rem;
+  }
+  
+  /* Sección de subcuentas */
+  .subcuentas-section {
+    background: var(--bg-panel);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    grid-column: 1 / -1;
+  }
+  
+  .subcuentas-header { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .subcuentas-grid { 
+    display: flex; 
+    gap: 12px; 
+    overflow-x: auto;
+    padding-bottom: 5px;
+  } 
+  
+  .sub-btn { 
+    background: var(--bg-panel); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius); 
+    padding: 1rem 1.5rem; 
+    min-width: 140px;
+    text-align: center; 
+    cursor: pointer; 
+    transition: var(--transition); 
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .sub-btn:hover { 
+    background: var(--hover-light); 
+    border-color: var(--primary-light);
+  }
+  
+  .sub-btn.active { 
+    background: var(--primary); 
+    color: #fff; 
+    border-color: var(--primary); 
+  }
+  
+  .sub-btn .cobrar-btn { 
+    position: absolute; 
+    top: 0.3rem; 
+    right: 0.3rem; 
+    background: none; 
+    border: none; 
+    color: inherit; 
+    cursor: pointer; 
+    opacity: 0.7; 
+    transition: var(--transition); 
+    padding: 0.2rem;
+    border-radius: 4px;
+  }
+  
+  .sub-btn .cobrar-btn:hover { 
+    opacity: 1; 
+    background: rgba(255,255,255,0.2);
+  }
+  
+  .notas-section { 
+    margin: 1.5rem 0; 
+    grid-column: 1 / -1;
+  }
+  
+  .notas-section input { 
+    width: 100%; 
+    padding: 0.9rem 1.2rem; 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius); 
+    font-size: 1rem; 
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+  
+  .notas-section input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 78, 105, 0.1);
+  }
+  
+  /* Productos */
+  .productos-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+    gap: 1.2rem; 
+    height: 600px;
+    overflow-y: auto;
+    padding: 5px;
+  }
+  
+  .producto {
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .producto-img-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+  }
+  
+  .producto img { 
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+  }
+  
+  .producto:hover img {
+    transform: scale(1.05);
+  }
+  
+  .producto-info { 
+    padding: 0.8rem 0.5rem;
+    transition: var(--transition);
+  }
+  
+  .producto-name { 
+    font-weight: 500; 
+    margin: 0.3rem 0; 
+    color: var(--text-dark);
+  }
+  
+  .producto-price { 
+    font-weight: 600; 
+    color: var(--primary);
+  }
+  
+  .producto:hover .producto-info {
+    transform: translateY(-3px);
+  }
+  
+  /* Sección de pedido */
+  .pedido-section { 
+    background: var(--bg-panel); 
+    border-radius: var(--radius); 
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+  }
+  
+  .pedido-header { 
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .pedido-header h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+  
+  .pedido-items { 
+    padding: 1rem;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 450px;
+  }
+  
+  .pedido-item { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 0.9rem 0; 
+    border-bottom: 1px solid var(--border); 
+  }
+  
+  .pedido-item:last-child { border-bottom: none; }
+  
+  .pedido-item.canceled { 
+    opacity: 0.6; 
+    text-decoration: line-through;
+  }
+  
+  .pedido-item-info { flex-grow: 1; }
+  
+  .pedido-item-name { 
+    font-weight: 600; 
+    margin-bottom: 0.2rem;
+  }
+  
+  .pedido-item-sub { 
+    font-size: 0.85rem; 
+    color: var(--text-gray); 
+    margin-bottom: 0.3rem;
+  }
+  
+  .pedido-item-note { 
+    font-size: 0.85rem; 
+    color: var(--text-gray); 
+    font-style: italic; 
+    margin-top: 0.3rem; 
+  }
+  
+  .pedido-item-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.8rem; 
+  }
+  
+  .pedido-item-quantity { 
+    font-weight: 600; 
+    min-width: 30px; 
+    text-align: center; 
+    font-size: 1.1rem;
+  }
+  
+  .pedido-total { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 1.3rem 1.5rem; 
+    border-top: 2px solid var(--border); 
+    font-size: 1.3rem; 
+    font-weight: 700; 
+    background: var(--bg-light);
+    margin-top: auto;
+  }
+  
+  .cobrar-section { 
+    padding: 1rem 1.5rem;
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 1rem; 
+    border-top: 1px solid var(--border);
+  }
+  
+  /* Modales */
+  .modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 1000; 
+    backdrop-filter: blur(2px);
+  }
+  
+  .modal-content { 
+    background: #fff; 
+    padding: 2.2rem; 
+    width: 100%; 
+    max-width: 450px; 
+    border-radius: 12px; 
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .modal-header { 
+    margin-bottom: 1.8rem; 
+  }
+  
+  .modal-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  
+  .modal-body label { 
+    display: block; 
+    margin-bottom: 0.6rem; 
+    font-weight: 500; 
+    color: var(--text-dark);
+  }
+  
+  .modal-body input, 
+  .modal-body select { 
+    width: 100%; 
+    padding: 0.9rem; 
+    border: 1px solid var(--border); 
+    border-radius: 8px; 
+    margin-bottom: 1.3rem; 
+    font-size: 1rem; 
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .modal-body input:focus,
+  .modal-body select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 78, 105, 0.1);
+  }
+  
+  .modal-footer { 
+    display: flex; 
+    justify-content: flex-end; 
+    gap: 1rem; 
+    margin-top: 0.5rem;
+  }
+  
+  .cobro-items-list { 
+    max-height: 220px; 
+    overflow-y: auto; 
+    margin: 0 0 1.5rem; 
+    padding-left: 1.2rem; 
+    list-style-type: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+  }
+  
+  .cobro-items-list li { 
+    margin-bottom: 0.8rem; 
+    padding: 0.5rem 0; 
+    border-bottom: 1px solid var(--border); 
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .cobro-items-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  
+  .cobro-total-display { 
+    font-weight: 700; 
+    text-align: right; 
+    margin: 0 0 1.5rem; 
+    font-size: 1.3rem;
+    color: var(--primary);
+  }
+  
+  /* Notificaciones */
+  .notification { 
+    position: fixed; 
+    bottom: 2rem; 
+    right: 2rem; 
+    padding: 1.2rem 1.8rem; 
+    border-radius: var(--radius); 
+    background: #fff; 
+    box-shadow: var(--shadow-lg); 
+    display: flex; 
+    align-items: center; 
+    gap: 0.8rem; 
+    z-index: 1001; 
+    transform: translateY(100px); 
+    opacity: 0; 
+    transition: var(--transition); 
+  }
+  
+  .notification.show { transform: translateY(0); opacity: 1; }
+  
+  .notification.ok { 
+    border-left: 4px solid var(--success); 
+  }
+  
+  .notification.error { 
+    border-left: 4px solid var(--danger); 
+  }
+  
+  .notification i { 
+    font-size: 1.5rem; 
+  }
+  
+  .notification.ok i { color: var(--success); }
+  .notification.error i { color: var(--danger); }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+  }
+  
+  /* Media queries para pantallas grandes */
+  @media (min-width: 900px) {
+    .mesas-grid {
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     }
-    body { font-family:'Segoe UI','Roboto','Helvetica Neue',sans-serif; background:#fff; color:var(--text-dark); line-height:1.6; }
-    .container { max-width:1200px; margin:0 auto; padding:1.5rem; }
-    .hidden { display:none!important; }
-    header { background:var(--primary); color:var(--text-light); padding:1.5rem; box-shadow:var(--shadow); }
-    header h1 { font-weight:600; font-size:1.8rem; letter-spacing:-0.5px; }
-    header h1 i { margin-right:12px; }
-    .stats-bar { display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid var(--border); margin-bottom:1.5rem; }
-    .stats-item { display:flex; align-items:center; gap:0.5rem; }
-    .btn { cursor:pointer; padding:0.7rem 1.5rem; border:none; border-radius:6px; font-weight:600; font-size:0.95rem; transition:var(--transition); display:inline-flex; align-items:center; gap:0.5rem; }
-    .btn-primary { background:var(--primary); color:#fff; }
-    .btn-primary:hover { background:#343a40; }
-    .btn-success { background:var(--success); color:#fff; }
-    .btn-outline { background:transparent; border:1px solid var(--primary); color:var(--primary); }
-    .btn-outline:hover { background:var(--hover-light); }
-    .btn-sm { padding:0.4rem 0.8rem; font-size:0.85rem; }
-    .btn:disabled { background:var(--disabled); cursor:not-allowed; }
-    .mesas-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-    .mesas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:1rem; margin-bottom:2rem; }
-    .mesa { border:1px solid var(--border); padding:1.2rem 0.5rem; text-align:center; border-radius:8px; cursor:pointer; transition:var(--transition); box-shadow:var(--shadow); position:relative; overflow:hidden; }
-    .mesa:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.1); }
-    .mesa::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; }
-    .mesa.disponible::before { background:#adb5bd; }
-    .mesa.ocupada::before { background:var(--primary); }
-    .mesa-number { font-size:1.4rem; font-weight:700; margin-bottom:0.3rem; }
-    .mesa-capacity { font-size:0.9rem; color:#6c757d; }
-    .mesa-actions { margin-top:0.8rem; display:flex; justify-content:center; gap:0.5rem; }
-    .mesa-actions button { background:none; border:none; cursor:pointer; font-size:0.9rem; padding:0.3rem; color:#6c757d; transition:var(--transition); }
-    .mesa-actions button:hover { color:var(--primary); }
-
-    .menu-container { display:grid; grid-template-columns:1fr 1fr; gap:2rem; }
-    .menu-section h2 { font-size:1.4rem; margin-bottom:1.2rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border); }
-    .subcuentas-section { background:#fff; border-radius:8px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; }
-    .subcuentas-header { display:flex; gap:0.8rem; margin-bottom:1.2rem; }
-    .subcuentas-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1rem; }
-    .sub-btn { background:#fff; border:1px solid var(--border); border-radius:6px; padding:0.8rem; text-align:center; cursor:pointer; transition:var(--transition); position:relative; }
-    .sub-btn:hover { background:var(--hover-light); }
-    .sub-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
-    .sub-btn .cobrar-btn { position:absolute; top:0.3rem; right:0.3rem; background:none; border:none; color:inherit; cursor:pointer; opacity:0.7; transition:var(--transition); }
-    .sub-btn .cobrar-btn:hover { opacity:1; }
-
-    .notas-section { margin:1.5rem 0; }
-    .notas-section input { width:100%; padding:0.8rem 1rem; border:1px solid var(--border); border-radius:6px; font-size:1rem; }
-
-    .productos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; }
-    .producto { border:1px solid var(--border); border-radius:8px; padding:1.2rem 0.8rem; text-align:center; cursor:pointer; transition:var(--transition); }
-    .producto:hover { background:var(--hover-light); transform:translateY(-3px); }
-    .producto-name { font-weight:600; margin-bottom:0.5rem; }
-    .producto-price { font-weight:700; color:var(--primary); }
-
-    .pedido-section { background:#fff; border-radius:8px; padding:1.5rem; box-shadow:var(--shadow); margin-bottom:1.5rem; }
-    .pedido-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-    .pedido-items { max-height:400px; overflow-y:auto; }
-    .pedido-item { display:flex; justify-content:space-between; padding:1rem 0; border-bottom:1px solid var(--border); }
-    .pedido-item:last-child { border-bottom:none; }
-    .pedido-item.canceled { opacity:0.6; }
-    .pedido-item-info { flex-grow:1; }
-    .pedido-item-name { font-weight:600; }
-    .pedido-item-sub { font-size:0.85rem; color:#6c757d; margin-top:0.2rem; }
-    .pedido-item-note { font-size:0.85rem; color:#495057; font-style:italic; margin-top:0.3rem; }
-    .pedido-item-actions { display:flex; align-items:center; gap:0.8rem; }
-    .pedido-item-quantity { font-weight:600; min-width:30px; text-align:center; }
-    .pedido-total { display:flex; justify-content:space-between; padding:1.2rem 0; margin-top:1rem; border-top:2px solid var(--border); font-size:1.2rem; font-weight:700; }
-    .cobrar-section { display:flex; justify-content:flex-end; gap:1rem; }
-
-    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000; }
-    .modal-content { background:#fff; padding:2rem; width:100%; max-width:400px; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.2); }
-    .modal-header { margin-bottom:1.5rem; }
-    .modal-body label { display:block; margin-bottom:0.5rem; font-weight:500; }
-    .modal-body input, .modal-body select { width:100%; padding:0.8rem; border:1px solid var(--border); border-radius:6px; margin-bottom:1.2rem; font-size:1rem; }
-    .modal-footer { display:flex; justify-content:flex-end; gap:1rem; }
     
-    .cobro-items-list { max-height:200px; overflow-y:auto; margin:0 0 1rem; padding-left:1.2rem; }
-    .cobro-items-list li { margin-bottom:0.5rem; padding:0.3rem 0; border-bottom:1px solid var(--border); }
-    .cobro-total-display { font-weight:600; text-align:right; margin:0 0 1rem; }
-
-    .notification { position:fixed; bottom:2rem; right:2rem; padding:1.2rem 1.8rem; border-radius:8px; background:#fff; box-shadow:var(--shadow); display:flex; align-items:center; gap:0.8rem; z-index:1001; transform:translateY(100px); opacity:0; transition:var(--transition); }
-    .notification.show { transform:translateY(0); opacity:1; }
-    .notification.ok { border-left:4px solid var(--success); }
-    .notification.error { border-left:4px solid var(--danger); }
-    .notification i { font-size:1.4rem; }
-    .notification.ok i { color:var(--success); }
-    .notification.error i { color:var(--danger); }
-
-    @media(max-width:768px) {
-      .menu-container { grid-template-columns:1fr; }
-      .mesas-grid { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); }
+    .productos-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
-
-    /* Teclado Virtual */
-    #virtual-keyboard { position:fixed; bottom:0; left:0; width:100%; background:#e0e0e0; padding:8px 0; box-shadow:0 -2px 5px rgba(0,0,0,0.3); z-index:2000; }
-    #virtual-keyboard.hidden { display:none!important; }
-    .vk-row { display:flex; justify-content:center; margin-bottom:4px; }
-    .vk-button { flex:1; margin:2px; padding:12px 0; border:none; border-radius:5px; background:#fff; box-shadow:var(--shadow); font-size:1rem; user-select:none; transition:var(--transition); }
-    .vk-button:active { background:var(--hover-light); }
-    .vk-button.wide { flex:2; }
+  }
+  
+  @media (max-width: 800px) {
+    .menu-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .pedido-section {
+      height: auto;
+      max-height: 500px;
+    }
+  }
+  
+  @media (max-width: 408px) {
+    .stats-bar {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .mesas-grid {
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+  }
+  
+  /* Estilos para vista previa de comandera */
+  .comandera-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    z-index: 2000;
+    width: 350px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .comandera-preview .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-gray);
+  }
+  
+  .comandera-preview h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 0.5rem;
+  }
+  
+  .comandera-preview .comandera-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .comandera-preview .comandera-header h4 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .comandera-preview .comandera-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #ddd;
+  }
+  
+  .comandera-preview .comandera-subcuenta {
+    font-weight: bold;
+    margin-top: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .comandera-preview .comandera-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 2px solid #ddd;
+    font-weight: bold;
+  }
+  
+  .printed-icon {
+    color: var(--success);
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+  
+  .reprint-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 4px;
+    transition: var(--transition);
+  }
+  
+  .reprint-btn:hover {
+    background: rgba(74, 78, 105, 0.1);
+  }
+  
+  /* Nuevos estilos para categorías */
+  .categorias-section {
+    background: var(--bg-panel);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .categorias-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .categorias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .categorias button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .categorias button:hover {
+    background: rgba(74, 78, 105, 0.05);
+  }
+  
+  .categorias button.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  
+  .categorias button i {
+    font-size: 0.9em;
+  }
+  
+  /* Nuevos estilos para impresión */
+  .printed-indicator {
+    font-size: 0.8rem;
+    color: var(--success);
+    margin-left: 5px;
+    font-weight: normal;
+  }
+  
+  .reprint-indicator {
+    color: var(--warning);
+  }
+  
+  .print-status {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    margin-top: 3px;
+  }
+  
+  .print-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+  
+  .print-controls button {
+    font-size: 0.75rem;
+    padding: 2px 5px;
+  }
   </style>
 </head>
 <body>
   <header>
-    <div class="container">
-      <h1><i class="fas fa-cash-register"></i> POS IAEgo</h1>
+    <div class="header-content">
+      <h1><i class="fas fa-cash-register"></i> POS IAEgo - Sistema de Impresión Mejorado</h1>
+      <div class="header-actions">
+        <button class="btn btn-outline">
+          <i class="fas fa-cog"></i> Configuración
+        </button>
+      </div>
     </div>
   </header>
 
@@ -133,43 +894,59 @@
         <i class="fas fa-coins"></i>
         <span>Ventas hoy: <strong id="ventas-hoy">$0.00</strong></span>
       </div>
+      <div class="stats-item">
+        <i class="fas fa-users"></i>
+        <span>Clientes: <strong id="clientes-activos">0</strong></span>
+      </div>
     </div>
 
     <!-- Vista de Mesas -->
     <div id="mesas-view">
       <div class="mesas-header">
         <h2>Administración de Mesas</h2>
-        <button class="btn btn-primary" onclick="mostrarModalMesa()">
-          <i class="fas fa-plus"></i> Nueva Mesa
-        </button>
+        <div class="mesas-actions">
+          <button class="btn btn-primary" onclick="mostrarModalMesa()">
+            <i class="fas fa-plus"></i> Nueva Mesa
+          </button>
+          <button class="btn btn-outline" onclick="cargarDatos()">
+            <i class="fas fa-sync"></i> Actualizar
+          </button>
+        </div>
       </div>
-      <div class="mesas-grid" id="mesas-container"></div>
+      <div class="mesas-grid" id="mesas-container">
+        <!-- Mesas se renderizarán aquí -->
+      </div>
     </div>
 
     <!-- Vista de Menú y Pedido -->
     <div id="menu-view" class="hidden">
+      <div class="subcuentas-section">
+        <div class="subcuentas-header">
+          <button class="btn btn-outline" onclick="volverAMesas()">
+            <i class="fas fa-arrow-left"></i> Volver a Mesas
+          </button>
+          <input type="text" class="btn btn-outline" id="input-nueva-subcuenta" placeholder="Nueva subcuenta">
+          <button class="btn btn-primary" onclick="addSubcuenta()">
+            <i class="fas fa-plus"></i> Agregar
+          </button>
+          <div class="flex-grow"></div>
+        </div>
+        <div class="subcuentas-grid" id="subcuentas-container"></div>
+      </div>
+      
+      <div class="notas-section">
+        <input type="text" id="input-nota" placeholder="Nota para el producto">
+      </div>
+
+      <!-- Sección de categorías -->
+      <div class="categorias-section">
+        <h3><i class="fas fa-tags"></i> Categorías de Productos</h3>
+        <div class="categorias" id="categorias-container"></div>
+      </div>
+
       <div class="menu-container">
-        <!-- Sección de subcuentas, notas, productos -->
+        <!-- Sección de productos -->
         <div class="menu-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;">
-            <h2>Menú</h2>
-            <button class="btn btn-outline" onclick="volverAMesas()">
-              <i class="fas fa-arrow-left"></i> Volver a Mesas
-            </button>
-          </div>
-          <div class="subcuentas-section">
-            <div class="subcuentas-header">
-              <input type="text" id="input-nueva-subcuenta" placeholder="Nueva subcuenta">
-              <button class="btn btn-primary" onclick="addSubcuenta()">
-                <i class="fas fa-plus"></i> Agregar
-              </button>
-            </div>
-            <div class="subcuentas-grid" id="subcuentas-container"></div>
-          </div>
-          <div class="notas-section">
-            <input type="text" id="input-nota" placeholder="Nota para el producto">
-          </div>
-          <!-- Aquí generamos productos dinámicamente -->
           <div class="productos-grid" id="productos-container"></div>
         </div>
 
@@ -177,14 +954,23 @@
         <div class="pedido-section">
           <div class="pedido-header">
             <h2>Pedido Mesa <span id="pedido-mesa-numero">--</span></h2>
+            <button class="btn btn-sm btn-outline">
+              <i class="fas fa-history"></i> Historial
+            </button>
           </div>
           <div class="pedido-items" id="pedido-items"></div>
           <div class="pedido-total">
             <span>Total:</span> <span id="pedido-total">$0.00</span>
           </div>
           <div class="cobrar-section">
+            <button class="btn btn-outline" onclick="limpiarPedido()">
+              <i class="fas fa-trash-alt"></i> Limpiar
+            </button>
             <button class="btn btn-success" id="btn-cobrar-todo" onclick="iniciarCobro('todo')" disabled>
-              <i class="fas fa-cash-register"></i> Cobrar Todo
+              <i class="fas fa-cash-register"></i> Cerrar
+            </button>
+            <button class="btn btn-outline" onclick="imprimirComandera()">
+              <i class="fas fa-print"></i> Imprimir
             </button>
           </div>
         </div>
@@ -198,9 +984,9 @@
       <div class="modal-header"><h3 id="titulo-mesa">Nueva Mesa</h3></div>
       <div class="modal-body">
         <label>Número:</label>
-        <input type="number" id="input-mesa-numero">
+        <input type="number" id="input-mesa-numero" min="1">
         <label>Capacidad:</label>
-        <input type="number" id="input-mesa-capacidad">
+        <input type="number" id="input-mesa-capacidad" min="1">
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="cerrarModalMesa()">Cancelar</button>
@@ -209,7 +995,7 @@
     </div>
   </div>
 
-  <!-- Modal de Cobro Reutilizable -->
+  <!-- Modal de Cobro -->
   <div id="modal-cobro" class="modal hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -225,6 +1011,7 @@
           <option value="Efectivo">Efectivo</option>
           <option value="Tarjeta">Tarjeta</option>
           <option value="Transferencia">Transferencia</option>
+          <option value="Mixto">Mixto</option>
         </select>
       </div>
       <div class="modal-footer">
@@ -234,8 +1021,22 @@
     </div>
   </div>
 
+  <!-- Vista previa de comandera -->
+  <div id="comandera-preview" class="comandera-preview hidden">
+    <span class="close" onclick="cerrarComanderaPreview()">&times;</span>
+    <h3>COMANDEA</h3>
+    <div class="comandera-header">
+      <h4>Mesa: <span id="comandera-mesa">--</span></h4>
+      <div>Fecha: <span id="comandera-fecha">--</span></div>
+      <div>Hora: <span id="comandera-hora">--</span></div>
+    </div>
+    <div id="comandera-items-container"></div>
+    <div class="comandera-footer">
+      <button class="btn btn-primary" onclick="imprimirComanderaReal()">Imprimir</button>
+    </div>
+  </div>
+
   <div id="notification" class="notification"></div>
-  <div id="virtual-keyboard" class="hidden"></div>
 
   <script>
     // ---------- Configuración y constantes ----------
@@ -249,12 +1050,14 @@
     const FACTORES = { mg:0.001, g:1, kg:1000, ml:1, l:1000, pz:1 };
 
     // Estado global
-    let mesas = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESAS) || '[]');
+    let mesas = JSON.parse(localStorage.getItem(STORAGE_KEYS.MESAS))  || [];
     let recetas = [];
     let categorias = [];
+    let categoriaSeleccionada = '';
     let mesaSel = null;
     let subActiva = null;
     let ventasHoy = 0;
+    let comanderaItems = [];
     
     // Estado del modal de cobro
     let cobroActual = {
@@ -296,27 +1099,69 @@
     window.onload = async () => {
       actualizarReloj();
       setInterval(actualizarReloj,1000);
-      await cargarDatos();  // trae recetas y almacén
+      await cargarDatos();
       renderMesas();
-      renderMenu();
+      document.getElementById('clientes-activos').textContent = mesas.filter(m => m.estado === 'ocupada').length;
     };
 
     async function cargarDatos() {
       // Obtener inventario y recetas costeadas
-      const almacen = await apiFetch('obtenerAlmacen');
-      localStorage.setItem(STORAGE_KEYS.ALMACEN, JSON.stringify(almacen));
-      const cocina = await apiFetch('obtenerCocina');
-      localStorage.setItem(STORAGE_KEYS.COSTEADAS, JSON.stringify(cocina));
+      try {
+        const almacen = await apiFetch('obtenerAlmacen');
+        localStorage.setItem(STORAGE_KEYS.ALMACEN, JSON.stringify(almacen));
+        const cocina = await apiFetch('obtenerCocina');
+        localStorage.setItem(STORAGE_KEYS.COSTEADAS, JSON.stringify(cocina));
 
-      // Calcular precios y categorizar
-      const costeadas = JSON.parse(localStorage.getItem(STORAGE_KEYS.COSTEADAS) || '[]');
-      recetas = costeadas.map(r => ({
-        ...r,
-        precio: aplicarMargen(calcularCosto(r.ingredientes))
-      }));
-      categorias = [...new Set(recetas.map(r=>r.categoria))].filter(c=>c).sort();
+        // Calcular precios y categorizar
+        const costeadas = JSON.parse(localStorage.getItem(STORAGE_KEYS.COSTEADAS) || '[]');
+        recetas = costeadas.map(r => ({
+          ...r,
+          precio: aplicarMargen(calcularCosto(r.ingredientes))
+        }));
+        
+        // Extraer categorías únicas
+        categorias = [...new Set(recetas.map(r => r.categoria))].filter(c => c).sort();
+        
+        // Renderizar categorías y productos
+        renderCategorias();
+        renderProductos();
+        
+        mostrarNotificacion("Datos cargados correctamente", true);
+      } catch (e) {
+        mostrarNotificacion("Error al cargar datos: " + e.message, false);
+      }
     }
 
+    // ---------- Funciones para categorías ----------
+    function renderCategorias() {
+      const cont = document.getElementById('categorias-container');
+      cont.innerHTML = '';
+      
+      // Botón "Todas"
+      const btnTodas = document.createElement('button');
+      btnTodas.innerHTML = '<i class="fas fa-list"></i> Todas';
+      if(!categoriaSeleccionada) btnTodas.classList.add('active');
+      btnTodas.onclick = () => {
+        categoriaSeleccionada = '';
+        renderCategorias();
+        renderProductos();
+      };
+      cont.appendChild(btnTodas);
+      
+      // Botones para cada categoría
+      categorias.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.innerHTML = `<i class="fas fa-tag"></i> ${cat}`;
+        if(categoriaSeleccionada === cat) btn.classList.add('active');
+        btn.onclick = () => {
+          categoriaSeleccionada = cat;
+          renderCategorias();
+          renderProductos();
+        };
+        cont.appendChild(btn);
+      });
+    }
+    
     // ---------- Renderizado Mesas ----------
     function renderMesas() {
       const c = document.getElementById('mesas-container');
@@ -352,12 +1197,18 @@
       const num = +document.getElementById('input-mesa-numero').value;
       const cap = +document.getElementById('input-mesa-capacidad').value;
       const editId = document.getElementById('modal-mesa').dataset.editId;
-      if(!num||!cap) return alert('Datos inválidos');
+      if(!num||!cap) return mostrarNotificacion("Datos inválidos", false);
       if(editId) {
         mesas = mesas.map(m=> m.id==editId ? {...m,numero:num,capacidad:cap} : m );
       } else {
         const id = Date.now();
-        mesas.push({ id, numero:num, capacidad:cap, estado:'disponible', subs:[{ id:1, name:'General', cart:[] }] });
+        mesas.push({ 
+          id, 
+          numero:num, 
+          capacidad:cap, 
+          estado:'disponible', 
+          subs:[{ id:1, name:'General', cart:[] }] 
+        });
       }
       persistMesas();
       cerrarModalMesa();
@@ -389,6 +1240,7 @@
       subActiva = m.subs[0].name;
       renderSubcuentas();
       renderPedido();
+      document.getElementById('clientes-activos').textContent = mesas.filter(m => m.estado === 'ocupada').length;
     }
     function volverAMesas() {
       document.getElementById('menu-view').classList.add('hidden');
@@ -396,20 +1248,28 @@
     }
 
     // ---------- Renderizado Menú y Productos ----------
-    function renderMenu() {
-      renderProductos();
-    }
     function renderProductos() {
+      // Filtrar productos por categoría seleccionada
+      const productosFiltrados = categoriaSeleccionada 
+        ? recetas.filter(r => r.categoria === categoriaSeleccionada)
+        : recetas;
+      
       const c = document.getElementById('productos-container');
-      c.innerHTML = recetas.map(r=>`
-        <div class="producto" onclick="agregarProd('${r.codigo}')">
-          ${r.imagen
-            ? `<img src="${r.imagen}" style="width:40px;height:40px;">`
-            : `<i class="fas fa-utensils fa-2x mb-2"></i>`}
-          <div class="producto-name">${r.nombre}</div>
-          <div class="producto-price">$${r.precio.toFixed(2)}</div>
-        </div>
-      `).join('');
+      c.innerHTML = productosFiltrados.length === 0
+        ? '<p class="text-center py-4">No hay productos en esta categoría</p>'
+        : productosFiltrados.map(r => `
+            <div class="producto" onclick="agregarProd('${r.codigo}')">
+              <div class="producto-img-container">
+                ${r.imagen
+                  ? `<img src="${r.imagen}" alt="${r.nombre}">`
+                  : `<i class="fas fa-utensils fa-3x" style="color:#ddd;"></i>`}
+              </div>
+              <div class="producto-info">
+                <div class="producto-name">${r.nombre}</div>
+                <div class="producto-price">$${r.precio.toFixed(2)}</div>
+              </div>
+            </div>
+          `).join('');
     }
 
     // ---------- Subcuentas ----------
@@ -427,7 +1287,7 @@
     }
     function addSubcuenta() {
       const name = document.getElementById('input-nueva-subcuenta').value.trim();
-      if(!name) return alert('Nombre vacío');
+      if(!name) return mostrarNotificacion("Nombre vacío", false);
       const m = mesas.find(x=>x.id===mesaSel);
       m.subs.push({ id:Date.now(), name, cart:[] });
       document.getElementById('input-nueva-subcuenta').value='';
@@ -441,19 +1301,32 @@
 
     // ---------- Pedido ----------
     function agregarProd(codigo) {
-      const m = mesas.find(x=>x.id===mesaSel);
-      const r = recetas.find(x=>String(x.codigo)===String(codigo));
-      if(!r) return alert('Producto no encontrado');
+      const m = mesas.find(x => x.id === mesaSel);
+      const r = recetas.find(x => String(x.codigo) === String(codigo));
+      if (!r) return mostrarNotificacion("Producto no encontrado", false);
       const nota = document.getElementById('input-nota').value.trim() || null;
-      let sub = m.subs.find(s=>s.name===subActiva);
-      if(!sub) return;
-      const exist = sub.cart.find(i=>i.codigo===r.codigo && i.nota===nota);
-      if(exist) exist.qty++;
-      else sub.cart.push({ codigo:r.codigo, nombre:r.nombre, precio:r.precio, qty:1, nota });
-      document.getElementById('input-nota').value='';
+      let sub = m.subs.find(s => s.name === subActiva);
+      if (!sub) return;
+      
+      // SOLUCIÓN AL PROBLEMA DE IMPRESIÓN
+      // En lugar de incrementar un ítem existente, creamos siempre un nuevo ítem
+      // para evitar problemas al reimprimir
+      sub.cart.push({ 
+        id: Date.now().toString() + Math.floor(Math.random() * 1000).toString(),
+        codigo: r.codigo, 
+        nombre: r.nombre, 
+        precio: r.precio, 
+        qty: 1, 
+        nota,
+        printed: false // Nuevo producto, no impreso
+      });
+      
+      document.getElementById('input-nota').value = '';
       persistMesas();
       renderPedido();
+      mostrarNotificacion(`${r.nombre} agregado a ${subActiva}`, true);
     }
+    
     function renderPedido() {
       const m = mesas.find(x => x.id === mesaSel);
       // Incluimos el nombre de la subcuenta en cada ítem
@@ -464,15 +1337,25 @@
           : items.map((i, idx) => `
             <div class="pedido-item${i.canceled ? ' canceled' : ''}">
               <div class="pedido-item-info">
-                <div class="pedido-item-name">${i.nombre}</div>
+                <div class="pedido-item-name">${i.nombre} 
+                  ${i.printed ? '<span class="printed-indicator">(Impreso)</span>' : '<span class="reprint-indicator">(No impreso)</span>'}
+                </div>
                 <div class="pedido-item-sub">Subcuenta: ${i.subName}</div>
                 ${i.nota ? `<div class="pedido-item-note">Nota: ${i.nota}</div>` : ''}
+                <div class="print-status">
+                  ${i.printed ? 'Impreso' : 'Pendiente de impresión'}
+                </div>
               </div>
               <div class="pedido-item-actions">
                 <button class="btn btn-sm btn-outline" onclick="modifyQuantity(${idx}, -1)"><i class="fas fa-minus"></i></button>
                 <div class="pedido-item-quantity">${i.qty}</div>
                 <button class="btn btn-sm btn-outline" onclick="modifyQuantity(${idx}, 1)"><i class="fas fa-plus"></i></button>
-                <button class="btn btn-sm btn-outline" onclick="toggleCancel(${idx})">${i.canceled ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-times"></i>'}</button>
+                <div class="print-controls">
+                  <button class="reprint-btn" onclick="reimprimirItem('${i.id}')" title="Reimprimir">
+                    <i class="fas fa-print"></i> Reimprimir
+                  </button>
+                  <button class="btn btn-sm btn-outline" onclick="toggleCancel(${idx})">${i.canceled ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-times"></i>'}</button>
+                </div>
               </div>
             </div>
           `).join('');
@@ -498,8 +1381,140 @@
       persistMesas();
       renderPedido();
     }
+    
+    function limpiarPedido() {
+      if (!confirm('¿Está seguro que desea limpiar todo el pedido?')) return;
+      
+      const m = mesas.find(x => x.id === mesaSel);
+      m.subs.forEach(sub => {
+        sub.cart = [];
+      });
+      
+      persistMesas();
+      renderPedido();
+      mostrarNotificacion("Pedido limpiado", true);
+    }
 
-    // ---------- Modal de Cobro Reutilizable ----------
+    // ---------- Sistema de impresión de comanderas ----------
+    function imprimirComandera() {
+      const m = mesas.find(x => x.id === mesaSel);
+      if (!m) return;
+      
+      comanderaItems = [];
+      
+      // Recopilar todos los productos no impresos de todas las subcuentas
+      m.subs.forEach(sub => {
+        sub.cart.forEach(item => {
+          if (!item.printed && !item.canceled) {
+            comanderaItems.push({
+              ...item,
+              subName: sub.name
+            });
+          }
+        });
+      });
+      
+      if (comanderaItems.length === 0) {
+        mostrarNotificacion("No hay productos nuevos para imprimir", false);
+        return;
+      }
+      
+      // Mostrar vista previa de comandera
+      document.getElementById('comandera-mesa').textContent = m.numero;
+      const now = new Date();
+      document.getElementById('comandera-fecha').textContent = now.toLocaleDateString('es-ES');
+      document.getElementById('comandera-hora').textContent = now.toLocaleTimeString('es-ES');
+      
+      // Agrupar por subcuenta
+      const itemsPorSubcuenta = {};
+      comanderaItems.forEach(item => {
+        if (!itemsPorSubcuenta[item.subName]) {
+          itemsPorSubcuenta[item.subName] = [];
+        }
+        itemsPorSubcuenta[item.subName].push(item);
+      });
+      
+      let comanderaHTML = '';
+      Object.keys(itemsPorSubcuenta).forEach(subName => {
+        comanderaHTML += `<div class="comandera-subcuenta">Subcuenta: ${subName}</div>`;
+        itemsPorSubcuenta[subName].forEach(item => {
+          comanderaHTML += `
+            <div class="comandera-item">
+              <div>${item.nombre} x ${item.qty}</div>
+              ${item.nota ? `<div class="comandera-note">Nota: ${item.nota}</div>` : ''}
+            </div>
+          `;
+        });
+      });
+      
+      document.getElementById('comandera-items-container').innerHTML = comanderaHTML;
+      document.getElementById('comandera-preview').classList.remove('hidden');
+    }
+    
+    function reimprimirItem(id) {
+      const m = mesas.find(x => x.id === mesaSel);
+      if (!m) return;
+      
+      // Buscar el ítem en todas las subcuentas
+      for (const sub of m.subs) {
+        const item = sub.cart.find(i => i.id === id);
+        if (item && !item.canceled) {
+          comanderaItems = [{
+            ...item,
+            subName: sub.name
+          }];
+          
+          // Mostrar vista previa de comandera
+          document.getElementById('comandera-mesa').textContent = m.numero;
+          const now = new Date();
+          document.getElementById('comandera-fecha').textContent = now.toLocaleDateString('es-ES');
+          document.getElementById('comandera-hora').textContent = now.toLocaleTimeString('es-ES');
+          
+          document.getElementById('comandera-items-container').innerHTML = `
+            <div class="comandera-subcuenta">Subcuenta: ${sub.name}</div>
+            <div class="comandera-item">
+              <div>${item.nombre} x ${item.qty}</div>
+              ${item.nota ? `<div class="comandera-note">Nota: ${item.nota}</div>` : ''}
+            </div>
+          `;
+          
+          document.getElementById('comandera-preview').classList.remove('hidden');
+          return;
+        }
+      }
+      
+      mostrarNotificacion("Producto no encontrado", false);
+    }
+    
+    function cerrarComanderaPreview() {
+      document.getElementById('comandera-preview').classList.add('hidden');
+    }
+    
+    function imprimirComanderaReal() {
+      // Simulación de impresión
+      const m = mesas.find(x => x.id === mesaSel);
+      if (!m) return;
+      
+      // Marcar los productos como impresos
+      comanderaItems.forEach(comItem => {
+        for (const sub of m.subs) {
+          const item = sub.cart.find(i => i.id === comItem.id);
+          if (item) {
+            item.printed = true;
+          }
+        }
+      });
+      
+      persistMesas();
+      renderPedido();
+      cerrarComanderaPreview();
+      mostrarNotificacion("Comandera enviada a impresión", true);
+      
+      // En un entorno real, aquí se enviaría a la impresora
+      // window.print(); // Para impresión real del navegador
+    }
+
+    // ---------- Modal de Cobro ----------
     function iniciarCobro(tipo, e = null, nombreSubcuenta = null) {
       if (e) e.stopPropagation();
       
@@ -540,17 +1555,13 @@
       const container = document.getElementById('cobro-items-container');
       container.innerHTML = items.map(i => {
         const subtotal = (i.precio * i.qty).toFixed(2);
-        return `<li>${i.nombre} x${i.qty} — $${subtotal}</li>`;
+        return `<li>${i.nombre} <span>x${i.qty}</span> <span>$${subtotal}</span></li>`;
       }).join('');
       
       const total = items.reduce((sum, i) => sum + i.precio * i.qty, 0).toFixed(2);
       document.getElementById('cobro-total').textContent = `$${total}`;
       
       // Mostrar modal
-      mostrarModalCobro();
-    }
-    
-    function mostrarModalCobro() {
       document.getElementById('modal-cobro').classList.remove('hidden');
     }
     
@@ -616,13 +1627,15 @@
       renderMesas();
       renderSubcuentas();
       renderPedido();
+      document.getElementById('clientes-activos').textContent = mesas.filter(m => m.estado === 'ocupada').length;
     }
     
     function eliminarMesaCompleta(mesa) {
       mesas = mesas.filter(x => x.id !== mesa.id);
       persistMesas();
-      renderMesas();
+      renderMesas(); 
       volverAMesas();
+      document.getElementById('clientes-activos').textContent = mesas.filter(m => m.estado === 'ocupada').length;
     }
 
     // ---------- Reloj y notificaciones ----------
@@ -645,8 +1658,23 @@
       }, 3000);
     }
 
-    // ---------- Teclado Virtual ----------
-    // (Implementación existente)
+    // Datos de ejemplo para demostración
+    document.addEventListener('DOMContentLoaded', function() {
+      // Crear mesas de ejemplo si no hay ninguna
+      if (mesas.length === 0) {
+        mesas = [];
+        persistMesas();
+        renderMesas();
+      }
+      
+      // Productos de ejemplo
+      if (recetas.length === 0) {
+        recetas = [];
+        categorias = [...new Set(recetas.map(r => r.categoria))].filter(c => c).sort();
+        renderCategorias();
+        renderProductos();
+      }
+    });
   </script>
 </body>
 </html>
