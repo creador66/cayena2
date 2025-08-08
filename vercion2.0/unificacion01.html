@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -370,6 +371,8 @@ gap: 8px;
     
     /* FORMULARIOS */
     .form-group {
+      display: flex;
+      gap: 5px;
       margin-bottom: 18px;
     }
     
@@ -919,7 +922,7 @@ gap: 3px;
     /* MEJORAS PARA EL FORMULARIO DE VENTAS */
     .sale-form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+ 
       gap: 15px;
     }
     
@@ -993,6 +996,96 @@ gap: 3px;
      grid-template-columns: repeat(2, 1fr);
      gap: 8px;
    }
+
+
+
+
+
+
+
+
+
+
+
+   .resumen-contenedor {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+  background: #f7f9fc;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  font-family: Arial, sans-serif;
+}
+
+/* Contenedor de listas */
+.resumen-listContenedor {
+
+  display: flex;
+ 
+  gap: 15px;
+}
+
+.resumen-section {
+
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  height: 200px;
+  overflow-X: auto;
+}
+
+.resumen-section h5 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.resumen-list{
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Resumen general */
+.resumen-general {
+  flex: 1 1 300px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.resumen-general h5 {
+  margin: 0 0 15px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.resumen-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.resumen-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f4f6f9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+.resumen-item span:last-child {
+  font-weight: bold;
+  color: #111;
+}
+
   </style>
 </head>
 <body>
@@ -1022,6 +1115,51 @@ gap: 3px;
       <div>Total<br><span id="sum-total">0.00</span></div>
     </div>
   </header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   <!-- SECCIONES -->
   <main>
@@ -1156,6 +1294,17 @@ gap: 3px;
       <div id="stock-list" class="list"></div>
     </section>
 
+
+
+
+
+
+
+
+
+
+    
+
     <!-- BALANCES -->
     <section id="balances" class="section">
       <div class="justify-between">
@@ -1234,7 +1383,74 @@ gap: 3px;
           Tarjeta
         </button>
       </div>
-      
+      <div class="resumen-contenedor">
+
+        <div class="resumen-listContenedor">
+        <!-- Sección de clientes -->
+        <div class="resumen-section">
+          <h5>Total por Cliente</h5>
+          <div id="resumen-clientes" class="resumen-list"></div>
+        </div>
+        
+        <!-- Sección de vendedores -->
+        <div class="resumen-section">
+          <h5>Total por Vendedor</h5>
+          <div id="resumen-vendedores" class="resumen-list"></div>
+        </div>
+        
+        <!-- Sección de descuentos -->
+        <div class="resumen-section">
+          <h5>Descuentos por Porcentaje</h5>
+          <div id="resumen-descuentos" class="resumen-list"></div>
+        </div>
+        </div>
+        
+        
+        
+        <!-- Resumen general -->
+        <div class="resumen-general">
+          <h5>Resumen General</h5>
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <span>Total Ventas:</span>
+              <span id="resumen-total-ventas">0</span>
+            </div>
+            <div class="resumen-item">
+              <span>Total Productos:</span>
+              <span id="resumen-total-productos">0</span>
+            </div>
+            <div class="resumen-item">
+              <span>Total General:</span>
+              <span id="resumen-total-general">0.00</span>
+            </div>
+            <div class="resumen-item">
+              <span>Total Descuentos:</span>
+              <span id="resumen-total-descuentos">0.00</span>
+            </div>
+            <div class="resumen-item">
+              <span>Clientes Diferentes:</span>
+              <span id="resumen-total-clientes">0</span>
+            </div>
+            <div class="resumen-item">
+              <span>Vendedores Diferentes:</span>
+              <span id="resumen-total-vendedores">0</span>
+            </div>
+          </div>
+        </div>
+        
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+        
       <!-- Filtros Balances -->
       <div class="filter-section">
         <div class="filter-header" onclick="toggleFilter('balances')">
@@ -1339,16 +1555,30 @@ gap: 3px;
           
           <div class="sale-form-grid">
             <div class="form-group">
-              <label class="form-label">Fecha</label>
+              <label class="form-label">Fecha
               <input class="form-input" type="date" id="form-fecha">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Método de Pago</label>
+            </label>
+              <label class="form-label">Método de Pago
               <select class="form-select" id="form-pago">
                 <option>Efectivo</option>
                 <option>Transferencia</option>
                 <option>Tarjeta</option>
               </select>
+            </label>
+            </div>
+         
+            <div class="form-group">
+          <label class="form-label">codigo del vendedor
+          <input class="form-input" id="form-vendedor">
+          </label>
+          <label class="form-label">codigo del cliente
+          <input class="form-input" id="form-cliente">
+          </label>
+          <label class="form-label">descuento
+           <input class="form-input" id="form-descuento">
+          </label>
+        
+    
             </div>
           </div>
           
@@ -1430,23 +1660,27 @@ gap: 3px;
           
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Código</label>
+              <label class="form-label">Código
               <input class="form-input" id="receta-codigo" type="text" placeholder="Ej: R001">
+            </label>
             </div>
             <div class="form-group">
-              <label class="form-label">Nombre</label>
+              <label class="form-label">Nombre
               <input class="form-input" id="receta-nombre" type="text" placeholder="Nombre receta">
+            </label>
             </div>
           </div>
           
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Categoría</label>
+              <label class="form-label">Categoría
               <select class="form-select" id="receta-categoria"></select>
+            </label>
             </div>
             <div class="form-group">
-              <label class="form-label">Imagen (URL)</label>
+              <label class="form-label">Imagen (URL)
               <input class="form-input" id="receta-imagen" type="text" placeholder="http://...">
+            </label>
             </div>
           </div>
           
@@ -1535,6 +1769,12 @@ gap: 3px;
       <i class="fas fa-scale-balanced"></i> Balances
     </button>
   </nav>
+
+
+
+
+
+
 
   <!-- MODAL REUTILIZABLE -->
   <div id="modal-backdrop" class="modal-backdrop" style="display:none;">
@@ -2561,7 +2801,54 @@ function cambiarSeccion(sec) {
   window.scrollTo(0, 0);
 }
 
-// VENTAS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// VENTAS SECCION
+// ===================== FUNCIÓN AUXILIAR NUEVA =====================
+function getSaleBreakdown(v) {
+    const subtotal = v.venta.reduce((sum, item) => sum + Number(item.total), 0);
+    let discountPercentage = 0;
+    if (v.codigosdeventa && v.codigosdeventa.length > 0) {
+        discountPercentage = parseFloat(v.codigosdeventa[0].descuento) || 0;
+    }
+    const discountAmount = subtotal * discountPercentage / 100;
+    const total = subtotal - discountAmount;
+    return { subtotal, discountPercentage, discountAmount, total };
+}
+
 function crearItemRow(cod = '', cant = '', tot = '') {
   const row = document.createElement('div');
   row.className = 'sale-item';
@@ -2606,9 +2893,14 @@ function renderTicketCard(v) {
        <div>$${it.total}</div>
      </div>`
   ).join('');
-  const total = v.venta
-    .reduce((sum, i) => sum + Number(i.total), 0)
-    .toFixed(2);
+  const codigosDeventas = v.codigosdeventa.map(it2 =>
+    `<div class="card-row">
+       <div>Cliente${it2.cliente}, Vendedor${it2.empleado}, Descuento%${it2.descuento}</div>
+     </div>`
+  ).join('');
+
+  // CALCULAR DESCUENTOS Y TOTALES (MODIFICADO)
+  const { subtotal, discountPercentage, discountAmount, total } = getSaleBreakdown(v);
 
   const item = document.createElement('div');
   item.className = 'list-item';
@@ -2619,7 +2911,7 @@ function renderTicketCard(v) {
       <div class="list-subtitle">${v.venta.length} productos</div>
     </div>
     <div>
-      <div class="list-title">$${total}</div>
+      <div class="list-title">$${total.toFixed(2)}</div> <!-- Total con descuento -->
     </div>
   `;
   item.addEventListener('click', () => {
@@ -2637,10 +2929,22 @@ function renderTicketCard(v) {
           <div class="card-value">${v.metodoPago}</div>
         </div>
         ${itemsHtml}
+        ${codigosDeventas} 
+        
+        <!-- SECCIÓN DE DESCUENTOS AÑADIDA -->
+        <div class="card-row">
+          <div class="card-label">Subtotal</div>
+          <div class="card-value">$${subtotal.toFixed(2)}</div>
+        </div>
+        <div class="card-row">
+          <div class="card-label">Descuento (${discountPercentage}%)</div>
+          <div class="card-value">$${discountAmount.toFixed(2)}</div>
+        </div>
         <div class="card-row">
           <div class="card-label">Total</div>
-          <div class="card-value">$${total}</div>
+          <div class="card-value">$${total.toFixed(2)}</div>
         </div>
+        
         <div class="div2">
           <button class="btn btn-primary"
                   onclick='startEdit(${JSON.stringify(v)})'>
@@ -2682,14 +2986,29 @@ function startEdit(v) {
   document.getElementById('form-fecha').value =
     new Date(v.fecha).toISOString().slice(0,10);
   document.getElementById('form-pago').value = v.metodoPago;
+
   const cont = document.getElementById('items-container');
   cont.innerHTML = '';
-  v.venta.forEach(itm =>
+  (v.venta || []).forEach(itm =>
     cont.append(crearItemRow(itm.codigo, itm.cantidad, itm.total))
   );
-  modal.backdrop.style.display = 'none';
+
+  // --- AÑADIDO: rellenar 3 inputs si existen ---
+  const firstCode = Array.isArray(v.codigosdeventa) && v.codigosdeventa.length ? v.codigosdeventa[0] : null;
+  if (firstCode) {
+    const clienteEl = document.getElementById('form-cliente');
+    const vendedorEl = document.getElementById('form-vendedor');
+    const descuentoEl = document.getElementById('form-descuento');
+
+    if (clienteEl && firstCode.cliente !== undefined) clienteEl.value = firstCode.cliente;
+    if (vendedorEl && firstCode.empleado !== undefined) vendedorEl.value = firstCode.empleado;
+    if (descuentoEl && firstCode.descuento !== undefined) descuentoEl.value = firstCode.descuento;
+  }
+
+  if (modal && modal.backdrop) modal.backdrop.style.display = 'none';
   cambiarSeccion('ventas');
 }
+
 
 function resetForm() {
   document.getElementById('form-id').value = '';
@@ -2697,24 +3016,138 @@ function resetForm() {
     new Date().toISOString().slice(0,10);
   document.getElementById('form-pago').value = 'Efectivo';
   document.getElementById('items-container').innerHTML = '';
+  document.getElementById('form-cliente').value = '';
+  document.getElementById('form-vendedor').value = '';
+  document.getElementById('form-descuento').value = '';
 }
 
 function actualizarResumen(vs) {
+  // Totales por método de pago
   let e = 0, t = 0, ta = 0;
+  
+  // Acumuladores para clientes, vendedores y descuentos
+  const clientes = {};
+  const vendedores = {};
+  const descuentosPorcentaje = {};
+  let totalDescuentos = 0;
+  let totalGeneral = 0;
+  let totalVentas = vs.length;
+  let totalProductos = 0;
+
   vs.forEach(v => {
-    const subtotal = v.venta.reduce((sum, i) => sum + Number(i.total), 0);
-    if (v.metodoPago === 'Efectivo') e += subtotal;
-    else if (v.metodoPago === 'Transferencia') t += subtotal;
-    else ta += subtotal;
+    const { discountAmount, discountPercentage, total } = getSaleBreakdown(v);
+    totalDescuentos += discountAmount;
+    totalGeneral += total;
+
+    // Acumular por método de pago
+    if (v.metodoPago === 'Efectivo') e += total;
+    else if (v.metodoPago === 'Transferencia') t += total;
+    else ta += total;
+
+    // Obtener datos de cliente y vendedor
+    const codigos = v.codigosdeventa || [];
+    const cliente = codigos.length > 0 ? codigos[0].cliente : 'Sin cliente';
+    const vendedor = codigos.length > 0 ? codigos[0].empleado : 'Sin vendedor';
+
+    // Acumular por cliente
+    clientes[cliente] = (clientes[cliente] || 0) + total;
+    
+    // Acumular por vendedor
+    vendedores[vendedor] = (vendedores[vendedor] || 0) + total;
+    
+    // Acumular por porcentaje de descuento
+    if (discountPercentage > 0) {
+      const porcentajeKey = `${discountPercentage}%`;
+      descuentosPorcentaje[porcentajeKey] = (descuentosPorcentaje[porcentajeKey] || 0) + discountAmount;
+    }
+    
+    // Calcular total de productos vendidos
+    v.venta.forEach(item => {
+      totalProductos += parseInt(item.cantidad) || 0;
+    });
   });
+
+  // Calcular totales para cada sección
+  const totalClientes = Object.values(clientes).reduce((sum, val) => sum + val, 0);
+  const totalVendedores = Object.values(vendedores).reduce((sum, val) => sum + val, 0);
+  const totalDescuentosPorcentaje = Object.values(descuentosPorcentaje).reduce((sum, val) => sum + val, 0);
+
+  // Actualizar totales por método de pago
   document.getElementById('sum-efectivo').textContent = e.toFixed(2);
   document.getElementById('sum-transferencia').textContent = t.toFixed(2);
   document.getElementById('sum-tarjeta').textContent = ta.toFixed(2);
-  document.getElementById('sum-total').textContent = (e + t + ta).toFixed(2);
+  document.getElementById('sum-total').textContent = totalGeneral.toFixed(2);
+
+  // Actualizar lista de clientes con total
+  const clientesList = document.getElementById('resumen-clientes');
+  clientesList.innerHTML = '';
+  for (const [cliente, total] of Object.entries(clientes)) {
+    const item = document.createElement('div');
+    item.className = 'resumen-item';
+    item.innerHTML = `<span>${cliente}</span><span>$${total.toFixed(2)}</span>`;
+    clientesList.appendChild(item);
+  }
+  // Total clientes
+  const totalClientesItem = document.createElement('div');
+  totalClientesItem.className = 'resumen-total';
+  totalClientesItem.innerHTML = `<span><strong>Total Clientes</strong></span><span><strong>$${totalClientes.toFixed(2)}</strong></span>`;
+  clientesList.appendChild(totalClientesItem);
+
+  // Actualizar lista de vendedores con total
+  const vendedoresList = document.getElementById('resumen-vendedores');
+  vendedoresList.innerHTML = '';
+  for (const [vendedor, total] of Object.entries(vendedores)) {
+    const item = document.createElement('div');
+    item.className = 'resumen-item';
+    item.innerHTML = `<span>${vendedor}</span><span>$${total.toFixed(2)}</span>`;
+    vendedoresList.appendChild(item);
+  }
+  // Total vendedores
+  const totalVendedoresItem = document.createElement('div');
+  totalVendedoresItem.className = 'resumen-total';
+  totalVendedoresItem.innerHTML = `<span><strong>Total Vendedores</strong></span><span><strong>$${totalVendedores.toFixed(2)}</strong></span>`;
+  vendedoresList.appendChild(totalVendedoresItem);
+
+  // Actualizar lista de descuentos por porcentaje con total
+  const descuentosList = document.getElementById('resumen-descuentos');
+  descuentosList.innerHTML = '';
+  for (const [porcentaje, total] of Object.entries(descuentosPorcentaje)) {
+    const item = document.createElement('div');
+    item.className = 'resumen-item';
+    item.innerHTML = `<span>${porcentaje}</span><span>$${total.toFixed(2)}</span>`;
+    descuentosList.appendChild(item);
+  }
+  // Total descuentos
+  const totalDescuentosItem = document.createElement('div');
+  totalDescuentosItem.className = 'resumen-total';
+  totalDescuentosItem.innerHTML = `<span><strong>Total Descuentos</strong></span><span><strong>$${totalDescuentos.toFixed(2)}</strong></span>`;
+  descuentosList.appendChild(totalDescuentosItem);
+
+  // Actualizar resumen general
+  document.getElementById('resumen-total-ventas').textContent = totalVentas;
+  document.getElementById('resumen-total-productos').textContent = totalProductos;
+  document.getElementById('resumen-total-general').textContent = totalGeneral.toFixed(2);
+  document.getElementById('resumen-total-descuentos').textContent = totalDescuentos.toFixed(2);
+  document.getElementById('resumen-total-clientes').textContent = Object.keys(clientes).length;
+  document.getElementById('resumen-total-vendedores').textContent = Object.keys(vendedores).length;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 async function guardarVenta() {
   const fecha = document.getElementById('form-fecha').value;
+  const cliente = document.getElementById('form-cliente').value;
+  const vendedor = document.getElementById('form-vendedor').value;
+  const descuento = document.getElementById('form-descuento').value;
   const rows = document.querySelectorAll('#items-container .sale-item');
   if (!fecha) return await showAlert('Selecciona fecha');
   if (!rows.length) return await showAlert('Agrega al menos un producto');
@@ -2731,13 +3164,30 @@ async function guardarVenta() {
       total: Number(it.value) || 0
     };
   });
+  const codigosdeventa = [];
+  if (cliente || vendedor || descuento) {
+    codigosdeventa.push({
+      cliente: cliente,
+      empleado: vendedor,
+      descuento: descuento
+    });
+  }
+
+
+
+
+
+
+
+  
 
   const payload = {
     id: document.getElementById('form-id').value,
     fecha,
     metodoPago: document.getElementById('form-pago').value,
     venta: ventaItems,
-    items: ventaItems
+    items: ventaItems,
+    codigosdeventa: codigosdeventa  // Añadir esta línea
   };
 
   await postOpNotify('guardarVentas', { venta: JSON.stringify(payload) }, 'Venta guardada');
@@ -2797,6 +3247,473 @@ function resetVentasFilters() {
   document.getElementById('filter-ventas-indicator').textContent = '0';
   cargarVentas();
 }
+// VENTAS FIN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BALANCES - CORREGIDO
+// helper: convierte "$1,234.56" o "1,234.56" -> 1234.56
+function parseCurrency(str) {
+  if (str == null) return 0;
+  return parseFloat(String(str).replace(/\$/g, '').replace(/,/g, '').trim()) || 0;
+}
+
+// === loadBalances ===
+async function loadBalances() {
+  const res = await callApi({ op: 'obtenerBalances' });
+  if (res.status === 'success') {
+    balancesData = res.data || [];
+    filteredBalances = [];
+    renderBalancesTable();
+    // No override: calcula según los datos disponibles (usar filteredVentas si existe)
+    updateBalancesSummary();
+  }
+}
+
+// Calcula total de ventas. Si pasas ventasSource asumimos que YA está filtrada.
+// Si no pasas ventasSource, se usa filteredVentas (si existe) o ventData.
+function calculateSalesTotal(paymentFilter = 'todos', ventasSource = null) {
+  const source = Array.isArray(ventasSource) && ventasSource.length
+    ? ventasSource
+    : (Array.isArray(filteredVentas) && filteredVentas.length ? filteredVentas : (Array.isArray(ventData) ? ventData : []));
+
+  const sourceIsVentData = source === ventData;
+
+  return source.reduce((sum, v) => {
+    // Si la fuente es ventData (todas las ventas) y piden filtrar por metodo, aplicarlo
+    if (sourceIsVentData && paymentFilter !== 'todos' && v.metodoPago !== paymentFilter) return sum;
+
+    // Usar getSaleBreakdown si existe (para considerar descuentos), si no sumar items brutos
+    let ventaTotal = 0;
+    if (typeof getSaleBreakdown === 'function') {
+      try {
+        ventaTotal = Number(getSaleBreakdown(v).total || 0);
+      } catch (e) {
+        ventaTotal = v.venta.reduce((s, i) => s + Number(i.total || 0), 0);
+      }
+    } else {
+      ventaTotal = v.venta.reduce((s, i) => s + Number(i.total || 0), 0);
+    }
+
+    return sum + ventaTotal;
+  }, 0);
+}
+
+// Filtrar por método de pago — ahora usa los totales ya renderizados en el DOM
+function filterByPayment(payment) {
+  currentPaymentFilter = payment;
+
+  // Actualizar botones activos
+  document.querySelectorAll('.payment-filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.pago === payment) btn.classList.add('active');
+  });
+
+  // Leer los totales ya calculados en el DOM (sum-efectivo, sum-transferencia, sum-tarjeta, sum-total)
+  const efectivoEl = document.getElementById('sum-efectivo');
+  const transferenciaEl = document.getElementById('sum-transferencia');
+  const tarjetaEl = document.getElementById('sum-tarjeta');
+  const totalEl = document.getElementById('sum-total');
+
+  const efectivo = parseCurrency(efectivoEl?.textContent ?? efectivoEl?.value ?? '0');
+  const transferencia = parseCurrency(transferenciaEl?.textContent ?? transferenciaEl?.value ?? '0');
+  const tarjeta = parseCurrency(tarjetaEl?.textContent ?? tarjetaEl?.value ?? '0');
+  const total = parseCurrency(totalEl?.textContent ?? totalEl?.value ?? String(efectivo + transferencia + tarjeta));
+
+  // Decidir qué valor inyectar en la tarjeta "total-ventas"
+  let ventasValue = 0;
+  const p = String(payment || '').toLowerCase();
+  if (p === 'efectivo') ventasValue = efectivo;
+  else if (p === 'transferencia') ventasValue = transferencia;
+  else if (p === 'tarjeta') ventasValue = tarjeta;
+  else ventasValue = total; // 'todos' u otros
+
+  // Actualizar la tarjeta objetivo inmediatamente
+  const totalVentasEl = document.getElementById('total-ventas');
+  if (totalVentasEl) totalVentasEl.textContent = '$' + Number(ventasValue || 0).toFixed(2);
+
+  const filtroText = (payment === 'todos' || !payment) ? 'Todos los métodos' : `Solo ${payment}`;
+  const ventasFiltroEl = document.getElementById('ventas-filtro');
+  if (ventasFiltroEl) ventasFiltroEl.textContent = filtroText;
+
+  // Llamar a updateBalancesSummary pasando el override para que use este valor
+  if (typeof updateBalancesSummary === 'function') {
+    updateBalancesSummary(ventasValue);
+    // garantizar que el valor mostrado en la tarjeta no sea sobrescrito por la función
+    if (totalVentasEl) totalVentasEl.textContent = '$' + Number(ventasValue || 0).toFixed(2);
+  }
+}
+
+// updateBalancesSummary ahora acepta un override numérico para totalVentas (ventasOverride)
+// y/o una ventasSource (arreglo) para que no recalcules si ya tienes la fuente filtrada.
+function updateBalancesSummary(ventasOverride = null, ventasSource = null) {
+  const dataToRender = Array.isArray(filteredBalances) && filteredBalances.length ? filteredBalances : (Array.isArray(balancesData) ? balancesData : []);
+
+  // 1) Total de ventas según el filtro
+  // Si nos pasan ventasOverride usamos ese número (ya proviene del DOM).
+  // Si no, lo calculamos con calculateSalesTotal, pasando ventasSource si viene.
+  let totalVentas = 0;
+  if (typeof ventasOverride === 'number' && !isNaN(ventasOverride)) {
+    totalVentas = Number(ventasOverride);
+  } else {
+    totalVentas = calculateSalesTotal(currentPaymentFilter || 'todos', ventasSource);
+  }
+
+  // 2) Otros ingresos activos
+  const totalOtrosIngresos = (dataToRender || [])
+    .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
+    .reduce((sum, b) => sum + (parseFloat(b.monto) || 0), 0);
+
+  // 3) Otros gastos activos
+  const totalGastos = (dataToRender || [])
+    .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
+    .reduce((sum, b) => sum + (parseFloat(b.monto) || 0), 0);
+
+  // 4) Compras (gasto de inventario) — leer del DOM (evitamos recalcular)
+  const totalCompras = parseCurrency(document.getElementById('stat-purchases')?.textContent || document.getElementById('stat-purchases')?.value || '0');
+
+  // 5) Costo de surtir el almacén al 100%
+  const totalAlmacen = parseCurrency(document.getElementById('stat-restock')?.textContent || document.getElementById('stat-restock')?.value || '0');
+
+  // 6) Neto: ingresos menos gastos y compras
+  const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
+
+  // 7) Saldo con almacen
+  const saldoConAlmacen = totalNeto - totalAlmacen;
+
+  // 8) Formato con signo
+  const signo = saldoConAlmacen >= 0 ? '$' : '-$';
+  const valorFormateado = Math.abs(saldoConAlmacen).toFixed(2);
+
+  // Totales por categoría (sobre dataToRender)
+  const categoryTotals = (dataToRender || [])
+    .filter(b => b.estado === 'activo')
+    .reduce((acc, b) => {
+      const cat = b.categoria || 'Sin categoría';
+      acc[cat] = (acc[cat] || 0) + (parseFloat(b.monto) || 0);
+      return acc;
+    }, {});
+
+  const textoCategorias = Object.entries(categoryTotals)
+    .map(([cat, tot]) => `${cat}: $${tot.toFixed(2)}`)
+    .join(', ');
+
+  // — Actualización del DOM —
+  const el = id => document.getElementById(id);
+  if (el('total-ventas')) el('total-ventas').textContent = '$' + Number(totalVentas || 0).toFixed(2);
+  if (el('total-otros-ingresos')) el('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
+  if (el('total-gastos')) el('total-gastos').textContent = '$' + totalGastos.toFixed(2);
+  if (el('total-gastos-inventario')) el('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
+  if (el('total-neto')) el('total-neto').textContent = '$' + totalNeto.toFixed(2);
+  if (el('total-almacen')) el('total-almacen').textContent = signo + valorFormateado;
+  if (el('total-porCategoria')) el('total-porCategoria').textContent = textoCategorias;
+
+  const filtroText = (currentPaymentFilter === 'todos' || !currentPaymentFilter) ? 'Todos los métodos' : `Solo ${currentPaymentFilter}`;
+  if (el('ventas-filtro')) el('ventas-filtro').textContent = filtroText;
+}
+
+// === RENDER TABLE ===
+function renderBalancesTable() {
+  const list = document.getElementById('balances-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const dataToRender = Array.isArray(filteredBalances) && filteredBalances.length ? filteredBalances : (Array.isArray(balancesData) ? balancesData : []);
+
+  if (!dataToRender.length) {
+    list.innerHTML = `
+      <div class="no-results">
+        <i class="fas fa-scale-balanced"></i>
+        <h3>No se encontraron registros</h3>
+        <p>Intenta ajustar los filtros o agregar nuevos registros</p>
+      </div>
+    `;
+    return;
+  }
+
+  dataToRender.forEach(b => {
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <div>
+        <div class="list-title">${b.especificacion || 'Sin especificación'}</div>
+        <div class="list-subtitle">#${b.codigo} | ${b.categoria || ''} 
+          <span class="balance-type ${b.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
+            ${b.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'}
+          </span>
+        </div>
+        <div class="list-subtitle">
+          <span class="balance-status ${b.estado === 'activo' ? 'activo' : 'inactivo'}">
+            ${b.estado === 'activo' ? 'Activo' : 'Inactivo'}
+          </span>
+        </div>
+      </div>
+      <div>
+        <div class="list-title ${b.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
+          ${b.tipo === 'ingreso' ? '+' : '-'} $${(parseFloat(b.monto) || 0).toFixed(2)}
+        </div>
+      </div>
+    `;
+
+    item.addEventListener('click', () => {
+      const modalContent = document.createElement('div');
+      modalContent.innerHTML = `
+        <div class="card">
+          <div class="card-header">Editar Balance #${b.codigo}</div>
+          <div class="card-body">
+            <input type="hidden" id="balance-codigo" value="${b.codigo}">
+            <div class="form-group">
+              <label class="form-label">Monto</label>
+              <input type="number" class="form-input" id="balance-monto" value="${b.monto}" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Categoría</label>
+              <input type="text" class="form-input" id="balance-categoria" value="${b.categoria || ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo</label>
+              <select class="form-select" id="balance-tipo">
+                <option value="ingreso" ${b.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
+                <option value="deducible" ${b.tipo === 'deducible' ? 'selected' : ''}>Gasto</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="balance-estado">
+                <option value="activo" ${b.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                <option value="inactivo" ${b.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Especificación</label>
+              <input type="text" class="form-input" id="balance-especificacion" value="${b.especificacion || ''}">
+            </div>
+            <div class="div2">
+              <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+              <button class="btn btn-danger" onclick="deleteBalance('${b.codigo}')">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.show({
+        title: 'Editar Balance',
+        message: modalContent.innerHTML
+      });
+    });
+
+    list.appendChild(item);
+  });
+}
+
+// === FILTROS / CRUD ===
+function applyBalancesFilters() {
+  const search = (document.getElementById('filter-balances-search')?.value || '').toLowerCase();
+  const categoria = (document.getElementById('filter-balances-categoria')?.value || '').toLowerCase();
+  const estado = document.getElementById('filter-balances-estado')?.value || '';
+
+  balancesFilters = { search, categoria, estado };
+
+  balancesData = balancesData || [];
+  filteredBalances = balancesData.filter(b => {
+    if (search && !( (b.especificacion || '').toLowerCase().includes(search) || String(b.codigo).includes(search) )) return false;
+    if (categoria && !((b.categoria || '').toLowerCase().includes(categoria))) return false;
+    if (estado && b.estado !== estado) return false;
+    return true;
+  });
+
+  const filterCount = Object.values(balancesFilters).filter(f => f).length;
+  const indicator = document.getElementById('filter-balances-indicator');
+  if (indicator) indicator.textContent = filterCount;
+
+  renderBalancesTable();
+  // No override: recalcula ventas segun la fuente disponible
+  updateBalancesSummary();
+}
+
+function resetBalancesFilters() {
+  if (document.getElementById('filter-balances-search')) document.getElementById('filter-balances-search').value = '';
+  if (document.getElementById('filter-balances-categoria')) document.getElementById('filter-balances-categoria').value = '';
+  if (document.getElementById('filter-balances-estado')) document.getElementById('filter-balances-estado').value = '';
+  balancesFilters = {};
+  filteredBalances = [];
+  const indicator = document.getElementById('filter-balances-indicator');
+  if (indicator) indicator.textContent = '0';
+  renderBalancesTable();
+  updateBalancesSummary();
+}
+
+function addNewBalance() {
+  const newBalance = {
+    codigo: Date.now(),
+    monto: 0,
+    categoria: '',
+    tipo: 'deducible',
+    estado: 'activo',
+    especificacion: 'Nuevo registro'
+  };
+  balancesData = balancesData || [];
+  balancesData.push(newBalance);
+  renderBalancesTable();
+
+  const modalContent = document.createElement('div');
+  modalContent.innerHTML = `
+    <div class="card">
+      <div class="card-header">Nuevo Balance</div>
+      <div class="card-body">
+        <input type="hidden" id="balance-codigo" value="${newBalance.codigo}">
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input type="number" class="form-input" id="balance-monto" value="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <input type="text" class="form-input" id="balance-categoria" placeholder="Categoría">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-select" id="balance-tipo">
+            <option value="ingreso">Ingreso</option>
+            <option value="deducible" selected>Gasto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <select class="form-select" id="balance-estado">
+            <option value="activo" selected>Activo</option>
+            <option value="inactivo">Inactivo</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Especificación</label>
+          <input type="text" class="form-input" id="balance-especificacion" placeholder="Descripción">
+        </div>
+        <div class="div2">
+          <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
+          <button class="btn btn-outline" onclick="modal.backdrop.style.display='none'">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.show({
+    title: 'Nuevo Balance',
+    message: modalContent.innerHTML
+  });
+}
+
+async function saveBalance() {
+  const codigo = document.getElementById('balance-codigo')?.value;
+  const monto = parseFloat(document.getElementById('balance-monto')?.value);
+  const categoria = document.getElementById('balance-categoria')?.value || '';
+  const tipo = document.getElementById('balance-tipo')?.value || 'deducible';
+  const estado = document.getElementById('balance-estado')?.value || 'activo';
+  const especificacion = document.getElementById('balance-especificacion')?.value || '';
+
+  if (isNaN(monto) || monto <= 0) {
+    return showAlert('El monto debe ser un número positivo');
+  }
+
+  const params = { codigo, monto, categoria, tipo, estado, especificacion };
+
+  await postOpNotify('guardarBalances', params, 'Balance guardado');
+  await loadBalances();
+}
+
+async function deleteBalance(codigo) {
+  const ok = await showConfirm('¿Eliminar este registro?');
+  if (!ok) return;
+  await postOpNotify('eliminarBalances', { codigo }, 'Registro eliminado');
+  await loadBalances();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // RECETAS
 async function fetchRecetas() {
@@ -3153,329 +4070,8 @@ function toggleFilter(section) {
   }
 }
 
-// BALANCES - CORREGIDO
-async function loadBalances() {
-  const res = await callApi({ op: 'obtenerBalances' });
-  if (res.status === 'success') {
-    balancesData = res.data;
-    filteredBalances = [];
-    renderBalancesTable();
-    updateBalancesSummary();
-  }
-}
 
-// Calcular total de ventas con filtros
-function calculateSalesTotal(paymentFilter = 'todos') {
-  let total = 0;
-  
-  if (paymentFilter === 'todos') {
-    total = ventData.reduce((sum, v) => 
-      sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
-  } else {
-    total = ventData
-      .filter(v => v.metodoPago === paymentFilter)
-      .reduce((sum, v) => 
-        sum + v.venta.reduce((s, i) => s + Number(i.total), 0), 0);
-  }
-  
-  return total;
-}
 
-// Filtrar por método de pago
-function filterByPayment(payment) {
-  currentPaymentFilter = payment;
-  
-  // Actualizar botones activos
-  document.querySelectorAll('.payment-filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-    if (btn.dataset.pago === payment) {
-      btn.classList.add('active');
-    }
-  });
-  
-  updateBalancesSummary();
-}
-
-function updateBalancesSummary() {
-  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
-  
-  // 1) Total de ventas según el filtro
-  const totalVentas = calculateSalesTotal(currentPaymentFilter);
-  
-  // 2) Otros ingresos activos
-  const totalOtrosIngresos = dataToRender
-    .filter(b => b.estado === 'activo' && b.tipo === 'ingreso')
-    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-  
-  // 3) Otros gastos activos
-  const totalGastos = dataToRender
-    .filter(b => b.estado === 'activo' && b.tipo === 'deducible')
-    .reduce((sum, b) => sum + parseFloat(b.monto), 0);
-  
-  // 4) Compras (gasto de inventario)
-  const totalCompras = parseFloat(
-    document.getElementById('stat-purchases').textContent || '0'
-  );
-  
-  // 5) Costo de surtir el almacén al 100%
-  const totalAlmacen = parseFloat(
-    document.getElementById('stat-restock').textContent || '0'
-  );
-  
-  // 6) Neto: ingresos menos gastos y compras
-  const totalNeto = totalVentas + totalOtrosIngresos - totalGastos - totalCompras;
-  
-  // 7) CORRECCIÓN: Cálculo simplificado
-  const saldoConAlmacen = totalNeto - totalAlmacen;
-  
-  // 8) Formato con signo
-  const signo = saldoConAlmacen >= 0 ? '$' : '-$';
-  const valorFormateado = Math.abs(saldoConAlmacen).toFixed(2);
-  
-  // === BLOQUE AÑADIDO: Totales por categoría ===
-  const categoryTotals = dataToRender
-    .filter(b => b.estado === 'activo')
-    .reduce((acc, b) => {
-      const cat = b.categoria || 'Sin categoría';
-      acc[cat] = (acc[cat] || 0) + parseFloat(b.monto);
-      return acc;
-    }, {});
-  
-  const textoCategorias = Object.entries(categoryTotals)
-    .map(([cat, tot]) => `${cat}: $${tot.toFixed(2)}`)
-    .join(', ');
-  // === FIN DEL BLOQUE AÑADIDO ===
-  
-  // —————— Actualización del DOM ——————
-  document.getElementById('total-ventas').textContent = '$' + totalVentas.toFixed(2);
-  document.getElementById('total-otros-ingresos').textContent = '$' + totalOtrosIngresos.toFixed(2);
-  document.getElementById('total-gastos').textContent = '$' + totalGastos.toFixed(2);
-  document.getElementById('total-gastos-inventario').textContent = '$' + totalCompras.toFixed(2);
-  document.getElementById('total-neto').textContent = '$' + totalNeto.toFixed(2);
-  document.getElementById('total-almacen').textContent = signo + valorFormateado;
-  
-  // Añadimos la actualización del elemento de categorías
-  document.getElementById('total-porCategoria').textContent = textoCategorias;
-  
-  // Texto del filtro de ventas
-  const filtroText = currentPaymentFilter === 'todos' ?
-    'Todos los métodos' :
-    `Solo ${currentPaymentFilter}`;
-  document.getElementById('ventas-filtro').textContent = filtroText;
-}
-
-function renderBalancesTable() {
-  const list = document.getElementById('balances-list');
-  list.innerHTML = '';
-  
-  const dataToRender = filteredBalances.length ? filteredBalances : balancesData;
-  
-  if (dataToRender.length === 0) {
-    list.innerHTML = `
-      <div class="no-results">
-        <i class="fas fa-scale-balanced"></i>
-        <h3>No se encontraron registros</h3>
-        <p>Intenta ajustar los filtros o agregar nuevos registros</p>
-      </div>
-    `;
-    return;
-  }
-  
-  dataToRender.forEach(b => {
-    const item = document.createElement('div');
-    item.className = 'list-item';
-    item.innerHTML = `
-      <div>
-        <div class="list-title">${b.especificacion || 'Sin especificación'}</div>
-        <div class="list-subtitle">#${b.codigo} | ${b.categoria} 
-          <span class="balance-type ${b.tipo === 'ingreso' ? 'ingreso' : 'gasto'}">
-            ${b.tipo === 'ingreso' ? 'Ingreso' : 'Gasto'}
-          </span>
-        </div>
-        <div class="list-subtitle">
-          <span class="balance-status ${b.estado === 'activo' ? 'activo' : 'inactivo'}">
-            ${b.estado === 'activo' ? 'Activo' : 'Inactivo'}
-          </span>
-        </div>
-      </div>
-      <div>
-        <div class="list-title ${b.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
-          ${b.tipo === 'ingreso' ? '+' : '-'} $${parseFloat(b.monto).toFixed(2)}
-        </div>
-      </div>
-    `;
-    
-    item.addEventListener('click', () => {
-      const modalContent = document.createElement('div');
-      modalContent.innerHTML = `
-        <div class="card">
-          <div class="card-header">Editar Balance #${b.codigo}</div>
-          <div class="card-body">
-            <input type="hidden" id="balance-codigo" value="${b.codigo}">
-            <div class="form-group">
-              <label class="form-label">Monto</label>
-              <input type="number" class="form-input" id="balance-monto" value="${b.monto}" step="0.01">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Categoría</label>
-              <input type="text" class="form-input" id="balance-categoria" value="${b.categoria || ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Tipo</label>
-              <select class="form-select" id="balance-tipo">
-                <option value="ingreso" ${b.tipo === 'ingreso' ? 'selected' : ''}>Ingreso</option>
-                <option value="deducible" ${b.tipo === 'deducible' ? 'selected' : ''}>Gasto</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Estado</label>
-              <select class="form-select" id="balance-estado">
-                <option value="activo" ${b.estado === 'activo' ? 'selected' : ''}>Activo</option>
-                <option value="inactivo" ${b.estado === 'inactivo' ? 'selected' : ''}>Inactivo</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Especificación</label>
-              <input type="text" class="form-input" id="balance-especificacion" value="${b.especificacion || ''}">
-            </div>
-            <div class="div2">
-              <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
-              <button class="btn btn-danger" onclick="deleteBalance('${b.codigo}')">Eliminar</button>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      modal.show({
-        title: 'Editar Balance',
-        message: modalContent.innerHTML
-      });
-    });
-    
-    list.appendChild(item);
-  });
-}
-
-function applyBalancesFilters() {
-  const search = document.getElementById('filter-balances-search').value.toLowerCase();
-  const categoria = document.getElementById('filter-balances-categoria').value.toLowerCase();
-  const estado = document.getElementById('filter-balances-estado').value;
-  
-  balancesFilters = { search, categoria, estado };
-  
-  filteredBalances = balancesData.filter(b => {
-    if (search && !b.especificacion.toLowerCase().includes(search) && !String(b.codigo).includes(search)) {
-      return false;
-    }
-    if (categoria && !b.categoria.toLowerCase().includes(categoria)) {
-      return false;
-    }
-    if (estado && b.estado !== estado) {
-      return false;
-    }
-    return true;
-  });
-  
-  const filterCount = Object.values(balancesFilters).filter(f => f).length;
-  document.getElementById('filter-balances-indicator').textContent = filterCount;
-  
-  renderBalancesTable();
-  updateBalancesSummary();
-}
-
-function resetBalancesFilters() {
-  document.getElementById('filter-balances-search').value       = '';
-  document.getElementById('filter-balances-categoria').value   = '';
-  document.getElementById('filter-balances-estado').value      = '';
-  balancesFilters = {};
-  filteredBalances = [];
-  document.getElementById('filter-balances-indicator').textContent = '0';
-  renderBalancesTable();
-  updateBalancesSummary();
-}
-
-function addNewBalance() {
-  const newBalance = {
-    codigo: Date.now(),
-    monto: 0,
-    categoria: '',
-    tipo: 'deducible',
-    estado: 'activo',
-    especificacion: 'Nuevo registro'
-  };
-  balancesData.push(newBalance);
-  renderBalancesTable();
-  
-  const modalContent = document.createElement('div');
-  modalContent.innerHTML = `
-    <div class="card">
-      <div class="card-header">Nuevo Balance</div>
-      <div class="card-body">
-        <input type="hidden" id="balance-codigo" value="${newBalance.codigo}">
-        <div class="form-group">
-          <label class="form-label">Monto</label>
-          <input type="number" class="form-input" id="balance-monto" value="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Categoría</label>
-          <input type="text" class="form-input" id="balance-categoria" placeholder="Categoría">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tipo</label>
-          <select class="form-select" id="balance-tipo">
-            <option value="ingreso">Ingreso</option>
-            <option value="deducible" selected>Gasto</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Estado</label>
-          <select class="form-select" id="balance-estado">
-            <option value="activo" selected>Activo</option>
-            <option value="inactivo">Inactivo</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Especificación</label>
-          <input type="text" class="form-input" id="balance-especificacion" placeholder="Descripción">
-        </div>
-        <div class="div2">
-          <button class="btn btn-primary" onclick="saveBalance()">Guardar</button>
-          <button class="btn btn-outline" onclick="modal.backdrop.style.display='none'">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  modal.show({
-    title: 'Nuevo Balance',
-    message: modalContent.innerHTML
-  });
-}
-
-async function saveBalance() {
-  const codigo         = document.getElementById('balance-codigo').value;
-  const monto          = parseFloat(document.getElementById('balance-monto').value);
-  const categoria      = document.getElementById('balance-categoria').value;
-  const tipo           = document.getElementById('balance-tipo').value;
-  const estado         = document.getElementById('balance-estado').value;
-  const especificacion = document.getElementById('balance-especificacion').value;
-  
-  if (isNaN(monto) || monto <= 0) {
-    return showAlert('El monto debe ser un número positivo');
-  }
-  
-  const params = { codigo, monto, categoria, tipo, estado, especificacion };
-  
-  await postOpNotify('guardarBalances', params, 'Balance guardado');
-  await loadBalances();
-}
-
-async function deleteBalance(codigo) {
-  const ok = await showConfirm('¿Eliminar este registro?');
-  if (!ok) return;
-  await postOpNotify('eliminarBalances', {codigo }, 'Registro eliminado');
-  await loadBalances();
-}
 
 // FUNCIÓN PARA EDITAR COMPRA
 function openEditCompraModal(c) {
