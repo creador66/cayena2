@@ -1050,8 +1050,9 @@ gap: 3px;
   color: #555;
   line-height: 1.5;
 }
-
-/* Resumen general */
+.resumen-montos{
+border-bottom: 1px solid rgb(101, 101, 101);
+}
 .resumen-general {
   flex: 1 1 300px;
   background: #ffffff;
@@ -3024,6 +3025,38 @@ function resetForm() {
   document.getElementById('form-descuento').value = '';
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function actualizarResumen(vs) {
   // Totales por método de pago (con descuentos)
   let e = 0, t = 0, ta = 0;
@@ -3109,7 +3142,7 @@ function actualizarResumen(vs) {
   document.getElementById('sum-tarjeta').textContent = ta.toFixed(2);
   document.getElementById('sum-total').textContent = totalGeneral.toFixed(2);
 
-  // Actualizar lista de clientes (mostrar "Compras")
+  // Actualizar lista de clientes con nuevo formato
   const clientesList = document.getElementById('resumen-clientes');
   clientesList.innerHTML = '';
   for (const [cliente, total] of Object.entries(clientes)) {
@@ -3120,20 +3153,18 @@ function actualizarResumen(vs) {
     const item = document.createElement('div');
     item.className = 'resumen-item';
     item.innerHTML = `
-      <div>
-        <div>${cliente}</div>
+      <div class="resumen-montos">
+        <div class="resumen-titulo">Cliente: ${cliente}</div>
         <div class="resumen-count">Compras: ${compras}</div>
-      </div>
-      <div>
-        <div>$${totalSinDescuento.toFixed(2)}</div>
-        <div class="resumen-descuento">-$${descuentoCliente.toFixed(2)}</div>
-        <div class="resumen-total-net">$${total.toFixed(2)}</div>
+        <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
+        <div class="resumen-descuento">descuentos: -$${descuentoCliente.toFixed(2)}</div>
+        <div class="resumen-total">total: $${total.toFixed(2)}</div>
       </div>
     `;
     clientesList.appendChild(item);
   }
 
-  // Actualizar lista de vendedores (mostrar "Ventas")
+  // Actualizar lista de vendedores con nuevo formato
   const vendedoresList = document.getElementById('resumen-vendedores');
   vendedoresList.innerHTML = '';
   for (const [codigoVendedor, total] of Object.entries(vendedores)) {
@@ -3144,14 +3175,12 @@ function actualizarResumen(vs) {
     const item = document.createElement('div');
     item.className = 'resumen-item';
     item.innerHTML = `
-      <div>
-        <div class="resumen-codigo">${codigoVendedor}</div>
+      <div class="resumen-montos">
+        <div class="resumen-titulo">Vendedor: ${codigoVendedor}</div>
         <div class="resumen-count">Ventas: ${ventas}</div>
-      </div>
-      <div>
-        <div>$${totalSinDescuento.toFixed(2)}</div>
-        <div class="resumen-descuento">-$${descuentoVendedor.toFixed(2)}</div>
-        <div class="resumen-total-net">$${total.toFixed(2)}</div>
+        <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
+        <div class="resumen-descuento">descuentos: -$${descuentoVendedor.toFixed(2)}</div>
+        <div class="resumen-total">total: $${total.toFixed(2)}</div>
       </div>
     `;
     vendedoresList.appendChild(item);
@@ -3176,7 +3205,6 @@ function actualizarResumen(vs) {
   document.getElementById('resumen-total-clientes').textContent = Object.keys(clientes).length;
   document.getElementById('resumen-total-vendedores').textContent = Object.keys(vendedores).length;
 }
-
 
 
 
