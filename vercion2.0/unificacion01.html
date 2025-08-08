@@ -3058,19 +3058,16 @@ function resetForm() {
 
 
 function actualizarResumen(vs) {
-  // Totales por método de pago (con descuentos)
-  let e = 0, t = 0, ta = 0;
+  // Asegurar que tenemos un array válido
+  vs = Array.isArray(vs) ? vs : [];
   
-  // Acumuladores para clientes y vendedores (SIN descuentos)
+  // Inicializar variables
+  let e = 0, t = 0, ta = 0; // Métodos de pago
   const clientesSinDescuento = {};
   const vendedoresSinDescuento = {};
-  
-  // Acumuladores normales (CON descuentos)
   const clientes = {};
   const vendedores = {};
   const descuentosPorcentaje = {};
-  
-  // Contadores de compras por cliente y ventas por vendedor
   const comprasPorCliente = {};
   const ventasPorVendedor = {};
 
@@ -3080,130 +3077,142 @@ function actualizarResumen(vs) {
   let totalProductos = 0;
   let subtotalGeneral = 0;
 
+  // Función para actualizar elementos con verificación
+  const updateElement = (id, value) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = typeof value === 'number' ? value.toFixed?.(2) || value : value;
+    }
+  };
+
+  // Procesar cada venta
   vs.forEach(v => {
-    const { subtotal, discountAmount, discountPercentage, total } = getSaleBreakdown(v);
-    
-    subtotalGeneral += subtotal;
-    totalDescuentos += discountAmount;
-    totalGeneral += total;
+    try {
+      const { subtotal, discountAmount, discountPercentage, total } = getSaleBreakdown(v);
+      
+      subtotalGeneral += subtotal;
+      totalDescuentos += discountAmount;
+      totalGeneral += total;
 
-    // Acumular por método de pago
-    if (v.metodoPago === 'Efectivo') e += total;
-    else if (v.metodoPago === 'Transferencia') t += total;
-    else ta += total;
+      // Método de pago
+      if (v.metodoPago === 'Efectivo') e += total;
+      else if (v.metodoPago === 'Transferencia') t += total;
+      else ta += total;
 
-    // Obtener datos de cliente y vendedor
-    const codigos = v.codigosdeventa || [];
-    
-    // Cliente
-    const cliente = codigos.length > 0 ? codigos[0].cliente : 'Sin cliente';
-    
-    // Vendedor - extraemos solo el código
-    let codigoVendedor = 'SIN-COD';
-    if (codigos.length > 0 && codigos[0].empleado) {
-      // Extraer el código del formato "CODIGO - Nombre"
-      const match = codigos[0].empleado.match(/^([^-]+)/);
-      codigoVendedor = match ? match[0].trim() : 'SIN-COD';
+      // Obtener datos de cliente y vendedor
+      const codigos = v.codigosdeventa || [];
+      
+      // Cliente
+      const cliente = codigos.length > 0 ? codigos[0].cliente : 'Sin cliente';
+      
+      // Vendedor - extraer solo el código
+      let codigoVendedor = 'SIN-COD';
+      if (codigos.length > 0 && codigos[0].empleado) {
+        const match = codigos[0].empleado.match(/^([^-]+)/);
+        codigoVendedor = match ? match[0].trim() : 'SIN-COD';
+      }
+
+      // Acumular montos
+      clientes[cliente] = (clientes[cliente] || 0) + total;
+      clientesSinDescuento[cliente] = (clientesSinDescuento[cliente] || 0) + subtotal;
+      vendedores[codigoVendedor] = (vendedores[codigoVendedor] || 0) + total;
+      vendedoresSinDescuento[codigoVendedor] = (vendedoresSinDescuento[codigoVendedor] || 0) + subtotal;
+      
+      // Contar transacciones
+      comprasPorCliente[cliente] = (comprasPorCliente[cliente] || 0) + 1;
+      ventasPorVendedor[codigoVendedor] = (ventasPorVendedor[codigoVendedor] || 0) + 1;
+      
+      // Descuentos por porcentaje
+      if (discountPercentage > 0) {
+        const porcentajeKey = `${discountPercentage}%`;
+        descuentosPorcentaje[porcentajeKey] = (descuentosPorcentaje[porcentajeKey] || 0) + discountAmount;
+      }
+      
+      // Productos vendidos
+      if (v.venta && Array.isArray(v.venta)) {
+        v.venta.forEach(item => {
+          totalProductos += parseInt(item.cantidad) || 0;
+        });
+      }
+    } catch (error) {
+      console.error('Error procesando venta:', v, error);
     }
-
-    // Acumular por cliente (CON descuento)
-    clientes[cliente] = (clientes[cliente] || 0) + total;
-    
-    // Acumular por cliente (SIN descuento)
-    clientesSinDescuento[cliente] = (clientesSinDescuento[cliente] || 0) + subtotal;
-    
-    // Acumular por vendedor (CON descuento) usando solo el código
-    vendedores[codigoVendedor] = (vendedores[codigoVendedor] || 0) + total;
-    
-    // Acumular por vendedor (SIN descuento) usando solo el código
-    vendedoresSinDescuento[codigoVendedor] = (vendedoresSinDescuento[codigoVendedor] || 0) + subtotal;
-    
-    // Contar compras por cliente
-    comprasPorCliente[cliente] = (comprasPorCliente[cliente] || 0) + 1;
-    
-    // Contar ventas por vendedor
-    ventasPorVendedor[codigoVendedor] = (ventasPorVendedor[codigoVendedor] || 0) + 1;
-    
-    // Acumular por porcentaje de descuento
-    if (discountPercentage > 0) {
-      const porcentajeKey = `${discountPercentage}%`;
-      descuentosPorcentaje[porcentajeKey] = (descuentosPorcentaje[porcentajeKey] || 0) + discountAmount;
-    }
-    
-    // Calcular total de productos vendidos
-    v.venta.forEach(item => {
-      totalProductos += parseInt(item.cantidad) || 0;
-    });
   });
 
-  // Actualizar totales por método de pago
-  document.getElementById('sum-efectivo').textContent = e.toFixed(2);
-  document.getElementById('sum-transferencia').textContent = t.toFixed(2);
-  document.getElementById('sum-tarjeta').textContent = ta.toFixed(2);
-  document.getElementById('sum-total').textContent = totalGeneral.toFixed(2);
+  // Actualizar métodos de pago
+  updateElement('sum-efectivo', e);
+  updateElement('sum-transferencia', t);
+  updateElement('sum-tarjeta', ta);
+  updateElement('sum-total', totalGeneral);
 
-  // Actualizar lista de clientes con nuevo formato
+  // Actualizar lista de clientes
   const clientesList = document.getElementById('resumen-clientes');
-  clientesList.innerHTML = '';
-  for (const [cliente, total] of Object.entries(clientes)) {
-    const totalSinDescuento = clientesSinDescuento[cliente] || 0;
-    const descuentoCliente = totalSinDescuento - total;
-    const compras = comprasPorCliente[cliente] || 0;
-    
-    const item = document.createElement('div');
-    item.className = 'resumen-item';
-    item.innerHTML = `
-      <div class="resumen-montos">
-        <div class="resumen-titulo">Cliente: ${cliente}</div>
-        <div class="resumen-count">Compras: ${compras}</div>
-        <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
-        <div class="resumen-descuento">descuentos: -$${descuentoCliente.toFixed(2)}</div>
-        <div class="resumen-total">total: $${total.toFixed(2)}</div>
-      </div>
-    `;
-    clientesList.appendChild(item);
+  if (clientesList) {
+    clientesList.innerHTML = '';
+    for (const [cliente, total] of Object.entries(clientes)) {
+      const totalSinDescuento = clientesSinDescuento[cliente] || 0;
+      const descuentoCliente = totalSinDescuento - total;
+      const compras = comprasPorCliente[cliente] || 0;
+      
+      const item = document.createElement('div');
+      item.className = 'resumen-item';
+      item.innerHTML = `
+        <div class="resumen-montos">
+          <div class="resumen-titulo">Cliente: ${cliente}</div>
+          <div class="resumen-count">Compras: ${compras}</div>
+          <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
+          <div class="resumen-descuento">descuentos: -$${descuentoCliente.toFixed(2)}</div>
+          <div class="resumen-total">total: $${total.toFixed(2)}</div>
+        </div>
+      `;
+      clientesList.appendChild(item);
+    }
   }
 
-  // Actualizar lista de vendedores con nuevo formato
+  // Actualizar lista de vendedores
   const vendedoresList = document.getElementById('resumen-vendedores');
-  vendedoresList.innerHTML = '';
-  for (const [codigoVendedor, total] of Object.entries(vendedores)) {
-    const totalSinDescuento = vendedoresSinDescuento[codigoVendedor] || 0;
-    const descuentoVendedor = totalSinDescuento - total;
-    const ventas = ventasPorVendedor[codigoVendedor] || 0;
-    
-    const item = document.createElement('div');
-    item.className = 'resumen-item';
-    item.innerHTML = `
-      <div class="resumen-montos">
-        <div class="resumen-titulo">Vendedor: ${codigoVendedor}</div>
-        <div class="resumen-count">Ventas: ${ventas}</div>
-        <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
-        <div class="resumen-descuento">descuentos: -$${descuentoVendedor.toFixed(2)}</div>
-        <div class="resumen-total">total: $${total.toFixed(2)}</div>
-      </div>
-    `;
-    vendedoresList.appendChild(item);
+  if (vendedoresList) {
+    vendedoresList.innerHTML = '';
+    for (const [codigoVendedor, total] of Object.entries(vendedores)) {
+      const totalSinDescuento = vendedoresSinDescuento[codigoVendedor] || 0;
+      const descuentoVendedor = totalSinDescuento - total;
+      const ventas = ventasPorVendedor[codigoVendedor] || 0;
+      
+      const item = document.createElement('div');
+      item.className = 'resumen-item';
+      item.innerHTML = `
+        <div class="resumen-montos">
+          <div class="resumen-titulo">Vendedor: ${codigoVendedor}</div>
+          <div class="resumen-count">Ventas: ${ventas}</div>
+          <div class="resumen-monto">monto: $${totalSinDescuento.toFixed(2)}</div>
+          <div class="resumen-descuento">descuentos: -$${descuentoVendedor.toFixed(2)}</div>
+          <div class="resumen-total">total: $${total.toFixed(2)}</div>
+        </div>
+      `;
+      vendedoresList.appendChild(item);
+    }
   }
 
-  // Actualizar lista de descuentos por porcentaje
+  // Actualizar lista de descuentos
   const descuentosList = document.getElementById('resumen-descuentos');
-  descuentosList.innerHTML = '';
-  for (const [porcentaje, total] of Object.entries(descuentosPorcentaje)) {
-    const item = document.createElement('div');
-    item.className = 'resumen-item';
-    item.innerHTML = `<span>${porcentaje}</span><span>$${total.toFixed(2)}</span>`;
-    descuentosList.appendChild(item);
+  if (descuentosList) {
+    descuentosList.innerHTML = '';
+    for (const [porcentaje, total] of Object.entries(descuentosPorcentaje)) {
+      const item = document.createElement('div');
+      item.className = 'resumen-item';
+      item.innerHTML = `<span>${porcentaje}</span><span>$${total.toFixed(2)}</span>`;
+      descuentosList.appendChild(item);
+    }
   }
 
-  // Actualizar resumen general
-  document.getElementById('resumen-total-ventas').textContent = totalVentas;
-  document.getElementById('resumen-total-productos').textContent = totalProductos;
-  document.getElementById('resumen-subtotal-general').textContent = subtotalGeneral.toFixed(2);
-  document.getElementById('resumen-total-descuentos').textContent = totalDescuentos.toFixed(2);
-  document.getElementById('resumen-total-general').textContent = totalGeneral.toFixed(2);
-  document.getElementById('resumen-total-clientes').textContent = Object.keys(clientes).length;
-  document.getElementById('resumen-total-vendedores').textContent = Object.keys(vendedores).length;
+  // Actualizar resumen general (tarjetas)
+  updateElement('resumen-total-ventas', totalVentas);
+  updateElement('resumen-total-productos', totalProductos);
+  updateElement('resumen-subtotal-general', subtotalGeneral);
+  updateElement('resumen-total-descuentos', totalDescuentos);
+  updateElement('resumen-total-general', totalGeneral);
+  updateElement('resumen-total-clientes', Object.keys(clientes).length.toFixed(0));
+  updateElement('resumen-total-vendedores', Object.keys(vendedores).length).toFixed(0);
 }
 
 
