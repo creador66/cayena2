@@ -1,370 +1,457 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gestor Cocina — Preparación (CRUD)</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Recetas — Costeo Automático (estilo moderno)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#f6f7fb; --panel:#fff; --accent:#4a4e69; --muted:#6c757d;
-      --radius:10px; --border:#e6e9ef; --shadow:0 6px 20px rgba(0,0,0,0.06);
-    }
-    *{box-sizing:border-box;font-family:Inter,Segoe UI,Roboto,"Helvetica Neue",sans-serif}
-    body{margin:0;background:var(--bg);color:#111}
-    .wrap{max-width:980px;margin:24px auto;padding:20px}
-    header{display:flex;gap:12px;align-items:center}
-    header h1{font-size:1.15rem;color:var(--accent);margin:0}
-    .top-actions{margin-left:auto;display:flex;gap:8px}
-    .btn{background:var(--panel);border:1px solid var(--border);padding:8px 12px;border-radius:8px;cursor:pointer}
-    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .layout{display:grid;grid-template-columns:360px 1fr;gap:14px;margin-top:16px}
-    .panel{background:var(--panel);border-radius:var(--radius);padding:12px;border:1px solid var(--border);box-shadow:var(--shadow)}
-    .list-item{display:flex;gap:8px;align-items:flex-start;padding:8px;border-radius:8px;border:1px solid transparent;cursor:pointer}
-    .list-item:hover{border-color:#eee;background:#fbfbff}
-    .list-meta{flex:1}
-    .list-title{font-weight:700}
-    .small{font-size:0.85rem;color:var(--muted);margin-top:4px}
-    .controls{display:flex;gap:6px}
-    input,textarea,select{width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:#fff}
-    label{font-weight:600;font-size:0.88rem;margin-top:8px;display:block}
-    form .row{display:flex;gap:8px}
-    .row .col{flex:1}
-    .footer-actions{display:flex;gap:8px;align-items:center;margin-top:10px}
-    .notice{position:fixed;right:18px;bottom:18px;padding:12px 16px;border-radius:10px;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);display:none}
-    .notice.ok{border-left:4px solid #28a745}
-    .notice.err{border-left:4px solid #dc3545}
-    .ingredientes .row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
-    .ingredientes .row input { flex:1; }
-    .ingredientes .row button { flex:0; padding:6px 10px; }
-    .card { display:flex; flex-direction:column; border-radius:8px; overflow:hidden; border:1px solid var(--border); background:#fff; }
-    .card img { width:100%; height:220px; object-fit:cover; }
-    .card h3 { margin:8px; font-size:1.1rem; }
-    .card .actions { margin-top:auto; display:flex; gap:6px; padding:8px; }
-    .cards { display:block; } 
-    @media (max-width:860px){ .layout{grid-template-columns:1fr} }
+    :root{ --bg:#e9eef6; --card:#f7fbff; --muted:#6b7280; --accent:#315bff; --accent-2:#2d8fff; --danger:#ff5b5b; --glass:rgba(255,255,255,0.6); --radius:14px; --soft-shadow:14px 14px 30px rgba(163,177,198,0.35), -10px -10px 24px rgba(255,255,255,0.8); --inset-shadow: inset 6px 6px 14px rgba(163,177,198,0.18), inset -6px -6px 14px rgba(255,255,255,0.8); --gap:12px; }
+    *{ box-sizing:border-box; } html,body{ height:100%; margin:0; font-family:'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg, #e9eef6 0%, #edf3fb 100%); color:#0f1724; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    .wrap { max-width:980px; margin:18px auto; padding:18px; }
+    .app { background: linear-gradient(180deg, var(--card), #f8fbff); border-radius:18px; padding:16px; box-shadow:var(--soft-shadow); border:1px solid rgba(255,255,255,0.6); }
+    header.app-head { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .brand { display:flex; gap:12px; align-items:center; }
+    .logo { width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:grid;place-items:center;color:white;font-weight:800;box-shadow:8px 8px 18px rgba(45,88,255,0.18), -6px -6px 14px rgba(255,255,255,0.5); }
+    h1 { font-size:1.05rem; margin:0; letter-spacing:-.2px; }
+    p.subtitle { margin:0; color:var(--muted); font-size:0.85rem; max-width:560px; }
+    .actions { display:flex; gap:8px; align-items:center; }
+    .btn { background: var(--card); border-radius:10px; padding:8px 12px; border:1px solid rgba(0,0,0,0.04); cursor:pointer; box-shadow:var(--inset-shadow); font-weight:600; }
+    .btn.primary { background: linear-gradient(180deg,var(--accent),var(--accent-2)); color:white; box-shadow: 6px 8px 18px rgba(49,91,255,0.18), inset -2px -2px 6px rgba(255,255,255,0.04); }
+    .list-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:14px; margin-top:10px; }
+    .card { background: linear-gradient(180deg,#ffffff,#f6fbff); border-radius:12px; padding:12px; min-height:120px; border:1px solid rgba(0,0,0,0.03); box-shadow:6px 8px 18px rgba(10,20,40,0.04); display:flex; flex-direction:column; gap:8px; }
+    .card .meta { color:var(--muted); font-size:0.86rem; }
+    .chip { display:inline-block; padding:6px 8px; border-radius:999px; background:#f1f6ff; color:#244fdb; font-weight:700; font-size:0.85rem; border:1px solid rgba(42,95,255,0.06); }
+    .card-top { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+    .card-left { flex:1; min-width:0; }
+    .card-right { width:76px; display:flex; align-items:center; justify-content:center; }
+    .thumb { width:64px; height:64px; border-radius:8px; object-fit:cover; border:1px solid rgba(0,0,0,0.04); box-shadow:6px 8px 18px rgba(10,20,40,0.03); background:linear-gradient(180deg,#f5f8ff,#ffffff); }
+    .thumb-fallback { width:64px; height:64px; border-radius:8px; display:grid; place-items:center; font-weight:700; color:white; background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:6px 8px 18px rgba(10,20,40,0.03); }
+    .pre-wrap { margin-top:8px; padding:10px; border-radius:10px; background: linear-gradient(180deg,#fbfdff,#f8fbff); border:1px solid rgba(0,0,0,0.03); max-height:140px; overflow:auto; }
+    .modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: linear-gradient(180deg, rgba(6,12,34,0.36), rgba(6,12,34,0.2)); z-index:9999; padding:16px; }
+    .modal { width:100%; max-width:760px; background: linear-gradient(180deg,#f9fbff,#ffffff); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,0.6); box-shadow:var(--soft-shadow); }
+    label { display:block; font-size:0.92rem; color:var(--muted); margin-top:6px; }
+    input[type="text"], input[type="number"], select, textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(16,24,40,0.06); background: linear-gradient(180deg,#fff,#f7fbff); font-size:0.95rem; outline:none; box-shadow: inset 4px 4px 10px rgba(163,177,198,0.06), inset -3px -3px 8px rgba(255,255,255,0.8); }
+    textarea { min-height:120px; resize:vertical; }
+    .live-ingredientes{ margin-top:6px; padding:12px; border-radius:10px; background: linear-gradient(180deg,#fbfdff,#f5f9ff); border:1px solid rgba(0,0,0,0.03); }
+    .live-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px; border-radius:10px; background: linear-gradient(180deg,#fff,#fbfdff); border:1px solid rgba(0,0,0,0.02); }
+    .ing-desc { font-size:0.95rem; color:#0f1724; }
+    .cost { font-weight:800; color:#0f1724; }
+    .muted { color:var(--muted); font-size:0.9rem; }
+    @media (max-width:720px){ .wrap { padding:10px; } .brand h1 { font-size:1rem; } .card-right { display:none; } }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <h1><i class="fas fa-utensils"></i> Gestión Cocina — Preparación</h1>
-      <div class="top-actions">
-        <button class="btn" id="btn-refresh"><i class="fas fa-sync"></i> Actualizar</button>
-        <button class="btn primary" id="btn-new"><i class="fas fa-plus"></i> Nueva receta</button>
-      </div>
-    </header>
+    <div class="app">
+      <header class="app-head">
+        <div class="brand">
+          <div class="logo">RC</div>
+          <div>
+            <h1>Recetas — Costeo Automático</h1>
+            <p class="subtitle">Escribe la preparación con ingredientes entre paréntesis (ej. "(500 g harina") y el sistema costeará automáticamente.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btn-nueva" class="btn primary">+ Nueva receta</button>
+        </div>
+      </header>
 
-    <div class="layout">
-      <!-- Lista -->
-      <div class="panel" aria-labelledby="lista-cocina">
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <input id="q" placeholder="Buscar por nombre, código o categoría" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px"/>
-          <select id="filter-cat" style="width:160px;padding:8px;border:1px solid var(--border);border-radius:8px">
-            <option value="">Todas</option>
-          </select>
+      <section>
+        <div id="lista-recetas" class="list-grid" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal (EDICIÓN) - sin preview de imagen -->
+  <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="modal-head" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <div>
+          <strong id="modal-title">Nueva receta</strong>
+          <div class="muted" style="font-size:0.9rem">Guarda recetas con el costeo automático</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="btn-guardar-top" class="btn primary">Guardar</button>
+          <button id="close-modal" class="btn">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="modal-body" style="margin-top:10px;">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <label style="flex:1 1 220px">Código
+            <input id="receta-codigo" type="text" placeholder="Ej: R001" autocomplete="off">
+          </label>
+          <label style="flex:1 1 200px">Categoría
+            <select id="receta-categoria" aria-label="Categoria"></select>
+            <input id="receta-categoria-nueva" placeholder="Nueva categoría" style="display:none;margin-top:8px">
+          </label>
         </div>
 
-        <div id="lista" style="display:grid;gap:8px;max-height:68vh;overflow:auto"></div>
-      </div>
+        <label>Nombre
+          <input id="receta-nombre" type="text" placeholder="Ej: Ensalada de frutas" autocomplete="off">
+        </label>
 
-      <!-- Formulario (la selección SOLO rellena este formulario) -->
-      <div class="panel" aria-labelledby="form-cocina">
-        <form id="form-cocina">
-          <label for="codigo">Código *</label>
-          <input id="codigo" name="codigo" required />
+        <label>URL de imagen (opcional) <!-- se guarda pero NO se muestra en el form -->
+          <input id="receta-imagen" type="text" placeholder="https://..." autocomplete="off">
+        </label>
 
-          <label for="nombre">Nombre *</label>
-          <input id="nombre" name="nombre" required />
+        <label>Preparación (pon ingredientes entre paréntesis, ej. "(500 g harina")</label>
+        <textarea id="receta-preparacion" placeholder="Escribe la preparación y pon ingredientes entre paréntesis..."></textarea>
 
-          <label for="imagen">URL Imagen</label>
-          <input id="imagen" name="imagen" placeholder="https://..." />
-          <img id="preview-imagen" src="" alt="Vista previa" style="width:100%;max-height:180px;object-fit:cover;margin-top:8px;display:none"/>
-
-          <label for="categoria">Categoría</label>
-          <input id="categoria" name="categoria" placeholder="Ej: Entradas, Principal" />
-
-          <label for="preparacion">Preparación</label>
-          <textarea id="preparacion" name="preparacion" rows="5" placeholder="Describe la preparación (pasos, tiempos, notas)"></textarea>
-
-          <h3 style="margin-top:12px">Ingredientes</h3>
-          <div id="ing-list" class="ingredientes"></div>
-          <div style="margin-top:8px"><button type="button" id="add-ing">+ Agregar ingrediente</button></div>
-
-          <div class="footer-actions">
-            <button type="submit" class="btn primary" id="btn-save">Guardar</button>
-            <button type="button" class="btn" id="btn-clear">Limpiar</button>
-            <button type="button" class="btn" id="btn-delete" style="margin-left:auto;display:none"><i class="fas fa-trash"></i> Eliminar</button>
+        <div id="liveArea" class="live-ingredientes" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong>Ingredientes detectados</strong>
+            <div>
+              <label class="muted">Porciones
+                <input id="live-portions" type="number" min="1" value="1" style="width:84px;margin-left:6px">
+              </label>
+            </div>
           </div>
-        </form>
 
-        <!-- Nota: la vista grande se dejó vacía a propósito -->
-        <div id="vista-grande" style="margin-top:18px;">
-          <div id="recetas-cards" class="cards"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button id="addLiveIngredientBtn" class="btn">+ Agregar ingrediente</button>
+            <button id="clearParsedBtn" class="btn">Limpiar detectados</button>
+          </div>
+
+          <div id="liveList" style="margin-top:10px; display:grid; gap:8px;"></div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+            <div class="muted">Costo total</div>
+            <div id="liveTotal" class="cost">$0.00</div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="muted">Costo / porción</div>
+            <div id="livePerPortion" class="cost">$0.00</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button id="guardar-receta" class="btn primary">Guardar receta</button>
+          <button id="limpiar-form" class="btn" style="background:#fff;border:1px solid rgba(0,0,0,0.04);">Limpiar</button>
         </div>
       </div>
     </div>
-
-    <div id="notice" class="notice"></div>
   </div>
 
   <script>
-    // URL de tu Google Apps Script (reemplaza si hace falta)
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    // -------- CONFIG y ESTADO --------
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxBOyRG_Q3hEtHyRcgnhYLqk4yB5BGWQXQC4cDb-QG45Gs96fL5dnn9B9GD87rS9ghW7w/exec';
+    const FACTORES = { mg:0.001, g:1, kg:1000, oz:28.35, lb:453.6, ml:1, l:1000, pz:1 };
+    const conv = { mg:{base:'g', factor:0.001}, g:{base:'g', factor:1}, kg:{base:'g', factor:1000}, oz:{base:'g', factor:28.35}, lb:{base:'g', factor:453.6}, ml:{base:'ml', factor:1}, l:{base:'ml', factor:1000}, pz:{base:'u', factor:1}, unidad:{base:'u', factor:1}, unidades:{base:'u', factor:1} };
+    let almacenData = [], recetasData = [], categorias = [];
+    let parsedIngredients = []; let parseDebounce;
 
-    // Estado local
-    let recetas = [];
-    let selectedCodigo = null; // receta seleccionada (aún la guardamos por si la necesitas)
-
-    // único contenedor de tarjetas (se mantiene pero lo dejamos vacío)
-    const cardsContainer = (function(){
-      let el = document.getElementById('recetas-cards');
-      if (!el) {
-        const parent = document.getElementById('vista-grande') || document.body;
-        el = document.createElement('div');
-        el.id = 'recetas-cards';
-        el.className = 'cards';
-        parent.appendChild(el);
-      }
-      return el;
-    })();
-
-    // Helper: POST FormData con op
-    async function apiFetch(op, payload = {}) {
+    // -------- Helpers GAS --------
+    async function postOp(op, params = {}) {
       const fd = new FormData();
       fd.append('op', op);
-      Object.entries(payload || {}).forEach(([k, v]) => fd.append(k, v === undefined || v === null ? '' : v.toString()));
-      const res = await fetch(GAS_URL, { method: 'POST', body: fd });
-      const js = await res.json();
-      if (js.status === 'error') throw new Error(js.message || 'Error servidor');
-      return js.data !== undefined ? js.data : js;
+      for (const [k,v] of Object.entries(params)) fd.append(k, v);
+      const res = await fetch(API_URL, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.message || 'Error en respuesta');
+      return json.data;
     }
 
-    // Notificaciones
-    function notice(msg, ok = true) {
-      const el = document.getElementById('notice');
-      el.textContent = msg;
-      el.className = 'notice ' + (ok ? 'ok' : 'err');
-      el.style.display = 'block';
-      setTimeout(() => el.style.display = 'none', 3000);
+    async function cargarAlmacen() {
+      try { almacenData = await postOp('obtenerAlmacen'); if (!Array.isArray(almacenData)) almacenData = []; } catch (e) { console.warn('Error cargando almacén:', e); almacenData = []; }
     }
 
-    // Preview imagen
-    document.getElementById('imagen').addEventListener('input', function(){
-      const url = this.value.trim();
-      const img = document.getElementById('preview-imagen');
-      if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; }
-    });
-
-    // Ingredientes: filas con campos libres (codigo, nombre, cantidad, unidad)
-    function addIngrediente(obj = {}) {
-      const container = document.getElementById('ing-list');
-      const div = document.createElement('div');
-      div.className = 'row';
-      div.innerHTML = `
-        <input type="text" name="ing_codigo" placeholder="Código (opcional)" value="${escapeHtml(obj.codigo||'')}" />
-        <input type="text" name="ing_nombre" placeholder="Nombre ingrediente" value="${escapeHtml(obj.nombre||'')}" />
-        <input type="text" name="ing_cantidad" placeholder="Cantidad" value="${escapeHtml(obj.cantidad||'')}" style="width:100px" />
-        <input type="text" name="ing_unidad" placeholder="Unidad (g, ml, pz...)" value="${escapeHtml(obj.unidad||'')}" style="width:90px" />
-        <button type="button" aria-label="Eliminar ingrediente">✕</button>
-      `;
-      div.querySelector('button').onclick = () => div.remove();
-      container.appendChild(div);
-    }
-
-    document.getElementById('add-ing').onclick = () => addIngrediente();
-
-    // Guardar receta (insert/update)
-    document.getElementById('form-cocina').onsubmit = async function(e) {
-      e.preventDefault();
-      const codigo = document.getElementById('codigo').value.trim();
-      const nombre = document.getElementById('nombre').value.trim();
-      if (!codigo || !nombre) { notice('Código y nombre obligatorios', false); return; }
-
-      const imagen = document.getElementById('imagen').value.trim();
-      const categoria = document.getElementById('categoria').value.trim();
-      const preparacion = document.getElementById('preparacion').value.trim();
-
-      // recoger ingredientes
-      const rows = Array.from(document.querySelectorAll('#ing-list .row'));
-      const ingredientes = rows.map(r => ({
-        codigo: r.querySelector('input[name="ing_codigo"]').value.trim(),
-        nombre: r.querySelector('input[name="ing_nombre"]').value.trim(),
-        cantidad: r.querySelector('input[name="ing_cantidad"]').value.trim(),
-        unidad: r.querySelector('input[name="ing_unidad"]').value.trim()
-      })).filter(i => i.nombre || i.codigo);
-
-      // payload al GAS
+    async function cargarRecetas() {
       try {
-        await apiFetch('guardarCocina', {
-          codigo,
-          nombre,
-          ingredientes: JSON.stringify(ingredientes),
-          imagen,
-          categoria,
-          preparacion
-        });
-        notice('Receta guardada', true);
-        selectedCodigo = codigo; // mantener selección por si la necesitas
-        resetForm();
-        await loadRecetas();
-      } catch (err) {
-        notice('Error al guardar: ' + err.message, false);
-      }
-    };
-
-    // Cargar recetas
-    async function loadRecetas() {
-      try {
-        const data = await apiFetch('obtenerCocina');
-        recetas = Array.isArray(data) ? data : [];
-        if (selectedCodigo && !recetas.find(r => String(r.codigo) === String(selectedCodigo))) selectedCodigo = null;
-        renderLista();
-        // dejamos el contenedor grande vacío (el formulario es la vista principal)
-        cardsContainer.innerHTML = '';
-        setupCategorias();
-      } catch (err) {
-        recetas = [];
-        renderLista();
-        cardsContainer.innerHTML = '';
-        notice('Error al cargar recetas: ' + err.message, false);
+        const data = await postOp('obtenerCocina');
+        recetasData = (data || []).map(r => ({ ...r, ingredientes: typeof r.ingredientes === 'string' ? JSON.parse(r.ingredientes) : (r.ingredientes || []), preparacion: (typeof r.preparacion === 'string') ? r.preparacion : (r.preparacion || '') }));
+        categorias = [...new Set(recetasData.map(r => r.categoria).filter(Boolean))];
+        setupCategoriaSelect();
+        console.log('RECETAS cargadas:', recetasData.map(x=>({codigo:x.codigo, imagen:x.imagen})));
+        mostrarRecetas();
+      } catch (e) {
+        console.warn('Error cargando recetas:', e);
+        recetasData = [];
+        mostrarRecetas();
       }
     }
 
-    // === NUEVA FUNCIÓN: poblar filtro de categorías ===
-    function setupCategorias() {
-      const sel = document.getElementById('filter-cat');
-      if (!sel) return;
-      const uniq = [...new Set(recetas.map(r => (r.categoria||'').toString().trim()).filter(Boolean))].sort();
-      sel.innerHTML = '<option value="">Todas</option>' + uniq.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
-    }
-    // ===================================================
-
-    // Render lista lateral
-    function renderLista() {
-      const q = (document.getElementById('q')?.value || '').toLowerCase().trim();
-      const cat = document.getElementById('filter-cat')?.value || '';
-      const cont = document.getElementById('lista');
-      if(!cont) return;
-      const items = recetas.filter(r => {
-        if (cat && (r.categoria||'') !== cat) return false;
-        if (!q) return true;
-        return (r.nombre||'').toLowerCase().includes(q) || (r.codigo||'').toString().toLowerCase().includes(q) || (r.categoria||'').toLowerCase().includes(q);
-      }).sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
-      if (!items.length) { cont.innerHTML = '<div class="small" style="padding:12px;color:var(--muted)">Sin recetas</div>'; return; }
-      cont.innerHTML = items.map(r => `
-        <div class="list-item" data-codigo="${escapeAttr(r.codigo)}" onclick="verReceta('${escapeAttr(r.codigo)}')">
-          <div class="list-meta">
-            <div class="list-title">${escapeHtml(r.nombre||'')}</div>
-            <div class="small">Código: ${escapeHtml(r.codigo||'')} · Cat: ${escapeHtml(r.categoria||'-')}</div>
-            <div class="small" style="margin-top:6px">${(r.preparacion||'').toString().slice(0,120)}${(r.preparacion||'').length>120?'...':''}</div>
-          </div>
-          <div class="controls" onclick="event.stopPropagation()">
-            <button class="btn" onclick="verReceta('${escapeAttr(r.codigo)}')"><i class="fas fa-eye"></i></button>
-            <button class="btn" onclick="editarReceta('${escapeAttr(r.codigo)}')"><i class="fas fa-edit"></i></button>
-          </div>
-        </div>
-      `).join('');
+    function setupCategoriaSelect() {
+      const sel = document.getElementById('receta-categoria');
+      sel.innerHTML = '<option value="">-- Selecciona categoría --</option>' + categorias.sort().map(c => `<option value="${c}">${c}</option>`).join('') + '<option value="__nueva__">+ Nueva categoría</option>';
+      sel.onchange = () => { const inp = document.getElementById('receta-categoria-nueva'); inp.style.display = sel.value === '__nueva__' ? 'block' : 'none'; };
     }
 
-    // Ver receta: SOLO rellena el formulario (no mostramos nada en la vista grande)
-    window.verReceta = function(codigo) {
-      const rc = recetas.find(r => String(r.codigo) === String(codigo));
-      if (!rc) return notice('Receta no encontrada', false);
-      selectedCodigo = codigo;
-      populateForm(rc);
-      document.getElementById('btn-delete').style.display = 'inline-block';
-      document.getElementById('btn-save').textContent = 'Actualizar';
-    };
+    function escapeHtml(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function toBase(q,u){ u=(u||'').toString().toLowerCase(); return conv[u]?{qty:q*conv[u].factor, base:conv[u].base}:{qty:q, base:u}; }
 
-    // Editar receta: rellena el formulario para editar
-    window.editarReceta = function(codigo) {
-      const rc = recetas.find(r => String(r.codigo) === String(codigo));
-      if (!rc) return notice('Receta no encontrada', false);
-      selectedCodigo = codigo;
-      populateForm(rc);
-      document.getElementById('codigo').readOnly = true;
-      document.getElementById('btn-delete').style.display = 'inline-block';
-      document.getElementById('btn-save').textContent = 'Actualizar';
-    };
+    // -------- Mostrar recetas (construcción DOM, robusta para imágenes) --------
+    function mostrarRecetas() {
+      const cont = document.getElementById('lista-recetas');
+      cont.innerHTML = '';
+      recetasData.forEach(r => {
+        const precio = r.precio ?? calcularPrecio(r.ingredientes || []);
+        const ingredientsHTML = (r.ingredientes || []).map(i => {
+          const prod = almacenData.find(x => String(x.codigo) === String(i.codigo) || String(x.id) === String(i.codigo));
+          const nombre = prod ? (prod.nombre || prod.name || prod.producto) : (i.codigo || '');
+          return `<span class="chip">${escapeHtml(nombre)} ${i.cantidad ? '· ' + i.cantidad + (i.unidad ? ' ' + i.unidad : '') : ''}</span>`;
+        }).join(' ');
 
-    function populateForm(rc) {
-      document.getElementById('codigo').value = rc.codigo || '';
-      document.getElementById('nombre').value = rc.nombre || '';
-      document.getElementById('imagen').value = rc.imagen || '';
-      const img = document.getElementById('preview-imagen');
-      if (rc.imagen) { img.src = rc.imagen; img.style.display = 'block'; } else img.style.display = 'none';
-      document.getElementById('categoria').value = rc.categoria || '';
-      document.getElementById('preparacion').value = rc.preparacion || '';
-      // ingredientes
-      const list = document.getElementById('ing-list');
-      list.innerHTML = '';
-      (rc.ingredientes || []).forEach(i => {
-        addIngrediente({
-          codigo: i.codigo || i.id || '',
-          nombre: i.nombre || i.producto || '',
-          cantidad: i.cantidad || i.qty || '',
-          unidad: i.unidad || ''
-        });
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        // build top row
+        const top = document.createElement('div'); top.className = 'card-top';
+        const left = document.createElement('div'); left.className = 'card-left';
+        const strong = document.createElement('strong');
+        strong.style.display = 'block';
+        strong.style.whiteSpace = 'nowrap';
+        strong.style.overflow = 'hidden';
+        strong.style.textOverflow = 'ellipsis';
+        strong.textContent = `${r.codigo || ''} ${r.nombre || ''}`;
+        left.appendChild(strong);
+        const meta = document.createElement('div'); meta.className = 'meta';
+        meta.textContent = r.categoria ? 'Categoría: ' + r.categoria : '';
+        left.appendChild(meta);
+
+        const right = document.createElement('div'); right.className = 'card-right';
+
+        // imagen: crear <img> y fallback con DOM (no innerHTML)
+        const containerImg = document.createElement('div');
+        const initials = ((r.nombre||'').split(' ').slice(0,2).map(w=>w[0]||'').join('') || 'RC').toUpperCase();
+
+        if (r.imagen && r.imagen.trim()) {
+          const img = document.createElement('img');
+          try { img.src = encodeURI(r.imagen.trim()); } catch(e) { img.src = r.imagen.trim(); }
+          img.alt = r.nombre || '';
+          img.className = 'thumb';
+          img.loading = 'lazy';
+          img.dataset.src = r.imagen.trim();
+          img.addEventListener('error', function() {
+            console.warn('Imagen falló cargar:', this.dataset.src);
+            this.style.display = 'none';
+            if (this.nextElementSibling) this.nextElementSibling.style.display = 'grid';
+          });
+          const fallback = document.createElement('div');
+          fallback.className = 'thumb-fallback';
+          fallback.style.display = 'none';
+          fallback.textContent = initials;
+          containerImg.appendChild(img);
+          containerImg.appendChild(fallback);
+        } else {
+          const fallback = document.createElement('div');
+          fallback.className = 'thumb-fallback';
+          fallback.textContent = initials;
+          containerImg.appendChild(fallback);
+        }
+
+        right.appendChild(containerImg);
+        top.appendChild(left);
+        top.appendChild(right);
+        card.appendChild(top);
+
+        // middle row: ingredientes + precio
+        const mid = document.createElement('div');
+        mid.style.display = 'flex';
+        mid.style.justifyContent = 'space-between';
+        mid.style.alignItems = 'center';
+        mid.style.marginTop = '6px';
+        const ingDiv = document.createElement('div');
+        ingDiv.style.color = 'var(--muted)';
+        ingDiv.style.fontSize = '0.9rem';
+        ingDiv.innerHTML = ingredientsHTML || '<span class="muted">Sin ingredientes</span>';
+        mid.appendChild(ingDiv);
+        const priceDiv = document.createElement('div');
+        priceDiv.style.textAlign = 'right';
+        priceDiv.innerHTML = `<div style="font-weight:800; font-size:1rem"> $${isNaN(precio)?'0.00':precio.toFixed(2)}</div><div class="muted" style="font-size:0.85rem">Costo total</div>`;
+        mid.appendChild(priceDiv);
+        card.appendChild(mid);
+
+        // preparación
+        const preWrap = document.createElement('div'); preWrap.className = 'pre-wrap';
+        preWrap.innerHTML = `<strong style="display:block;margin-bottom:6px;color:var(--muted)">Preparación</strong><pre>${escapeHtml(r.preparacion||'')}</pre>`;
+        card.appendChild(preWrap);
+
+        // botones
+        const foot = document.createElement('div'); foot.style.display = 'flex'; foot.style.gap = '8px'; foot.style.marginTop = '8px';
+        const be = document.createElement('button'); be.className = 'btn'; be.textContent = 'Editar';
+        be.addEventListener('click', () => editarReceta(String(r.codigo)));
+        const bd = document.createElement('button'); bd.className = 'btn'; bd.style.background = '#fff'; bd.style.border = '1px solid rgba(0,0,0,0.04)'; bd.textContent = 'Eliminar';
+        bd.addEventListener('click', () => borrarReceta(String(r.codigo)));
+        foot.appendChild(be); foot.appendChild(bd);
+        card.appendChild(foot);
+
+        cont.appendChild(card);
       });
     }
 
-    // Limpiar / nuevo
-    document.getElementById('btn-new').onclick = function(){
-      resetForm();
-      document.getElementById('codigo').focus();
-    };
-    document.getElementById('btn-clear').onclick = resetForm;
-
-    function resetForm() {
-      const f = document.getElementById('form-cocina');
-      f.reset();
-      document.getElementById('preview-imagen').style.display = 'none';
-      document.getElementById('ing-list').innerHTML = '';
-      document.getElementById('codigo').readOnly = false;
-      document.getElementById('btn-delete').style.display = 'none';
-      document.getElementById('btn-save').textContent = 'Guardar';
-      selectedCodigo = null;
-      // dejamos la vista grande vacía
-      cardsContainer.innerHTML = '';
+    // -------- Calcular precio por ingredientes guardados (si hay codigo) --------
+    function calcularPrecio(ingredientes) {
+      const total = (ingredientes || []).reduce((sum, i) => {
+        const p = almacenData.find(x => String(x.codigo) === String(i.codigo) || String(x.id) === String(i.codigo));
+        if (!p) return sum;
+        const unidadP = (p.unidadDeMedida || p.unidad || '').toLowerCase();
+        const paqueteQty = parseFloat(p.cantidad || 1);
+        const precioPaquete = parseFloat(p.precio || 0);
+        if (!paqueteQty || !precioPaquete) return sum;
+        const bPaquete = toBase(paqueteQty, unidadP);
+        const bIng = toBase(parseFloat(i.cantidad || 0), (i.unidad || '').toLowerCase());
+        if (bPaquete.base !== bIng.base || bPaquete.qty <= 0) return sum;
+        return sum + precioPaquete * (bIng.qty / bPaquete.qty);
+      }, 0);
+      return parseFloat(total || 0);
     }
 
-    // Eliminar receta
-    async function eliminarReceta(codigo) {
-      if (!confirm('¿Eliminar receta ' + codigo + '?')) return;
-      try {
-        await apiFetch('eliminarCocina', { codigo });
-        notice('Receta eliminada', true);
-        if (String(selectedCodigo) === String(codigo)) selectedCodigo = null;
-        resetForm();
-        await loadRecetas();
-      } catch (err) {
-        notice('Error al eliminar: ' + err.message, false);
+    // -------- PARSEO y COSTEO (idem que tenías) --------
+    function parsePreparationDebounced() { clearTimeout(parseDebounce); parseDebounce = setTimeout(parsePreparation, 240); }
+    function parsePreparation() {
+      const text = document.getElementById('receta-preparacion').value || '';
+      parsedIngredients = [];
+      const units = Object.keys(conv).join('|');
+      const rx = new RegExp(`^([\\d.,]+)\\s*(${units})\\s+(.+)$`, 'i');
+      for (const m of text.matchAll(/\(([^)]+)\)/g)) {
+        const content = m[1].trim();
+        const p = rx.exec(content);
+        if (p) {
+          const qty = parseFloat(p[1].replace(',', '.')) || 0;
+          const unit = p[2].toLowerCase();
+          const name = p[3].trim();
+          parsedIngredients.push({ nombre: name, recetaQty: qty, recetaUnit: unit, selectedCodigo: '', cost: 0 });
+        } else {
+          parsedIngredients.push({ nombre: content, recetaQty: 0, recetaUnit: '', selectedCodigo: '', cost: 0 });
+        }
+      }
+      parsedIngredients.forEach((_, i) => computeCost(i));
+      renderLiveParsed();
+    }
+
+    function findBestProduct(nombre) {
+      const t = (nombre || '').toLowerCase().trim();
+      let bestIdx = -1, bestScore = 0;
+      almacenData.forEach((p, idx) => {
+        const pname = ((p.nombre || p.name || p.producto || '') + ' ' + (p.descripcion || '')).toLowerCase();
+        if (!pname) return;
+        if (pname === t) { bestIdx = idx; bestScore = 999; return; }
+        if (pname.includes(t) || t.includes(pname)) { if (bestScore < 90) { bestIdx = idx; bestScore = 90; } }
+        const a = new Set(pname.split(/\s+/));
+        const b = new Set(t.split(/\s+/));
+        let common = 0; b.forEach(w => a.has(w) && common++);
+        if (common > bestScore) { bestIdx = idx; bestScore = common; }
+      });
+      return bestIdx >= 0 ? almacenData[bestIdx] : null;
+    }
+
+    function computeCost(i) {
+      const ing = parsedIngredients[i];
+      if (!ing) return;
+      const best = findBestProduct(ing.nombre);
+      if (!best) { parsedIngredients[i].selectedCodigo = ''; parsedIngredients[i].cost = 0; return; }
+      const paqueteQty = parseFloat(best.cantidad || 1);
+      const precioPaquete = parseFloat(best.precio || 0);
+      const unidadP = (best.unidadDeMedida || best.unidad || '').toLowerCase();
+      const bPaquete = toBase(paqueteQty, unidadP);
+      const bIng = toBase(parseFloat(ing.recetaQty || 0), (ing.recetaUnit || '').toLowerCase());
+      if (bPaquete.base === bIng.base && bPaquete.qty > 0 && bIng.qty > 0 && precioPaquete > 0) {
+        const cost = precioPaquete * (bIng.qty / bPaquete.qty);
+        parsedIngredients[i].cost = parseFloat(cost.toFixed(2));
+        parsedIngredients[i].selectedCodigo = String(best.codigo ?? best.id ?? '');
+      } else {
+        parsedIngredients[i].cost = 0;
+        parsedIngredients[i].selectedCodigo = String(best.codigo ?? best.id ?? '');
       }
     }
 
-    // Botón eliminar del formulario
-    document.getElementById('btn-delete').onclick = function(){
-      const codigo = document.getElementById('codigo').value.trim();
-      if (!codigo) return notice('Código requerido', false);
-      eliminarReceta(codigo);
-    };
+    function renderLiveParsed() {
+      const area = document.getElementById('liveArea');
+      const list = document.getElementById('liveList');
+      if (!parsedIngredients.length) { area.style.display = 'none'; list.innerHTML = ''; updateTotals(); return; }
+      area.style.display = 'block';
+      list.innerHTML = parsedIngredients.map((ing, i) => `
+        <div class="live-row" data-i="${i}">
+          <div class="ing-desc">${ing.recetaQty ? (ing.recetaQty+' '+(ing.recetaUnit||'')) : ''} — <strong>${escapeHtml(ing.nombre)}</strong></div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <div class="cost" id="live-cost-${i}">$${(ing.cost||0).toFixed(2)}</div>
+            <button class="btn" onclick="deleteParsed(${i})">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+      updateTotals();
+    }
 
-    // Buscar / filtros
-    document.getElementById('q').addEventListener('input', renderLista);
-    document.getElementById('filter-cat').addEventListener('change', () => { renderLista(); });
+    function updateTotals() {
+      const total = parsedIngredients.reduce((s, it) => s + (parseFloat(it.cost) || 0), 0);
+      document.getElementById('liveTotal').textContent = `$${total.toFixed(2)}`;
+      const portions = Math.max(1, parseInt(document.getElementById('live-portions').value || 1));
+      document.getElementById('livePerPortion').textContent = `$${(total / portions).toFixed(2)}`;
+    }
 
-    // Refresh
-    document.getElementById('btn-refresh').onclick = loadRecetas;
+    function deleteParsed(i) { parsedIngredients.splice(i, 1); renderLiveParsed(); }
 
-    // Inicializar
+    document.getElementById('addLiveIngredientBtn').addEventListener('click', () => { parsedIngredients.push({ nombre: 'Nuevo ingrediente', recetaQty: 0, recetaUnit: '', selectedCodigo: '', cost: 0 }); renderLiveParsed(); });
+    document.getElementById('clearParsedBtn').addEventListener('click', () => { if (!confirm('Limpiar ingredientes detectados?')) return; parsedIngredients = []; document.getElementById('receta-preparacion').value = ''; renderLiveParsed(); });
+
+    // -------- Guardar receta (usa siempre parsedIngredients) --------
+    async function guardarReceta() {
+      const cod = document.getElementById('receta-codigo').value.trim();
+      const nom = document.getElementById('receta-nombre').value.trim();
+      if (!cod || !nom) return alert('Código y nombre requeridos');
+      let cat = document.getElementById('receta-categoria').value;
+      if (cat === '__nueva__') { cat = document.getElementById('receta-categoria-nueva').value.trim(); if (cat && !categorias.includes(cat)) categorias.push(cat); }
+      if (!parsedIngredients.length) { parsePreparation(); if (!parsedIngredients.length) return alert('No se detectaron ingredientes. Escribe la preparación con paréntesis o añade manualmente.'); }
+      const ingredientesToSave = parsedIngredients.map(p => ({ codigo: p.selectedCodigo || p.nombre || '', cantidad: p.recetaQty || 0, unidad: p.recetaUnit || '' }));
+      const params = { codigo: cod, nombre: nom, categoria: cat, imagen: document.getElementById('receta-imagen').value.trim(), preparacion: document.getElementById('receta-preparacion').value.trim(), ingredientes: JSON.stringify(ingredientesToSave) };
+      try { await postOp('guardarCocina', params); await cargarRecetas(); cerrarModal(); limpiarForm(); } catch (e) { alert('Error al guardar receta: ' + (e.message || e)); }
+    }
+
+    async function borrarReceta(codigo) { if (!confirm('Eliminar receta ' + codigo + '?')) return; try { await postOp('eliminarCocina', { codigo }); await cargarRecetas(); } catch (e) { alert('Error al eliminar: ' + (e.message || e)); } }
+    function editarReceta(codigo) { const r = recetasData.find(x => String(x.codigo) === String(codigo)); if (!r) return alert('Receta no encontrada'); abrirModal('Editar receta'); cargarEnForm(r); }
+
+    function cargarEnForm(r) {
+      document.getElementById('modal-title').textContent = 'Editar receta';
+      document.getElementById('receta-codigo').value = r.codigo;
+      document.getElementById('receta-codigo').disabled = true;
+      document.getElementById('receta-nombre').value = r.nombre || '';
+      const sel = document.getElementById('receta-categoria');
+      if (!categorias.includes(r.categoria)) { sel.value = '__nueva__'; const inp = document.getElementById('receta-categoria-nueva'); inp.style.display = 'block'; inp.value = r.categoria || ''; } else { sel.value = r.categoria || ''; document.getElementById('receta-categoria-nueva').style.display = 'none'; }
+      // seteamos el campo de imagen (se guarda) pero NO mostramos nada en el formulario
+      document.getElementById('receta-imagen').value = r.imagen || '';
+      if (r.preparacion && r.preparacion.trim()) { document.getElementById('receta-preparacion').value = r.preparacion; } else if (Array.isArray(r.ingredientes) && r.ingredientes.length) { const txt = r.ingredientes.map(it => `(${(it.cantidad || '')}${(it.unidad ? ' ' + it.unidad : '')} ${(it.codigo || '').toString()})`).join(' '); document.getElementById('receta-preparacion').value = txt; } else { document.getElementById('receta-preparacion').value = ''; }
+      parsePreparation();
+      // NO renderPreview ni mostrar imagen dentro del modal
+    }
+
+    function limpiarForm() {
+      parsedIngredients = [];
+      document.getElementById('receta-codigo').disabled = false;
+      document.querySelectorAll('#modal-overlay input, #modal-overlay select, #modal-overlay textarea').forEach(el => { if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = ''; });
+      document.getElementById('receta-categoria-nueva').style.display = 'none';
+      document.getElementById('liveArea').style.display = 'none';
+      document.getElementById('liveList').innerHTML = '';
+      document.getElementById('liveTotal').textContent = '$0.00';
+      document.getElementById('livePerPortion').textContent = '$0.00';
+    }
+
+    // Modal controls & eventos UI
+    function abrirModal(t) { document.getElementById('modal-overlay').style.display = 'flex'; document.getElementById('modal-title').textContent = t; }
+    function cerrarModal() { document.getElementById('modal-overlay').style.display = 'none'; limpiarForm(); }
+
+    document.getElementById('btn-nueva').addEventListener('click', () => { limpiarForm(); abrirModal('Nueva receta'); });
+    document.getElementById('close-modal').addEventListener('click', () => cerrarModal());
+    document.getElementById('guardar-receta').addEventListener('click', guardarReceta);
+    document.getElementById('btn-guardar-top').addEventListener('click', guardarReceta);
+    document.getElementById('limpiar-form').addEventListener('click', () => { if (confirm('Limpiar formulario?')) limpiarForm(); });
+
+    document.getElementById('receta-preparacion').addEventListener('input', parsePreparationDebounced);
+    document.getElementById('live-portions').addEventListener('input', updateTotals);
+
+    // inicializar
     (async function init(){
-      await loadRecetas();
+      await cargarAlmacen();
+      await cargarRecetas();
     })();
 
-    // utilidades de escape simples
-    function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-    function escapeAttr(s){ return (s||'').toString().replaceAll("'", "\\'").replaceAll('"','\\"'); }
+    // funciones expuestas para botones dinámicos
+    window.editarReceta = editarReceta;
+    window.borrarReceta = borrarReceta;
+    window.deleteParsed = deleteParsed;
   </script>
 </body>
 </html>
