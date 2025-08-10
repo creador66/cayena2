@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -12,7 +13,9 @@
     .app { background: linear-gradient(180deg, var(--card), #f8fbff); border-radius:18px; padding:16px; box-shadow:var(--soft-shadow); border:1px solid rgba(255,255,255,0.6); }
     header.app-head { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:14px; }
     .brand { display:flex; gap:12px; align-items:center; }
-    .logo { width:46px;height:46px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:grid;place-items:center;color:white;font-weight:800;box-shadow:8px 8px 18px rgba(45,88,255,0.18), -6px -6px 14px rgba(255,255,255,0.5); }
+    .logo span{ padding: 5px;}
+    
+    .logo { width:60px;height:60px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:grid;place-items:center;color:white;font-weight:800;box-shadow:8px 8px 18px rgba(45,88,255,0.18), -6px -6px 14px rgba(255,255,255,0.5); }
     h1 { font-size:1.05rem; margin:0; letter-spacing:-.2px; }
     p.subtitle { margin:0; color:var(--muted); font-size:0.85rem; max-width:560px; }
     .actions { display:flex; gap:8px; align-items:center; }
@@ -29,7 +32,7 @@
     .thumb-fallback { width:64px; height:64px; border-radius:8px; display:grid; place-items:center; font-weight:700; color:white; background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:6px 8px 18px rgba(10,20,40,0.03); }
     .pre-wrap { margin-top:8px; padding:10px; border-radius:10px; background: linear-gradient(180deg,#fbfdff,#f8fbff); border:1px solid rgba(0,0,0,0.03); max-height:140px; overflow:auto; }
     .modal-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: linear-gradient(180deg, rgba(6,12,34,0.36), rgba(6,12,34,0.2)); z-index:9999; padding:16px; }
-    .modal { width:100%; max-width:760px; background: linear-gradient(180deg,#f9fbff,#ffffff); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,0.6); box-shadow:var(--soft-shadow); }
+    .modal { width:100%; height: 600px; overflow-x: auto; max-width:760px; background: linear-gradient(180deg,#f9fbff,#ffffff); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,0.6); box-shadow:var(--soft-shadow); }
     label { display:block; font-size:0.92rem; color:var(--muted); margin-top:6px; }
     input[type="text"], input[type="number"], select, textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(16,24,40,0.06); background: linear-gradient(180deg,#fff,#f7fbff); font-size:0.95rem; outline:none; box-shadow: inset 4px 4px 10px rgba(163,177,198,0.06), inset -3px -3px 8px rgba(255,255,255,0.8); }
     textarea { min-height:120px; resize:vertical; }
@@ -38,7 +41,8 @@
     .ing-desc { font-size:0.95rem; color:#0f1724; }
     .cost { font-weight:800; color:#0f1724; }
     .muted { color:var(--muted); font-size:0.9rem; }
-    @media (max-width:720px){ .wrap { padding:10px; } .brand h1 { font-size:1rem; } .card-right { display:none; } }
+    @media (max-width:720px){ .wrap { padding:10px; } .brand h1 { font-size:1rem; } 
+    }
   </style>
 </head>
 <body>
@@ -46,10 +50,13 @@
     <div class="app">
       <header class="app-head">
         <div class="brand">
-          <div class="logo">RC</div>
+          <div class="logo">
+<span>IAEgo RC</span>
+
+          </div>
           <div>
             <h1>Recetas — Costeo Automático</h1>
-            <p class="subtitle">Escribe la preparación con ingredientes entre paréntesis (ej. "(500 g harina") y el sistema costeará automáticamente.</p>
+            <p class="subtitle">Escribe la preparación con ingredientes entre paréntesis ej. (500 g harina)y el sistema costeará automáticamente.</p>
           </div>
         </div>
         <div class="actions">
@@ -96,7 +103,7 @@
           <input id="receta-imagen" type="text" placeholder="https://..." autocomplete="off">
         </label>
 
-        <label>Preparación (pon ingredientes entre paréntesis, ej. "(500 g harina")</label>
+        <label>Preparación pon ingredientes entre paréntesis, ej. (10 pz pan)</label>
         <textarea id="receta-preparacion" placeholder="Escribe la preparación y pon ingredientes entre paréntesis..."></textarea>
 
         <div id="liveArea" class="live-ingredientes" style="display:none">
